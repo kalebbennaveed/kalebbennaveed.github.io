@@ -1,6 +1,6 @@
 ---
 title: "Informative and Fast Exploration Planning Using UAV for Reconnaissance Operations"
-excerpt: "Robotics Institute Summer Scholar (RISS) 2021 <br/><img src='/images/airlab.png'>"
+excerpt: "Robotics Institute Summer Scholar (RISS) 2021 <br/><img src='/images/2021-RISS-poster-Informative and Fast Exploration Planner Using UAV for Reconnaissance Operarions-NAVEED-Kaleb Ben-SCHERER.png'>"
 permalink: "/Research/RISS2021"
 collection: portfolio
 date: 2021-6-2 - 2021-8-14
