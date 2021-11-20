@@ -1,6 +1,6 @@
 ---
 title: "Informative and Fast Exploration Planning Using UAV for Reconnaissance Operations"
-excerpt: "[**AirLab, Robotics Institute, Carnegie Mellon University**](https://theairlab.org/) <br/><img src='/images/airlab.png'>"
+excerpt: "[**AirLab, Robotics Institute, Carnegie Mellon University**](https://theairlab.org/) <br/><img src='/images/RISS2021_1.png'>"
 permalink: "/Research/RISS2021"
 collection: portfolio
 date: 2021-6-2 - 2021-8-14
