@@ -7,6 +7,7 @@ date: 2021-09-21
 venue: 'IEEE ITSC'
 ---
 
+**Abstract**
 Planning safe trajectories under uncertain and
 dynamic conditions makes the autonomous driving problem
 significantly complex. Current heuristic-based algorithms such
@@ -29,7 +30,7 @@ time, generates smoother trajectories, and can better handle
 dynamic surroundings and noisy observations as compared to
 other traditional RL approaches.
 
-Recommended citation: K. B. Naveed, Z. Qiao, and J. M. Dolan, “Trajectory Planning for Autonomous Vehicles Using 
+**Recommended citation**: K. B. Naveed, Z. Qiao, and J. M. Dolan, “Trajectory Planning for Autonomous Vehicles Using 
 Hierarchical Reinforcement Learning,” in Proceedings of IEEE Intelligent Transportation Systems Conference 
 (ITSC '21), pp. 601 - 606, September 2021.
 
