@@ -6,7 +6,7 @@ permalink: /publication/2021-09-21-IEEE-ITSC-2021
 excerpt: 'This paper is robotics exploration and informative path planning using classsical optimization'
 date: 2021-09-21
 venue: 'IEEE ITSC'
-paperurl: 'http://academicpages.github.io/files/IEEE-ITSC.pdf'
+paperurl: 'http://kalebbennaveed.github.io/files/IEEE-ITSC.pdf'
 ---
 
 Planning safe trajectories under uncertain and
