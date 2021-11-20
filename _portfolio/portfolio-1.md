@@ -11,7 +11,7 @@ and informative planning for reconnaissance and search & rescue operations
 - Proposed method showed 2 times faster Data Acquisition with same exploration time compared to existent approach
 - Helped in Development of simulation environment using ROS, AirSim, Unreal Engine and Gazebo.
 
-![Alt Text]('/images/2021-RISS-poster-Informative and Fast Exploration Planner Using UAV for Reconnaissance Operarions-NAVEED-Kaleb Ben-SCHERER.png')
+<br/><img src='/images/2021-RISS-poster-Informative and Fast Exploration Planner Using UAV for Reconnaissance Operarions-NAVEED-Kaleb Ben-SCHERER.png'>
 
 **Abstract:** In the missions related to search and rescue
 operations, reconnaissance Unmanned Aerial Vehicles (UAV)
