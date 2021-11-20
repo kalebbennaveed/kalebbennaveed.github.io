@@ -37,3 +37,5 @@ Hierarchical Reinforcement Learning,” in Proceedings of IEEE Intelligent Trans
 
 [\[Dowload Paper\]](http://kalebbennaveed.github.io/files/IEEE-ITSC.pdf) 
 [\[Code\]](https://github.com/kalebbennaveed/Trajectory-Planning-for-Autonomous-Vehicles-Using-HRL)
+[\[Video\]](https://www.youtube.com/watch?v=R5nWhzCBLFs)
+[\[Poster\]](https://drive.google.com/file/d/15qokfFeEeFlzD3C1tuk1sw8CKSsrbiBG/view)
