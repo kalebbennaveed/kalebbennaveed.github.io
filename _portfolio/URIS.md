@@ -3,7 +3,7 @@ title: "Behavior Planning for Autonomous Vehicles Ramp Merging Scenerio Using Mu
 excerpt: "[**Electrical Engineering Lab, The Hong Kong Polytechnic University**](http://www.ee.polyu.edu.hk/en/) <br/><img src='/images/polyuLogo.png'>"
 permalink: "/Research/URIS2021"
 collection: portfolio
-date: Present
+date: 2021-11-21
 ---
 
 - Developing multi-agent simulation environment using SUMO simulator.
