@@ -3,7 +3,7 @@ title: "Informative and Fast Exploration Planning Using UAV for
 Reconnaissance Operations"
 collection: publications
 permalink: /publication/2021-10-15-RISS-Journal-2021
-excerpt: 'Kaleb Ben Naveed, Brady G. Moon and Sebastian Scherer'
+excerpt: ''
 date: 2021-10-15
 venue: 'RISS Working Paper Journal' 
 ---
@@ -32,7 +32,7 @@ UAV simulation environment show that the proposed method
 resulted in almost 2 times faster data acquisition as compared
 to the original FUEL algorithm.
 
-**Recommended citation:** K. B. Naveed, B. G. Moon, and Sebastian Scherer, “Informative and Fast Exploration Planning Using 
+**Recommended citation:** K. B. Naveed, B. G. Moon, and S. Scherer, “Informative and Fast Exploration Planning Using 
 UAV for Reconnaissance Operations,” in RISS Working Papers Journal (RISS ’21), pp. 219 – 225, August 2021
 
 [\[Download Paper\]](http://kalebbennaveed.github.io/files/RISS-Journal.pdf)[\[Video\]](https://www.youtube.com/watch?v=TgL3opwGc6o&feature=youtu.be)[\[Poster\]](https://drive.google.com/file/d/1EncPHyfMdN85xrcbtIPah7ncFmrBB_6D/view)
