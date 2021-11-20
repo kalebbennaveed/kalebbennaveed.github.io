@@ -35,4 +35,6 @@ to the original FUEL algorithm.
 **Recommended citation:** K. B. Naveed, B. G. Moon, and S. Scherer, “Informative and Fast Exploration Planning Using 
 UAV for Reconnaissance Operations,” in RISS Working Papers Journal (RISS ’21), pp. 219 – 225, August 2021
 
-[\[Download Paper\]](http://kalebbennaveed.github.io/files/RISS-Journal.pdf)[\[Video\]](https://www.youtube.com/watch?v=TgL3opwGc6o&feature=youtu.be)[\[Poster\]](https://drive.google.com/file/d/1EncPHyfMdN85xrcbtIPah7ncFmrBB_6D/view)
+[\[Download Paper\]](http://kalebbennaveed.github.io/files/RISS-Journal.pdf)
+[\[Video\]](https://www.youtube.com/watch?v=TgL3opwGc6o&feature=youtu.be)
+[\[Poster\]](https://drive.google.com/file/d/1EncPHyfMdN85xrcbtIPah7ncFmrBB_6D/view)
