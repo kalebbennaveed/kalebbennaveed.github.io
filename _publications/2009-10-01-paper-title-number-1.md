@@ -34,4 +34,5 @@ other traditional RL approaches.
 Hierarchical Reinforcement Learning,” in Proceedings of IEEE Intelligent Transportation Systems Conference 
 (ITSC '21), pp. 601 - 606, September 2021.
 
-_[Dowload Paper]_(http://kalebbennaveed.github.io/files/IEEE-ITSC.pdf) _[Code]_(https://github.com/kalebbennaveed/Trajectory-Planning-for-Autonomous-Vehicles-Using-HRL)
+[Dowload Paper](http://kalebbennaveed.github.io/files/IEEE-ITSC.pdf) 
+[Code](https://github.com/kalebbennaveed/Trajectory-Planning-for-Autonomous-Vehicles-Using-HRL)
