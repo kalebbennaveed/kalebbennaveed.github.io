@@ -3,7 +3,7 @@ title: "Informative and Fast Exploration Planning Using UAV for Reconnaissance O
 excerpt: "[**AirLab, Robotics Institute, Carnegie Mellon University**](https://theairlab.org/) <br/><img src='/images/RISS2021_1.png'>"
 permalink: "/Research/RISS2021"
 collection: portfolio
-date: 2021-6-2 - 2021-8-14
+date: 2021-8-14
 ---
 
 - Proposed and developed Prioritized-FUEL (**F**ast **U**AV **E**xpLoration), a hierarchical approach for faster coverage, exploration 
