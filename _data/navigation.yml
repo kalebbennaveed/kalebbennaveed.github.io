@@ -12,8 +12,8 @@ main:
   - title: "Research"
     url: /research/
         
-  - title: "Projects"
-    url: /year-archive/
+  #- title: "Projects"
+  # url: /year-archive/
     
   - title: "CV"
     url: /files/KALEB_CV.pdf
