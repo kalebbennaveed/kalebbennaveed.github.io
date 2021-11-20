@@ -3,6 +3,7 @@ title: "Informative and Fast Exploration Planning Using UAV for
 Reconnaissance Operations"
 collection: publications
 permalink: /publication/2021-10-15-RISS-Journal-2021
+excerpt: ''
 date: 2021-10-15
 venue: 'RISS Working Paper Journal' 
 ---
