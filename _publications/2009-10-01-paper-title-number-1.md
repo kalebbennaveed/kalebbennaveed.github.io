@@ -5,7 +5,6 @@ collection: publications
 permalink: /publication/2021-09-21-IEEE-ITSC-2021
 date: 2021-09-21
 venue: 'IEEE ITSC'
-paperurl: 'http://kalebbennaveed.github.io/files/IEEE-ITSC.pdf' 
 ---
 
 Planning safe trajectories under uncertain and
@@ -33,3 +32,5 @@ other traditional RL approaches.
 Recommended citation: K. B. Naveed, Z. Qiao, and J. M. Dolan, “Trajectory Planning for Autonomous Vehicles Using 
 Hierarchical Reinforcement Learning,” in Proceedings of IEEE Intelligent Transportation Systems Conference 
 (ITSC '21), pp. 601 - 606, September 2021.
+
+[Dowload Paper](http://kalebbennaveed.github.io/files/IEEE-ITSC.pdf) [Code](https://github.com/kalebbennaveed/Trajectory-Planning-for-Autonomous-Vehicles-Using-HRL)
