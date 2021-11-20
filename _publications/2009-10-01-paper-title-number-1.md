@@ -3,7 +3,7 @@ title: "Trajectory Planning for Autonomous Vehicles Using Hierarchical
 Reinforcement Learning"
 collection: publications
 permalink: /publication/2021-09-21-IEEE-ITSC-2021
-excerpt: 'This paper is robotics exploration and informative path planning using classsical optimization'
+excerpt:
 date: 2021-09-21
 venue: 'IEEE ITSC'
 paperurl: 'http://kalebbennaveed.github.io/files/IEEE-ITSC.pdf'
@@ -23,7 +23,7 @@ trajectories to track with a Proportional-Integral-Derivative
 (PID) controller instead of direct acceleration/steering actions;
 and (3) using a Long-Short-Term-Memory (LSTM) layer in
 the network to alleviate the effects of observation noise and
-dynamic driving behaviors. Moreover, to improve the sample efficiency, we use Hybrid Reward Mechanism and Reward-Driven
+dynamic driving behaviors. Moreover, to improve the sample efficiency, we use Hybrid Reward Mechanism and Reward-Driven
 Exploration. Results from the high-fidelity CARLA simulator
 while simulating different interactive lane change scenarios
 indicate that the proposed framework reduces convergence
