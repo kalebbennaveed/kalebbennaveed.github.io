@@ -3,18 +3,20 @@ title: "Trajectory Planning for Autonomous Vehicles Using Hierarchical
 Reinforcement Learning"
 collection: publications
 permalink: /publication/2021-09-21-IEEE-ITSC-2021
+excerpt: 'This paper is robotics exploration and informative path planning using classsical optimization'
 date: 2021-09-21
-venue: 'IEEE ITSC 2021'
-paperurl: 'https://ieeexplore.ieee.org/document/9564634'
+venue: 'IEEE ITSC'
+paperurl: 'http://academicpages.github.io/files/IEEE-ITSC.pdf'
 ---
+
 Planning safe trajectories under uncertain and
 dynamic conditions makes the autonomous driving problem
 significantly complex. Current heuristic-based algorithms such
 as the slot-based method rely heavily on hand-engineered
 parameters and are restricted to specific scenarios. Supervised
-learning methods such as Imitation Learning lack generalization and safety guarantees. To address these problems
-and to ensure a robust framework, we propose a RobustHierarchical Reinforcement Learning (HRL) framework for
-learning autonomous driving policies. We adapt a state-ofthe-art algorithm, Hierarchical Double Deep Q-learning (hDDQN), and make the framework robust by (1) constituting
+learning methods such as Imitation Learning lack generalization and safety guarantees. To address these problems
+and to ensure a robust framework, we propose a Robust-Hierarchical Reinforcement Learning (HRL) framework for
+learning autonomous driving policies. We adapt a state-of-the-art algorithm, Hierarchical Double Deep Q-learning (h-DDQN), and make the framework robust by (1) constituting
 the decision of selecting driving maneuver as a high-level
 option; (2) for the lower-level controller, outputting waypoint
 trajectories to track with a Proportional-Integral-Derivative
