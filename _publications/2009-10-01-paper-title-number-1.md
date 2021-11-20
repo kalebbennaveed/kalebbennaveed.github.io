@@ -1,12 +1,12 @@
----
+--------
 title: "Trajectory Planning for Autonomous Vehicles Using Hierarchical
 Reinforcement Learning"
 collection: publications
 permalink: /publication/2021-09-21-IEEE-ITSC-2021
+excerpt: ''
 date: 2021-09-21
 venue: 'IEEE ITSC'
-citation: 'Naveed K.B., Qiao Z, and Dolan J:Trajectory Planning for Autonomous Vehicles Using Hierarchical Reinforcement Learning. IEEE Intelligent Transportation Systems Conference (ITSC) 2021
----
+------
 
 **Abstract:**
 Planning safe trajectories under uncertain and
