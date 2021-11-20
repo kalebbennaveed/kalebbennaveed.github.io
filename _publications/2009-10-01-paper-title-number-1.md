@@ -7,7 +7,7 @@ date: 2021-09-21
 venue: 'IEEE ITSC'
 ---
 
-**Abstract**
+**Abstract:**
 Planning safe trajectories under uncertain and
 dynamic conditions makes the autonomous driving problem
 significantly complex. Current heuristic-based algorithms such
