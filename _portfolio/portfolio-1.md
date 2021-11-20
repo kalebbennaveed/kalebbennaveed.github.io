@@ -1,7 +1,12 @@
 ---
-title: "Portfolio item number 1"
-excerpt: "Short description of portfolio item number 1<br/><img src='/images/500x300.png'>"
+title: "Informative and Fast Exploration Planning Using UAV for Reconnaissance Operations"
+excerpt: "Robotics Institute Summer Scholar (RISS) 2021 <br/><img src='/images/airlab.png'>"
+permalink: "/Research/RISS2021"
 collection: portfolio
+date: 2021-6-2 - 2021-8-14
 ---
 
-This is an item in your portfolio. It can be have images or nice text. If you name the file .md, it will be parsed as markdown. If you name the file .html, it will be parsed as HTML. 
+- Proposed and developed Prioritized-FUEL (**F**ast **U**AV **E**xpLoration), a hierarchical approach for faster coverage, exploration 
+and informative planning for reconnaissance and search & rescue operations
+- Proposed method showed 2 times faster Data Acquisition with same exploration time compared to existent approach
+- Helped in Development of simulation environment using ROS, AirSim, Unreal Engine and Gazebo.
