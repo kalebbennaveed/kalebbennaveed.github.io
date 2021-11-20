@@ -35,6 +35,6 @@ to the original FUEL algorithm.
 
 [Download paper here](http://academicpages.github.io/files/RISS-Journal.pdf)
 
-Recommended citation: Kaleb Ben Naveed, Brady Moon, Sebastian Scherer. (2021). "Paper Title Number 2." <i>Informative and Fast Exploration Planning Using UAV for
-Reconnaissance Operations
+Recommended citation: Kaleb Ben Naveed, Brady Moon, Sebastian Scherer. (2021). "Informative and Fast Exploration Planning Using UAV for
+Reconnaissance Operations." <i>Robotics Institute Working Paper's Journal 2021
 </i>. pp. 219 - 225.
