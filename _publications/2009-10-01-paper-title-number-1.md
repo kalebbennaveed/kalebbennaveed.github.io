@@ -5,7 +5,7 @@ collection: publications
 permalink: /publication/2021-09-21-IEEE-ITSC-2021
 excerpt: ''
 date: 2021-09-21
-venue: 'IEEE ITSC'
+venue: 'IEEE International Transportation Systems Conference'
 ---
 
 **Abstract:**
