@@ -2,34 +2,36 @@
 title: "Trajectory Planning for Autonomous Vehicles Using Hierarchical
 Reinforcement Learning"
 collection: publications
-permalink: /publication/2021-09-21-IEEE-ITSC-2021
-date: 2021-09-21
-venue: 'IEEE ITSC'
-paperurl: 'http://kalebbennaveed.github.io/files/IEEE-ITSC.pdf' 
+permalink: /publication/2021-10-15-RISS-Journal-2021
+date: 2021-10-15
+venue: 'Informative and Fast Exploration Planning Using UAV for
+Reconnaissance Operations'
+paperurl: 'http://kalebbennaveed.github.io/files/RISS-Journal.pdf' 
 ---
 
-Planning safe trajectories under uncertain and
-dynamic conditions makes the autonomous driving problem
-significantly complex. Current heuristic-based algorithms such
-as the slot-based method rely heavily on hand-engineered
-parameters and are restricted to specific scenarios. Supervised
-learning methods such as Imitation Learning lack generalization and safety guarantees. To address these problems
-and to ensure a robust framework, we propose a Robust-Hierarchical Reinforcement Learning (HRL) framework for
-learning autonomous driving policies. We adapt a state-of-the-art algorithm, Hierarchical Double Deep Q-learning (h-DDQN), and make the framework robust by (1) constituting
-the decision of selecting driving maneuver as a high-level
-option; (2) for the lower-level controller, outputting waypoint
-trajectories to track with a Proportional-Integral-Derivative
-(PID) controller instead of direct acceleration/steering actions;
-and (3) using a Long-Short-Term-Memory (LSTM) layer in
-the network to alleviate the effects of observation noise and
-dynamic driving behaviors. Moreover, to improve the sample efficiency, we use Hybrid Reward Mechanism and Reward-Driven
-Exploration. Results from the high-fidelity CARLA simulator
-while simulating different interactive lane change scenarios
-indicate that the proposed framework reduces convergence
-time, generates smoother trajectories, and can better handle
-dynamic surroundings and noisy observations as compared to
-other traditional RL approaches.
+In the missions related to search and rescue
+operations, reconnaissance Unmanned Aerial Vehicles (UAV)
+are used to effectively search the given environment map and
+return information about the detected objects with limited
+flight time. This involves solving the NP-hard problem of
+maintaining balance between the tasks of fast exploration
+and data acquisition. Most of the existing work focuses on
+optimizing only one of these factors. In this paper, we propose
+Prioritized-FUEL, which is built on top of the FUEL (Fast UAV
+Exploration) algorithm, a frontier-based exploration technique.
+The proposed hierarchical structure maintains balance between
+fast coverage and data acquisition through the introduction
+of two high-level planner options: Exploration planning and
+Informative planning. In order to facilitate decision making for
+informative planner, we modify Frontier Information Structure
+(FIS) in the original FUEL paper to incorporate information
+about objects of interest. Moreover, we introduce Frontier
+Priority Que (FPQ) to store information about all the frontiers,
+which have a higher probability of the presence of the objects of
+interest near them. The results from the experiments in the light
+UAV simulation environment show that the proposed method
+resulted in almost 2 times faster data acquisition as compared
+to the original FUEL algorithm.
 
-Recommended citation: K. B. Naveed, Z. Qiao, and J. M. Dolan, “Trajectory Planning for Autonomous Vehicles Using 
-Hierarchical Reinforcement Learning,” in Proceedings of IEEE Intelligent Transportation Systems Conference 
-(ITSC '21), pp. 601 - 606, September 2021.
+Recommended citation: K. B. Naveed, B. G. Moon, and Sebastian Scherer, “Informative and Fast Exploration Planning Using 
+UAV for Reconnaissance Operations,” in RISS Working Papers Journal (RISS ’21), pp. 219 – 225, August 2021
