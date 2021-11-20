@@ -1,4 +1,4 @@
---------
+---
 title: "Trajectory Planning for Autonomous Vehicles Using Hierarchical
 Reinforcement Learning"
 collection: publications
@@ -6,7 +6,7 @@ permalink: /publication/2021-09-21-IEEE-ITSC-2021
 excerpt: 'd'
 date: 2021-09-21
 venue: 'IEEE ITSC'
-------
+---
 
 **Abstract:**
 Planning safe trajectories under uncertain and
