@@ -4,7 +4,7 @@ Reconnaissance Operations"
 collection: publications
 permalink: /publication/2021-10-15-RISS-Journal-2021
 date: 2021-10-15
-venue: 'RISS Journal'
+venue: 'RISS Working Paper Journal'
 paperurl: 'http://kalebbennaveed.github.io/files/RISS-Journal.pdf' 
 ---
 
