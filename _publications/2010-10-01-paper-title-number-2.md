@@ -3,7 +3,7 @@ title: "Informative and Fast Exploration Planning Using UAV for
 Reconnaissance Operations"
 collection: publications
 permalink: /publication/2010-10-01-paper-title-number-2
-excerpt: 'This paper is robotics exploration and informative path planning using classsical optimization'
+excerpt:
 date: 2021-10-01
 venue: 'Robotics Institute Working Paper's Journal'
 paperurl: 'http://academicpages.github.io/files/RISS-Journal.pdf'
