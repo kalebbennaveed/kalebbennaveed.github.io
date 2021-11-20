@@ -10,7 +10,7 @@ locale                   : "en-US"
 title                    : "Kaleb Ben Naveed"
 title_separator          : "-"
 name                     : &name "Kaleb Ben Naveed"
-description              : &description "Robotics & AI Researcher"
+description              : &description "Robotics and Artificial Intelligence Researcher"
 url                      : https://kalebbennaveed.github.io/ # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 baseurl                  : "" # the subpath of your site, e.g. "/blog"
 repository               : "kalebbennaveed/kalebbennaveed.github.io"
@@ -82,7 +82,7 @@ analytics:
 author:
   name             : "Kaleb Ben Naveed"
   avatar           : "profile.png"
-  bio              : "Robotics and Machine Learning Researcher"
+  bio              : "Robotics and Artificial Intelligence Researcher"
   location         : "Hong Kong, HK"
   employer         :
   pubmed           : # "https://www.ncbi.nlm.nih.gov/pubmed/?term=john+snow"
