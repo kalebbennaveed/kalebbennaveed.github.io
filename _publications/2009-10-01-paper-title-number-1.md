@@ -6,7 +6,7 @@ permalink: /publication/2021-09-21-IEEE-ITSC-2021
 excerpt: ''
 date: 2021-09-21
 venue: 'IEEE International Transportation Systems Conference'
-citation: 'K. B. Naveed, Z. Qiao, and J. M. Dolan, “Trajectory Planning for Autonomous Vehicles Using Hierarchical Reinforcement Learning,” in Proceedings of IEEE Intelligent Transportation Systems Conference (ITSC '21), pp. 601 - 606, September 2021.'
+citation: 'K. B. Naveed, Z. Qiao, and J. M. Dolan, “Trajectory Planning for Autonomous Vehicles Using Hierarchical Reinforcement Learning,” in Proceedings of IEEE Intelligent Transportation Systems Conference (ITSC) 2021, pp. 601 - 606, September 2021.'
 ---
 
 **Abstract:**
