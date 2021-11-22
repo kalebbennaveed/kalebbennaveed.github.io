@@ -6,6 +6,7 @@ permalink: /publication/2021-09-21-IEEE-ITSC-2021
 excerpt: ''
 date: 2021-09-21
 venue: 'IEEE International Transportation Systems Conference'
+citation: '**Kaleb Ben Naveed**, Zhiqian Qiao and John M. Dolan '
 ---
 
 **Abstract:**
