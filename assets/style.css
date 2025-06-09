@@ -35,7 +35,7 @@ header {
 }
 
 .nav-logo {
-  font-style: italic;
+  font-style: normal;
   font-weight: 700;
   font-size: 1.4em;
   letter-spacing: 0.8px;
@@ -101,4 +101,32 @@ header {
   .bio-photo img {
     max-width: 200px;
   }
+}
+
+
+
+.site-footer {
+  background-color: #e2e4e6;
+  border-top: 1px solid #ccc;
+  padding: 1em 0;
+  margin-top: 3em;
+  font-size: 0.9em;
+}
+
+.footer-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.footer-inner a {
+  margin: 0 1em;
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+}
+
+.footer-inner a:hover {
+  color: #007acc;
+  text-decoration: underline;
 }
