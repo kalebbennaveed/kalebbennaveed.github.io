@@ -63,7 +63,7 @@ main.container {
 }
 
 .bio-photo img {
-  width: 320px;        /* force size */
+  width: 500px;        /* force size */
   max-width: 100%;     /* allow it to scale down on mobile */
   height: auto;
   border-radius: 12px;
