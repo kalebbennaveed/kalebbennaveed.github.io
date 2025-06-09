@@ -6,7 +6,7 @@ title: "Kaleb Ben Naveed"
 <div class="about-container">
   <div class="bio-text">
     <h1><strong>Kaleb</strong> Ben Naveed</h1>
-    <p><strong>PhD Candidate</strong> in Robotics at University of Michigan, Ann Arbor</p>
+    <p><strong>PhD Candidate</strong> in Robotics, University of Michigan, Ann Arbor</p>
 
     <p>I work on energy-aware planning.</p>
 
@@ -14,7 +14,7 @@ title: "Kaleb Ben Naveed"
   </div>
 
   <div class="bio-photo">
-    <img src="/assets/profile.jpg" alt="Kaleb Ben Naveed">
+    <img src="/assets/profile2.jpg" alt="Kaleb Ben Naveed">
     <!-- <p class="caption">Kaleb, 2025</p> -->
   </div>
 </div>
