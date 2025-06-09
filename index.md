@@ -8,9 +8,9 @@ title: "Kaleb Ben Naveed"
     <h1><strong>Kaleb</strong> Ben Naveed</h1>
     <p><strong>PhD Candidate</strong> in Robotics at University of Michigan, Ann Arbor</p>
 
-    <p>I work on energy-aware planning, trajectory optimization, and safe multi-agent exploration. I’m advised by Prof. Chris Vermillion and collaborate with Dimitra Panagou and Devansh Agrawal.</p>
+    <p>I work on energy-aware planning.</p>
 
-    <p>My work spans clarity dynamics, Gaussian processes, Stein variational methods, and field deployment with quadrotors.</p>
+    <p>My work spans.</p>
   </div>
 
   <div class="bio-photo">
