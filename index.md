@@ -5,7 +5,7 @@ title: "Kaleb Ben Naveed"
 
 <div class="about-container">
   <div class="bio-text">
-    <h1><strong>Kaleb</strong> Ben Naveed</h1>
+    <h1><strong>Kaleb</strong> <span class="normal-weight">Ben Naveed</span></h1>
     <p><strong>PhD Student</strong> in Robotics, University of Michigan, Ann Arbor</p>
 
     <p>I am a third-year Robotics Ph.D. student in
