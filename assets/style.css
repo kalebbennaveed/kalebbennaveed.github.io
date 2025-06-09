@@ -63,7 +63,8 @@ main.container {
 }
 
 .bio-photo img {
-  max-width: 230px;
+  width: 280px;        /* force size */
+  max-width: 100%;     /* allow it to scale down on mobile */
   height: auto;
   border-radius: 12px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
@@ -90,4 +91,13 @@ main.container {
   .bio-photo img {
     max-width: 150px;
   }
+}
+
+.nav-logo {
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1.4em;
+  letter-spacing: 0.8px;
+  color: #111;
+  font-family: 'Playfair Display', serif; /* Optional logo-like font */
 }
