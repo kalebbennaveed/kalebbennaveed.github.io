@@ -38,3 +38,33 @@ main.container {
   margin: 2em auto;
   padding: 0 1em;
 }
+
+.about-container {
+  display: flex;
+  gap: 2em;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-top: 2em;
+}
+
+.bio-text {
+  flex: 2;
+  max-width: 600px;
+}
+
+.bio-photo {
+  flex: 1;
+  text-align: center;
+}
+
+.bio-photo img {
+  max-width: 200px;
+  border-radius: 10px;
+}
+
+.caption {
+  font-size: 0.9em;
+  color: #555;
+  margin-top: 0.5em;
+}
+
