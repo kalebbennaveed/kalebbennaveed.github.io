@@ -15,7 +15,7 @@ title: "Kaleb Ben Naveed"
 
   <div class="bio-photo">
     <img src="/assets/profile.jpg" alt="Kaleb Ben Naveed">
-    <p class="caption">Kaleb, 2025</p>
+    <!-- <p class="caption">Kaleb, 2025</p> -->
   </div>
 </div>
 
