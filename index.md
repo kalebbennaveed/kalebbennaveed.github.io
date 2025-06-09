@@ -9,13 +9,18 @@ title: "Kaleb Ben Naveed"
     <p><strong>PhD Student</strong> in Robotics, University of Michigan, Ann Arbor</p>
 
     <p>I am a third-year Robotics Ph.D. student in
-  <a href="https://dasc.engin.umich.edu" target="_blank">The DASC Lab</a>
+  <a href="https://dasc-lab.github.io/" target="_blank">The DASC Lab</a>
   at the
-  <a href="https://umich.edu" target="_blank">University of Michigan</a>,
+  <a href="https://robotics.umich.edu/" target="_blank">Department of Robotics</a>,
   advised by
-  <a href="https://robotics.umich.edu/profile/dpanagou/" target="_blank">Professor Dimitra Panagou</a>. My goal is to develop principled planning algorithms that enable long-term autonomy in robotic systems. My research is at the intersection of informative path planning, multi-agent coordination, and safe trajectory planning under uncertainty and disturbances, and is motivated by challenges in persistent exploration, reconstruction, and mapping in dynamic spatiotemporal environments. </p>
+  <a href="https://websites.umich.edu/~dpanagou/" target="_blank">Professor Dimitra Panagou</a>. My goal is to develop principled planning algorithms that enable long-term autonomy in robotic systems. My research is at the intersection of informative path planning, multi-agent coordination, and safe trajectory planning under uncertainty and disturbances, and is motivated by challenges in persistent exploration, reconstruction, and mapping in dynamic spatiotemporal environments. </p>
 
-    <p>In the past, I have worked with Professor John Dolan at the Robotics Institute, Carnegie Mellon University, on learning-based trajectory planning using reinforcement learning, and with Professor Sebastian Scherer on autonomy algorithms for reconnaissance missions. I have previously studied at The Hong Kong Polytechnic University, Carnegie Mellon University, and the University of Cambridge.</p>
+    <p>In the past, I have worked with 
+    <a href="https://www.ri.cmu.edu/ri-faculty/john-m-dolan/" target="_blank">Dr. John Dolan</a>.
+     at the 
+     <a href="https://www.ri.cmu.edu/" target="_blank">Robotics Institute, Carnegie Mellon University</a>, 
+     on learning-based trajectory planning using reinforcement learning, and with 
+     <a href="https://www.ri.cmu.edu/ri-faculty/sebastian-scherer/" target="_blank">Dr. Sebastian Scherer</a> on autonomy algorithms for reconnaissance missions. I have previously studied at The Hong Kong Polytechnic University and the University of Cambridge.</p>
   </div>
 
   <div class="bio-photo">
