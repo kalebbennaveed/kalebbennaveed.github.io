@@ -5,7 +5,11 @@
   <title>{{ page.title }}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="/assets/style.css" />
+
+  <!-- Optional: Add a modern clean font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
 </head>
+
 <body>
   <header>
     <div class="navbar">
@@ -13,10 +17,15 @@
       <nav class="nav-links">
         <a href="/">About</a>
         <a href="/publications.html">Publications</a>
-        <a href="/cv.pdf">CV</a>
+        <a href="/research.html">Research</a>
+        <a href="/robots.html">Robots</a>
+        <a href="/cv.pdf" target="_blank">CV</a>
+        <a href="/resources.html">Resources</a>
+        <a href="/notes.html">Notes</a>
       </nav>
     </div>
   </header>
+
   <main class="container">
     {{ content }}
   </main>
