@@ -1,4 +1,8 @@
 /* ====== GLOBAL BASE STYLES ====== */
+* {
+  box-sizing: border-box;
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -10,16 +14,7 @@ html, body {
 }
 
 body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-main.container {
-  flex: 1;
-  max-width: 900px;
-  margin: 2em auto;
-  padding: 0 1em;
+  padding-bottom: 90px; /* Make room for fixed footer */
 }
 
 /* ====== HEADER + NAV BAR ====== */
@@ -49,7 +44,7 @@ header {
   font-size: 1.4em;
   letter-spacing: 0.8px;
   color: #111;
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Playfair Display', serif;
 }
 
 .nav-links a {
@@ -64,77 +59,36 @@ header {
   text-decoration: underline;
 }
 
-/* ====== BIO LAYOUT ====== */
-.about-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2em;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-top: 2em;
+/* ====== MAIN CONTENT ====== */
+main.container {
+  max-width: 900px;
+  margin: 2em auto;
+  padding: 0 1em;
 }
 
-.bio-text {
-  flex: 2;
-  min-width: 300px;
-  max-width: 600px;
-}
-
-.bio-photo {
-  flex: 1;
-  min-width: 180px;
-  text-align: center;
-}
-
-.bio-photo img {
-  width: 500px;
-  max-width: 100%;
-  height: auto;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* ====== SMALL SCREEN ADAPTATION ====== */
-@media (max-width: 700px) {
-  .about-container {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .bio-text,
-  .bio-photo {
-    max-width: 100%;
-    text-align: center;
-  }
-
-  .bio-photo img {
-    max-width: 200px;
-  }
-
-  .site-footer {
-    padding: 1.5em 1em;
-  }
-}
-
-/* ====== FOOTER STYLING ====== */
+/* ====== FOOTER ====== */
 .site-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
   background-color: #e2e4e6;
-  padding: 2em 0 1.2em;
-  font-size: 0.9em;
-  color: #444;
+  padding: 1em 0;
   border-top: 1px solid #ccc;
   text-align: center;
+  font-size: 0.9em;
+  color: #444;
+  z-index: 1000;
 }
 
 .footer-links {
-  margin-bottom: 0.5em;
+  margin-bottom: 0.3em;
 }
 
 .footer-links a {
-  text-decoration: none;
   color: #333;
-  margin: 0 0.7em;
-  font-weight: 500;
+  margin: 0 0.5em;
+  text-decoration: none;
 }
 
 .footer-links a:hover {

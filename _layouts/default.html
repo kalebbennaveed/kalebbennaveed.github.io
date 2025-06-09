@@ -5,10 +5,8 @@
   <title>{{ page.title }}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="/assets/style.css" />
-
-  <!-- Modern clean font -->
   <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -32,16 +30,14 @@
   </main>
 
   <footer class="site-footer">
-    <div class="footer-container">
-      <div class="footer-icons">
-        <a href="mailto:kbnaveed@umich.edu" aria-label="Email">📧</a>
-        <a href="https://github.com/kalebbennaveed" target="_blank" aria-label="GitHub">🐱</a>
-        <a href="https://scholar.google.com/citations?user=9MRYE8kAAAAJ&hl=en" target="_blank" aria-label="Scholar">🎓</a>
-        <a href="https://www.linkedin.com/in/kalebbennaveed" target="_blank" aria-label="LinkedIn">🔗</a>
-      </div>
-      <div class="footer-credit">
-        © {{ site.time | date: "%Y" }} Kaleb Ben Naveed &nbsp; | &nbsp; Theme custom
-      </div>
+    <div class="footer-links">
+      <a href="mailto:kbnaveed@umich.edu">Email</a> |
+      <a href="https://github.com/kalebbennaveed" target="_blank">GitHub</a> |
+      <a href="https://scholar.google.com/citations?user=9MRYE8kAAAAJ&hl=en" target="_blank">Google Scholar</a> |
+      <a href="https://www.linkedin.com/in/kalebbennaveed" target="_blank">LinkedIn</a>
+    </div>
+    <div class="footer-credit">
+      © {{ site.time | date: "%Y" }} Kaleb Ben Naveed &nbsp; | &nbsp; Theme custom
     </div>
   </footer>
 </body>
