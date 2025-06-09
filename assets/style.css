@@ -34,13 +34,16 @@ header {
 }
 
 main.container {
-  max-width: 800px;
+  max-width: 900px;
   margin: 2em auto;
   padding: 0 1em;
 }
 
+/* ======== BIO LAYOUT TUNING ======== */
+
 .about-container {
   display: flex;
+  flex-wrap: wrap;
   gap: 2em;
   align-items: flex-start;
   justify-content: space-between;
@@ -49,22 +52,25 @@ main.container {
 
 .bio-text {
   flex: 2;
+  min-width: 300px;
   max-width: 600px;
 }
 
 .bio-photo {
   flex: 1;
+  min-width: 180px;
   text-align: center;
 }
 
 .bio-photo img {
-  max-width: 200px;
-  border-radius: 10px;
+  max-width: 180px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .caption {
-  font-size: 0.9em;
-  color: #555;
-  margin-top: 0.5em;
+  font-size: 0.85em;
+  color: #666;
+  margin-top: 0.4em;
 }
-
