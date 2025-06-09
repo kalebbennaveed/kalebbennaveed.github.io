@@ -13,7 +13,7 @@ title: "Kaleb Ben Naveed"
   at the
   <a href="https://robotics.umich.edu/" target="_blank">Department of Robotics</a>,
   advised by
-  <a href="https://websites.umich.edu/~dpanagou/" target="_blank">Professor Dimitra Panagou</a>. My goal is to develop principled planning algorithms that enable long-term autonomy in robotic systems. My research is at the intersection of informative path planning, multi-agent coordination, and safe trajectory planning under uncertainty and disturbances, and is motivated by challenges in persistent exploration, reconstruction, and mapping in dynamic spatiotemporal environments. </p>
+  <a href="https://websites.umich.edu/~dpanagou/" target="_blank">Professor Dimitra Panagou</a>. My goal is to develop principled planning algorithms that enable safe long-term autonomy in robotic systems. My research is at the intersection of informative path planning, multi-agent coordination, and safe trajectory planning under uncertainty and disturbances, and is motivated by challenges in persistent exploration, reconstruction, and mapping in dynamic spatiotemporal environments. </p>
 
 <p>
   In the past, I have worked with 
