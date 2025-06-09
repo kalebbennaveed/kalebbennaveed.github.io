@@ -1,13 +1,22 @@
 /* ====== GLOBAL BASE STYLES ====== */
-body {
+html, body {
   margin: 0;
+  padding: 0;
   font-family: system-ui, sans-serif;
   line-height: 1.6;
   color: #222;
   background-color: #fff;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 main.container {
+  flex: 1;
   max-width: 900px;
   margin: 2em auto;
   padding: 0 1em;
@@ -31,7 +40,7 @@ header {
 
 .nav-name {
   font-size: 1.3em;
-  font-weight: normal;  /* let .nav-logo define styling */
+  font-weight: normal;
 }
 
 .nav-logo {
@@ -40,7 +49,7 @@ header {
   font-size: 1.4em;
   letter-spacing: 0.8px;
   color: #111;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Playfair Display', Georgia, serif;
 }
 
 .nav-links a {
@@ -101,22 +110,19 @@ header {
   .bio-photo img {
     max-width: 200px;
   }
+
+  .site-footer {
+    padding: 1.5em 1em;
+  }
 }
 
-
-
+/* ====== FOOTER STYLING ====== */
 .site-footer {
   background-color: #e2e4e6;
-  border-top: 1px solid #ccc;
-  padding: 1.2em 0;
-  margin-top: 4em;
+  padding: 2em 0 1.2em;
   font-size: 0.9em;
   color: #444;
-}
-
-.footer-inner {
-  max-width: 900px;
-  margin: 0 auto;
+  border-top: 1px solid #ccc;
   text-align: center;
 }
 
@@ -125,9 +131,9 @@ header {
 }
 
 .footer-links a {
-  margin: 0 0.75em;
   text-decoration: none;
   color: #333;
+  margin: 0 0.7em;
   font-weight: 500;
 }
 
@@ -139,6 +145,4 @@ header {
 .footer-credit {
   font-size: 0.8em;
   color: #666;
-}
-
 }
