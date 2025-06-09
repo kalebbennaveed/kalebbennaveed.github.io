@@ -1,0 +1,40 @@
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  line-height: 1.6;
+  color: #222;
+  background-color: #fff;
+}
+
+header {
+  background-color: #e2e4e6;
+  padding: 1em 0;
+  border-bottom: 1px solid #ccc;
+}
+
+.navbar {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-name {
+  font-size: 1.3em;
+  font-weight: bold;
+}
+
+.nav-links a {
+  margin-left: 1.5em;
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+}
+
+main.container {
+  max-width: 800px;
+  margin: 2em auto;
+  padding: 0 1em;
+}
