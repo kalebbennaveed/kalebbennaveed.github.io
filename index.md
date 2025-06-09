@@ -8,9 +8,14 @@ title: "Kaleb Ben Naveed"
     <h1><strong>Kaleb</strong> Ben Naveed</h1>
     <p><strong>PhD Student</strong> in Robotics, University of Michigan, Ann Arbor</p>
 
-    <p>I am a third-year Robotics Ph.D. student in The DASC Lab at the University of Michigan, advised by Professor Dimitra Panagou. My goal is to develop principled planning algorithms that enable long-term autonomy in robotic systems. My research is at the intersection of informative path planning, multi-agent coordination, and safe trajectory planning under uncertainty and disturbances, and is motivated by challenges in persistent exploration, reconstruction, and mapping in dynamic spatiotemporal environments. </p>
+    <p>I am a third-year Robotics Ph.D. student in
+  <a href="https://dasc.engin.umich.edu" target="_blank">The DASC Lab</a>
+  at the
+  <a href="https://umich.edu" target="_blank">University of Michigan</a>,
+  advised by
+  <a href="https://robotics.umich.edu/profile/dpanagou/" target="_blank">Professor Dimitra Panagou</a>. My goal is to develop principled planning algorithms that enable long-term autonomy in robotic systems. My research is at the intersection of informative path planning, multi-agent coordination, and safe trajectory planning under uncertainty and disturbances, and is motivated by challenges in persistent exploration, reconstruction, and mapping in dynamic spatiotemporal environments. </p>
 
-    <p>Previously, I worked with Professor John Dolan at the Robotics Institute, Carnegie Mellon University, on learning-based trajectory planning using reinforcement learning, and with Professor Sebastian Scherer on autonomy algorithms for reconnaissance missions. Previously, I have studied at The Hong Kong Polytechnic University, Carnegie Mellon University, and the University of Cambridge.</p>
+    <p>In the past, I have worked with Professor John Dolan at the Robotics Institute, Carnegie Mellon University, on learning-based trajectory planning using reinforcement learning, and with Professor Sebastian Scherer on autonomy algorithms for reconnaissance missions. I have previously studied at The Hong Kong Polytechnic University, Carnegie Mellon University, and the University of Cambridge.</p>
   </div>
 
   <div class="bio-photo">
