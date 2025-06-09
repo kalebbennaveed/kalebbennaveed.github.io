@@ -35,9 +35,10 @@ title: "Kaleb Ben Naveed"
 
 ---
 
-## News
+## Recent News
 
 - **April 2025** – Our paper “[Enabling Safety for Aerial Robots: Planning and Control Architectures](https://arxiv.org/abs/2504.08601)” was accepted to the ICRA 2025 Workshop on *25 Years of Aerial Robotics: Challenges and Opportunities*.
 
-- **January 2024** – Our paper “[Eclares: Energy-Aware Clarity-Driven Ergodic Search](https://ieeexplore.ieee.org/abstract/document/10611286)” was accepted to IEEE ICRA 2025.
+- **January 2024** – Our paper “[Eclares: Energy-Aware Clarity-Driven Ergodic Search](https://ieeexplore.ieee.org/abstract/document/10611286)” was accepted to IEEE ICRA 2024.
+
 
