@@ -30,13 +30,18 @@
     {{ content }}
   </main>
 
-  <footer class="site-footer">
+    <footer class="site-footer">
     <div class="footer-inner">
-      <a href="mailto:kbnaveed@umich.edu">Email</a>
-      <a href="https://github.com/kalebbennaveed" target="_blank">GitHub</a>
-      <a href="https://scholar.google.com/citations?user=9MRYE8kAAAAJ&hl=en" target="_blank">Google Scholar</a>
-      <a href="https://www.linkedin.com/in/kalebbennaveed" target="_blank">LinkedIn</a>
+        <div class="footer-links">
+        <a href="mailto:kbnaveed@umich.edu">Email</a>
+        <a href="https://github.com/kalebbennaveed" target="_blank">GitHub</a>
+        <a href="https://scholar.google.com/citations?user=9MRYE8kAAAAJ&hl=en" target="_blank">Google Scholar</a>
+        <a href="https://www.linkedin.com/in/kalebbennaveed" target="_blank">LinkedIn</a>
+        </div>
+        <div class="footer-credit">
+        © {{ site.time | date: '%Y' }} Kaleb Ben Naveed
+        </div>
     </div>
-  </footer>
+    </footer>
 </body>
 </html>
