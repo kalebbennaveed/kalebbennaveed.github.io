@@ -1,6 +1,6 @@
 - year: 2025
   title: "Adaptive Ergodic Search with Energy-Aware Scheduling for Persistent Multi-Robot Missions"
-  authors: "<strong>Kaleb Ben Naveed</strong>*,  Devansh R. Agrawal, Rahul Kumar, Dimitra Panagou"
+  authors: "<strong>Kaleb Ben Naveed</strong>,  Devansh R. Agrawal, Rahul Kumar, Dimitra Panagou"
   venue: "Under review at Autonomous Robots"
   image: "/assets/mEclares.png"
   links:
@@ -19,7 +19,7 @@
 
 - year: 2025
   title: "meSch: Multi-Agent Energy-Aware Scheduling for Task Persistence"
-  authors: "<strong>Kaleb Ben Naveed</strong>*,  An Dang, Rahul Kumar, Dimitra Panagou"
+  authors: "<strong>Kaleb Ben Naveed</strong>,  An Dang, Rahul Kumar, Dimitra Panagou"
   venue: "Under review at 2025 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)"
   image: "/assets/meSch.png"
   links:
