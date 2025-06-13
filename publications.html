@@ -32,8 +32,14 @@ title: Publications
                 </a>
               {% endif %}
               {% if pub.links.video %}
-                <a class="pub-btn" href="{{ pub.links.video }}" target="_blank" title="Video">
+                <!-- <a class="pub-btn" href="{{ pub.links.video }}" target="_blank" title="Video">
                   📺
+                </a> -->
+                <a class="pub-btn" href="{{ pub.links.video }}" target="_blank" title="Video">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" width="16" height="16" fill="#FF0000" style="vertical-align: middle; margin-right: 0.3em;">
+                    <path d="M549.7 124.1c-6.3-23.7-24.9-42.4-48.5-48.7C458.1 64 288 64 288 64s-170.1 0-213.2 11.4c-23.6 6.3-42.2 25-48.5 48.7C16 168.2 16 256 16 256s0 87.8 10.3 131.9c6.3 23.7 24.9 42.4 48.5 48.7C117.9 448 288 448 288 448s170.1 0 213.2-11.4c23.6-6.3 42.2-25 48.5-48.7C560 343.8 560 256 560 256s0-87.8-10.3-131.9zM232 334.7V177.3L361.8 256 232 334.7z"/>
+                </svg>
+                Video
                 </a>
               {% endif %}
               {% if pub.links.website %}
