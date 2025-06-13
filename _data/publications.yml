@@ -1,0 +1,7 @@
+- year: 2025
+  title: "Enabling Safety for Aerial Robots: Planning and Control Architectures"
+  authors: "[Kaleb Ben Naveed](#)*,  Devansh R. Agrawal*, Daniel M. Cherenson*, Haejoon Lee, Alia Gilbert, Hardik Parwana, Vishnu S. Chipade, William Bentz, Dimitra Panagou"
+  venue: "ICRA 2025 Workshop on 25 Years of Aerial Robotics: Challenges and Opportunities"
+  image: "/assets/workshop_image.png"
+  links:
+    pdf: "/assets/pubs/workshop_safety.pdf"

@@ -166,7 +166,8 @@ header {
 }
 
 
-/* ======= PUBLICATIONS ======= */
+/* ======= PUBLICATIONS SECTION ======= */
+
 .pub-entry {
   display: flex;
   gap: 1em;
@@ -198,6 +199,10 @@ header {
   margin-bottom: 0.3em;
 }
 
+.pub-venue {
+  font-style: italic;
+}
+
 .pub-links {
   margin-top: 0.5em;
 }
@@ -212,10 +217,22 @@ header {
   border-radius: 4px;
   text-decoration: none;
   color: #333;
-  transition: background 0.2s;
+  transition: background 0.2s, border-color 0.2s;
 }
 
 .pub-btn:hover {
   background-color: #dbeeff;
   border-color: #007acc;
+}
+
+.pub-btn.website {
+  background-color: #fff5e6;
+  border-color: #ff9900;
+  color: #cc5200;
+  font-weight: 600;
+}
+
+.pub-btn.website:hover {
+  background-color: #ffeacc;
+  border-color: #ff8000;
 }

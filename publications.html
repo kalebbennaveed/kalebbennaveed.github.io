@@ -1,25 +1,50 @@
-<h1>Publications</h1>
-<h2>2025</h2>
+---
+layout: default
+title: Publications
+---
 
-<div class="pub-entry">
-  <div class="pub-image">
-    <img src="/assets/profile2.jpg" alt="Eclares Thumbnail" />
-  </div>
-  <div class="pub-text">
-    <div class="pub-title">
-      <strong>Eclares: Energy-Aware Clarity-Driven Ergodic Search</strong>
-    </div>
-    <div class="pub-authors">
-      Kaleb Ben Naveed, Devansh Agrawal, Christopher Vermillion, Dimitra Panagou
-    </div>
-    <div class="pub-venue">
-      <em>IEEE International Conference on Robotics and Automation (ICRA), 2025</em>
-    </div>
-    <div class="pub-links">
-      <a href="https://arxiv.org/abs/2504.08601" class="pub-btn" target="_blank">PDF</a>
-      <a href="https://github.com/kalebbennaveed/eclares" class="pub-btn" target="_blank">Code</a>
-      <a href="https://youtu.be/example" class="pub-btn" target="_blank">Video</a>
-      <a href="https://eclares.github.io" class="pub-btn" target="_blank">Website</a>
-    </div>
-  </div>
-</div>
+<main class="container">
+  <h1>Publications</h1>
+
+  {% assign pubs = site.data.publications %}
+  {% assign years = pubs | map: "year" | uniq | sort | reverse %}
+  {% for y in years %}
+    <h2>{{ y }}</h2>
+    {% for pub in pubs %}
+      {% if pub.year == y %}
+        <div class="pub-entry">
+          <div class="pub-image">
+            <img src="{{ pub.image }}" alt="Thumbnail for {{ pub.title }}">
+          </div>
+          <div class="pub-text">
+            <div class="pub-title">{{ pub.title }}</div>
+            <div class="pub-authors">{{ pub.authors }}</div>
+            <div class="pub-venue"><em>{{ pub.venue }}</em></div>
+            <div class="pub-links">
+              {% if pub.links.pdf %}
+                <a class="pub-btn" href="{{ pub.links.pdf }}" target="_blank" title="PDF">
+                  📄
+                </a>
+              {% endif %}
+              {% if pub.links.code %}
+                <a class="pub-btn" href="{{ pub.links.code }}" target="_blank" title="Code">
+                  💻
+                </a>
+              {% endif %}
+              {% if pub.links.video %}
+                <a class="pub-btn" href="{{ pub.links.video }}" target="_blank" title="Video">
+                  📺
+                </a>
+              {% endif %}
+              {% if pub.links.website %}
+                <a class="pub-btn" href="{{ pub.links.website }}" target="_blank">
+                  Paper Website
+                </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+</main>
