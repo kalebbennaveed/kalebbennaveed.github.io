@@ -1,4 +1,15 @@
 - year: 2025
+  title: "Adaptive Ergodic Search with Energy-Aware Scheduling for Persistent Multi-Robot Missions"
+  authors: "<strong>Kaleb Ben Naveed</strong>*,  Devansh R. Agrawal, Rahul Kumar, Dimitra Panagou"
+  venue: "Under review at Autonomous Robots"
+  image: "/assets/mEclares.png"
+  links:
+    pdf: "/assets/pubs/mEclares.pdf"
+    code: "https://github.com/kalebbennaveed/mEclares-main"
+    video: "https://www.youtube.com/watch?v=dmaZDvxJgF8"
+
+
+- year: 2025
   title: "Enabling Safety for Aerial Robots: Planning and Control Architectures"
   authors: "<strong>Kaleb Ben Naveed</strong>*,  Devansh R. Agrawal*, Daniel M. Cherenson*, Haejoon Lee, Alia Gilbert, Hardik Parwana, Vishnu S. Chipade, William Bentz, Dimitra Panagou"
   venue: "ICRA 2025 Workshop on 25 Years of Aerial Robotics: Challenges and Opportunities"
@@ -6,12 +17,21 @@
   links:
     pdf: "/assets/pubs/workshop_safety.pdf"
 
+- year: 2025
+  title: "meSch: Multi-Agent Energy-Aware Scheduling for Task Persistence"
+  authors: "<strong>Kaleb Ben Naveed</strong>*,  An Dang, Rahul Kumar, Dimitra Panagou"
+  venue: "Under review at 2025 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)"
+  image: "/assets/meSch.png"
+  links:
+    pdf: "/assets/pubs/meSch.pdf"
+    code: "https://github.com/kalebbennaveed/meSch"
+    video: "https://www.youtube.com/watch?v=wgH-KgNGJgw"
 
 
 - year: 2024
   title: "Eclares: Energy-Aware Clarity-Driven Ergodic Search"
   authors: "<strong>Kaleb Ben Naveed</strong>, Devansh Agrawal, Christopher Vermillion and Dimitra Panagou"
-  venue: "IEEE International Conference on Robotics and Automation (ICRA)"
+  venue: "2024 IEEE International Conference on Robotics and Automation (ICRA)"
   image: "/assets/Eclares.png"
   links:
     pdf: "/assets/pubs/Eclares.pdf"
