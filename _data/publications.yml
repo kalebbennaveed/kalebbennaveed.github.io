@@ -4,7 +4,7 @@
   venue: "Under review at Autonomous Robots"
   image: "/assets/mEclares.png"
   links:
-    pdf: "/assets/pubs/mEclares.pdf"
+    pdf: "https://arxiv.org/abs/2505.11663"
     code: "https://github.com/kalebbennaveed/mEclares-main"
     video: "https://www.youtube.com/watch?v=dmaZDvxJgF8"
 
@@ -15,7 +15,7 @@
   venue: "ICRA 2025 Workshop on 25 Years of Aerial Robotics: Challenges and Opportunities"
   image: "/assets/workshop_image.png"
   links:
-    pdf: "/assets/pubs/workshop_safety.pdf"
+    pdf: "https://arxiv.org/abs/2504.08601"
 
 - year: 2025
   title: "meSch: Multi-Agent Energy-Aware Scheduling for Task Persistence"
@@ -23,7 +23,7 @@
   venue: "Under review at 2025 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)"
   image: "/assets/meSch.png"
   links:
-    pdf: "/assets/pubs/meSch.pdf"
+    pdf: "https://arxiv.org/abs/2406.04560"
     code: "https://github.com/kalebbennaveed/meSch"
     video: "https://www.youtube.com/watch?v=wgH-KgNGJgw"
 
@@ -34,7 +34,7 @@
   venue: "2024 IEEE International Conference on Robotics and Automation (ICRA)"
   image: "/assets/Eclares.png"
   links:
-    pdf: "/assets/pubs/Eclares.pdf"
+    pdf: "https://arxiv.org/abs/2310.06933"
     code: "https://github.com/kalebbennaveed/Eclares"
     video: "https://www.youtube.com/watch?v=1ZCgxlHitzk"
 
@@ -45,5 +45,5 @@
   venue: "2021 IEEE International Intelligent Transportation Systems Conference (ITSC)"
   image: "/assets/itsc_paper.png"
   links:
-    pdf: "/assets/pubs/Robust_HRL.pdf"
+    pdf: "https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9564634"
     code: "https://github.com/kalebbennaveed/Trajectory-Planning-for-Autonomous-Vehicles-Using-HRL"
