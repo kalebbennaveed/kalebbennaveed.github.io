@@ -1,6 +1,6 @@
 - year: 2025
   title: "Enabling Safety for Aerial Robots: Planning and Control Architectures"
-  authors: "**Kaleb Ben Naveed***,  Devansh R. Agrawal*, Daniel M. Cherenson*, Haejoon Lee, Alia Gilbert, Hardik Parwana, Vishnu S. Chipade, William Bentz, Dimitra Panagou"
+  authors: "<strong>Kaleb Ben Naveed</strong>*,  Devansh R. Agrawal*, Daniel M. Cherenson*, Haejoon Lee, Alia Gilbert, Hardik Parwana, Vishnu S. Chipade, William Bentz, Dimitra Panagou"
   venue: "ICRA 2025 Workshop on 25 Years of Aerial Robotics: Challenges and Opportunities"
   image: "/assets/workshop_image.png"
   links:
@@ -10,7 +10,7 @@
 
 - year: 2024
   title: "Eclares: Energy-Aware Clarity-Driven Ergodic Search"
-  authors: "**Kaleb Ben Naveed**, Devansh Agrawal, Christopher Vermillion and Dimitra Panagou"
+  authors: "<strong>Kaleb Ben Naveed</strong>, Devansh Agrawal, Christopher Vermillion and Dimitra Panagou"
   venue: "IEEE International Conference on Robotics and Automation (ICRA)"
   image: "/assets/Eclares.png"
   links:
