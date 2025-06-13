@@ -37,3 +37,13 @@
     pdf: "/assets/pubs/Eclares.pdf"
     code: "https://github.com/kalebbennaveed/Eclares"
     video: "https://www.youtube.com/watch?v=1ZCgxlHitzk"
+
+
+- year: 2021
+  title: "Trajectory planning for autonomous vehicles using hierarchical reinforcement learning"
+  authors: "<strong>Kaleb Ben Naveed</strong>, Zhiqian Qiao, John M Dolan"
+  venue: "2021 IEEE International Intelligent Transportation Systems Conference (ITSC)"
+  image: "/assets/itsc_paper.png"
+  links:
+    pdf: "/assets/pubs/Robust_HRL.pdf"
+    code: "https://github.com/kalebbennaveed/Trajectory-Planning-for-Autonomous-Vehicles-Using-HRL"
