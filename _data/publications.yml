@@ -20,7 +20,7 @@
 - year: 2025
   title: "meSch: Multi-Agent Energy-Aware Scheduling for Task Persistence"
   authors: "<strong>Kaleb Ben Naveed</strong>,  An Dang, Rahul Kumar, Dimitra Panagou"
-  venue: "Under review at 2025 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)"
+  venue: "2025 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)"
   image: "/assets/meSch.png"
   links:
     pdf: "https://arxiv.org/abs/2406.04560"
