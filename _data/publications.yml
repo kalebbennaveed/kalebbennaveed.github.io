@@ -8,15 +8,6 @@
     code: "https://github.com/kalebbennaveed/mEclares-main"
     video: "https://www.youtube.com/watch?v=dmaZDvxJgF8"
 
-
-- year: 2025
-  title: "Enabling Safety for Aerial Robots: Planning and Control Architectures"
-  authors: "<strong>Kaleb Ben Naveed</strong>*,  Devansh R. Agrawal*, Daniel M. Cherenson*, Haejoon Lee, Alia Gilbert, Hardik Parwana, Vishnu S. Chipade, William Bentz, Dimitra Panagou"
-  venue: "ICRA 2025 Workshop on 25 Years of Aerial Robotics: Challenges and Opportunities"
-  image: "/assets/workshop_image.png"
-  links:
-    pdf: "https://arxiv.org/abs/2504.08601"
-
 - year: 2025
   title: "meSch: Multi-Agent Energy-Aware Scheduling for Task Persistence"
   authors: "<strong>Kaleb Ben Naveed</strong>,  An Dang, Rahul Kumar, Dimitra Panagou"
@@ -26,6 +17,14 @@
     pdf: "https://arxiv.org/abs/2406.04560"
     code: "https://github.com/kalebbennaveed/meSch"
     video: "https://www.youtube.com/watch?v=wgH-KgNGJgw"
+
+- year: 2025
+  title: "Enabling Safety for Aerial Robots: Planning and Control Architectures"
+  authors: "<strong>Kaleb Ben Naveed</strong>*,  Devansh R. Agrawal*, Daniel M. Cherenson*, Haejoon Lee, Alia Gilbert, Hardik Parwana, Vishnu S. Chipade, William Bentz, Dimitra Panagou"
+  venue: "ICRA 2025 Workshop on 25 Years of Aerial Robotics: Challenges and Opportunities"
+  image: "/assets/workshop_image.png"
+  links:
+    pdf: "https://arxiv.org/abs/2504.08601"
 
 
 - year: 2024
