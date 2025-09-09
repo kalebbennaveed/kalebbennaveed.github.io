@@ -20,7 +20,7 @@ title: "Kaleb Ben Naveed"
   <a href="https://www.ri.cmu.edu/ri-faculty/john-m-dolan/" target="_blank">Professor John Dolan</a>
   at the 
   <a href="https://www.ri.cmu.edu/" target="_blank">Robotics Institute, Carnegie Mellon University</a>,
-  on learning-based trajectory planning using reinforcement learning, and with 
+  on trajectory planning for autonomous vehicles using model-free reinforcement learning, and with 
   <a href="https://www.ri.cmu.edu/ri-faculty/sebastian-scherer/" target="_blank">Professor Sebastian Scherer</a>
   on autonomy algorithms for reconnaissance missions. I have previously studied at 
   <a href="https://www.polyu.edu.hk/en/" target="_blank">The Hong Kong Polytechnic University</a>
