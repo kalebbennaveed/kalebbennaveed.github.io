@@ -8,7 +8,7 @@ title: "Kaleb Ben Naveed"
     <h1><strong>Kaleb</strong> <span class="normal-weight">Ben Naveed</span></h1>
     <p><strong>PhD Student</strong> in Robotics, University of Michigan, Ann Arbor</p>
 
-    <p>I am a third-year Robotics Ph.D. student in
+    <p>I am a fourth-year Robotics Ph.D. student in
   <a href="https://dasc-lab.github.io/" target="_blank">The DASC Lab</a>
   at the
   <a href="https://robotics.umich.edu/" target="_blank">Department of Robotics</a>,
@@ -36,6 +36,8 @@ title: "Kaleb Ben Naveed"
 ---
 
 ## Recent News
+
+- **08 September 2025** – Our paper “[Adaptive Ergodic Search with Energy-Aware Scheduling for Persistent Multi-Robot Missions](https://arxiv.org/abs/2505.11663)” was accepted to Autonomous Robots 2025.
 
 - **16 June 2025** – Our paper “[meSch: Multi-Agent Energy-Aware Scheduling for Task Persistence](https://arxiv.org/abs/2406.04560)” was accepted to IEEE IROS 2025.
 
