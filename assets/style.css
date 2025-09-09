@@ -236,3 +236,13 @@ header {
   background-color: #ffeacc;
   border-color: #ff8000;
 }
+
+a {
+  text-decoration: none;
+  color: #0645AD; /* Classic blue or use #007acc for a brighter blue */
+}
+
+a:hover {
+  text-decoration: underline; /* Optional: underline on hover */
+  color: #0056b3; /* Optional: darker blue on hover */
+}
