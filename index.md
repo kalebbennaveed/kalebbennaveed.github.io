@@ -44,7 +44,7 @@ title: "Kaleb Ben Naveed"
 
 - **16 June 2025** – Our paper “[meSch: Multi-Agent Energy-Aware Scheduling for Task Persistence](https://arxiv.org/abs/2406.04560)” was accepted to [IEEE IROS 2025](https://www.iros25.org/).
 
-- **11 April 2025** – Our paper “[Enabling Safety for Aerial Robots: Planning and Control Architectures](https://arxiv.org/abs/2504.08601)” was accepted to the ICRA 2025 Workshop on *25 Years of Aerial Robotics: Challenges and Opportunities*.
+- **11 April 2025** – Our workshop paper “[Enabling Safety for Aerial Robots: Planning and Control Architectures](https://arxiv.org/abs/2504.08601)” was accepted to the ICRA 2025 Workshop on *25 Years of Aerial Robotics: Challenges and Opportunities*.
 
 - **30 January 2024** – Our paper “[Eclares: Energy-Aware Clarity-Driven Ergodic Search](https://ieeexplore.ieee.org/abstract/document/10611286)” was accepted to [IEEE ICRA 2024](https://2024.ieee-icra.org/).
 
