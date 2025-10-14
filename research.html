@@ -15,6 +15,7 @@ media:
     caption: "Clarity-Driven Ergodic Search"
 ---
 
+<!-- ======= Research Slider ======= -->
 <div class="slider">
   <button class="nav prev" aria-label="Previous slide">⟨</button>
   <div class="track" id="slider-track">
@@ -36,7 +37,15 @@ media:
   </div>
 </div>
 
+<hr style="margin-top: 0; border: none; border-top: 2px solid #e0e0e0; width: 90%; margin-left: auto; margin-right: auto;">
+
+<!-- ======= Optional Text Section (add later) ======= -->
+<div class="research-text" style="max-width: 900px; margin: 2rem auto; text-align: center;">
+  <p>More details about ongoing and past research projects coming soon.</p>
+</div>
+
 <style>
+/* ======= Layout ======= */
 body { margin: 0; }
 .slider {
   position: relative;
@@ -45,50 +54,67 @@ body { margin: 0; }
   overflow: hidden;
 }
 
+/* ======= Slides ======= */
 .track {
   display: flex;
-  transition: transform 0.6s ease-in-out; /* ensures movement */
+  transition: transform 0.6s ease-in-out;
+  will-change: transform;
 }
 
 .slide {
   flex: 0 0 100%;
   position: relative;
   text-align: center;
+  height: min(72vh, 760px);
+  background: #fff;
+  display: grid;
+  place-items: center;
 }
 
+/* Fit images fully (no cropping, no black box) */
 .media {
-  width: 100%;
-  height: auto;           /* auto height keeps image proportions */
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
   display: block;
-  object-fit: cover;      /* removes black borders */
+  background: transparent;
+  margin: 0 auto;
 }
 
+/* Caption style */
 .caption {
   position: absolute;
-  bottom: 10px;
-  left: 0; right: 0;
-  color: white;
-  background: rgba(0,0,0,0.45);
-  padding: 0.5rem;
-  font-size: 1rem;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.95rem;
 }
 
+/* ======= Navigation Arrows ======= */
 .nav {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(255,255,255,0.9);
+  background: rgba(255,255,255,0.95);
   border: none;
   border-radius: 50%;
-  width: 2.2rem; height: 2.2rem;
+  width: 2.2rem;
+  height: 2.2rem;
   font-size: 1.2rem;
   cursor: pointer;
   z-index: 10;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
 }
 .nav.prev { left: 1rem; }
 .nav.next { right: 1rem; }
 .nav:hover { background: #fff; }
 
+/* ======= Dots ======= */
 .dots {
   display: flex;
   justify-content: center;
@@ -100,10 +126,15 @@ body { margin: 0; }
   height: 10px;
   border-radius: 50%;
   border: none;
-  background: #ccc;
+  background: #cfd4da;
   cursor: pointer;
 }
 .dot.active { background: #111; }
+
+@media (max-width: 640px) {
+  .slide { height: 56vh; }
+  .caption { font-size: 0.85rem; }
+}
 </style>
 
 <script>
@@ -125,10 +156,10 @@ body { margin: 0; }
   nextBtn.addEventListener('click', () => go(i + 1));
   dots.forEach((d, k) => d.addEventListener('click', () => go(k)));
 
-  // Optional auto-slide
-  let timer = setInterval(() => go(i + 1), 5000);
+  // Optional auto-slide every 6 seconds
+  let timer = setInterval(() => go(i + 1), 6000);
   track.addEventListener('mouseenter', () => clearInterval(timer));
-  track.addEventListener('mouseleave', () => timer = setInterval(() => go(i + 1), 5000));
+  track.addEventListener('mouseleave', () => timer = setInterval(() => go(i + 1), 6000));
 
   go(0);
 })();
