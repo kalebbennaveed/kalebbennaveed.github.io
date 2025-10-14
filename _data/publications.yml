@@ -1,4 +1,20 @@
 - year: 2025
+  title: "A Formal gatekeeper Framework for Safe Dual Control with Active Exploration"
+  authors: "<strong>Kaleb Ben Naveed</strong>, Devansh R. Agrawal, Dimitra Panagou"
+  venue: "Under Review"
+  image: "/assets/dual_gatekeeper.png"
+  links:
+    pdf: "https://arxiv.org/abs/2510.06351"
+
+- year: 2025
+  title: "Multi-Robot Allocation for Information Gathering in Non-Uniform Spatiotemporal Environments"
+  authors: "<strong>Kaleb Ben Naveed</strong>, Haejoon Lee, Dimitra Panagou"
+  venue: "Under Review"
+  image: "/assets/NST.png"
+  links:
+    pdf: "https://arxiv.org/abs/2509.22883"
+
+- year: 2025
   title: "Adaptive Ergodic Search with Energy-Aware Scheduling for Persistent Multi-Robot Missions"
   authors: "<strong>Kaleb Ben Naveed</strong>,  Devansh R. Agrawal, Rahul Kumar, Dimitra Panagou"
   venue: "Autonomous Robots"
