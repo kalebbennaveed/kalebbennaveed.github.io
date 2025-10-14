@@ -1,8 +1,6 @@
 ---
 layout: default
 title: Research
-hero:
-  height_vh: 60         # hero height (50–70 looks good)
 slides:
   - src: "/assets/dual_gatekeeper_full.png"
   - src: "/assets/NST_Alg_fig4.png"
@@ -10,20 +8,17 @@ slides:
   - src: "/assets/Eclares.png"
 ---
 
-<!-- ======= HERO SLIDER (full-bleed at top) ======= -->
-<section class="hero">
+<!-- ======= HERO SLIDER (full width, fits whole image) ======= -->
+<section class="hero" id="hero">
   <div class="hero-track" id="hero-track">
     {% for s in page.slides %}
     <div class="hero-slide">
-      <img src="{{ s.src }}" alt="Research hero image">
+      <img src="{{ s.src }}" alt="Research image">
     </div>
     {% endfor %}
   </div>
 
-  <!-- Overlay title -->
-  <div class="hero-title">Research</div>
-
-  <!-- Controls -->
+  <!-- Controls (no title overlay) -->
   <button class="hero-nav prev" aria-label="Previous">⟨</button>
   <button class="hero-nav next" aria-label="Next">⟩</button>
 
@@ -36,93 +31,83 @@ slides:
 
 <!-- ======= CONTENT BELOW THE HERO ======= -->
 <div class="content-wrap">
+  <!-- add your text/sections here -->
   <h2>Overview</h2>
-  <p>
-    Short teaser about your research goes here. You can add sections, figures, and links
-    — all of this stays below the hero slider.
-  </p>
-
-  <!-- Add your sections below as you like -->
-  <!-- <h3>Past Research</h3> ... -->
+  <p>Short teaser about your research goes here. This content sits below the hero slider.</p>
 </div>
 
 <style>
 :root{
-  --hero-h: {{ page.hero.height_vh | default: 60 }}vh;
   --max-content: 1100px;
+  --side-gap: 16px;
+  --max-img-vh: 70vh;   /* limit hero height so the whole image fits on screen */
 }
 
-/* Full-bleed hero */
+/* Full-bleed hero container; height is set dynamically to current slide */
 .hero{
   position: relative;
   width: 100%;
-  height: var(--hero-h);
+  margin: 0;               /* flush under your site nav */
   overflow: hidden;
-  margin: 0;            /* flush under the site nav */
+  background: #fff;        /* clean background around images */
 }
 
 /* Horizontal rail */
 .hero-track{
   display: flex;
-  height: 100%;
   width: 100%;
-  transition: transform .6s ease-in-out;
+  transition: transform .5s ease-in-out;
   will-change: transform;
 }
 
-/* Each slide fills the hero; image is edge-to-edge */
+/* Each slide fills width; height is content-driven */
 .hero-slide{
   flex: 0 0 100%;
-  height: 100%;
-  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 8px 0 12px;
 }
+
+/* Fit entire image (no cropping). Constrain by viewport height */
 .hero-slide img{
-  width: 100%;
-  height: 100%;
-  object-fit: cover;    /* no letterboxing; hero-style crop */
   display: block;
+  width: auto;
+  height: auto;
+  max-width: calc(100% - 2*var(--side-gap));
+  max-height: var(--max-img-vh);
+  object-fit: contain;     /* key: show full image */
+  background: transparent;
+  margin: 0 auto;
 }
 
-/* Big overlay title (like the example) */
-.hero-title{
-  position: absolute;
-  left: max(24px, calc((100vw - var(--max-content))/2));
-  bottom: 18%;
-  font-weight: 800;
-  font-size: clamp(28px, 6vw, 56px);
-  color: #111;
-  text-shadow: 0 2px 20px rgba(255,255,255,.9), 0 0 1px rgba(255,255,255,1);
-  pointer-events: none;
-}
-
-/* Arrows overlay */
+/* Arrows */
 .hero-nav{
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   width: 40px; height: 40px;
   border-radius: 999px;
-  border: none;
-  background: rgba(255,255,255,.9);
-  box-shadow: 0 2px 10px rgba(0,0,0,.15);
+  border: 1px solid #e4e7eb;
+  background: rgba(255,255,255,.95);
+  box-shadow: 0 2px 10px rgba(0,0,0,.12);
   cursor: pointer;
   font-size: 18px;
   z-index: 2;
 }
-.hero-nav.prev{ left: max(12px, calc((100vw - var(--max-content))/2)); }
-.hero-nav.next{ right: max(12px, calc((100vw - var(--max-content))/2)); }
+.hero-nav.prev{ left: 12px; }
+.hero-nav.next{ right: 12px; }
 .hero-nav:hover{ background: #fff; }
 
 /* Dots */
 .hero-dots{
   position: absolute;
   left: 50%; transform: translateX(-50%);
-  bottom: 12px;
+  bottom: 10px;
   display: flex; gap: 8px;
 }
 .hero-dots .dot{
   width: 10px; height: 10px; border-radius: 50%;
-  border: none; background: #d0d5dd; cursor: pointer;
+  border: none; background: #cfd4da; cursor: pointer;
 }
 .hero-dots .dot.active{ background: #111; }
 
@@ -134,13 +119,13 @@ slides:
 }
 
 @media (max-width: 640px){
-  .hero-title{ bottom: 16%; }
-  .hero-nav{ width: 36px; height: 36px; }
+  :root{ --side-gap: 10px; --max-img-vh: 60vh; }
 }
 </style>
 
 <script>
 (function(){
+  const hero = document.getElementById('hero');
   const track = document.getElementById('hero-track');
   const slides = Array.from(track.children);
   const prev = document.querySelector('.hero-nav.prev');
@@ -148,20 +133,37 @@ slides:
   const dots = Array.from(document.getElementById('hero-dots').children);
   let i = 0;
 
+  function adjustHeight(){
+    const h = slides[i].offsetHeight;
+    hero.style.height = h + 'px';
+  }
+
   function go(to){
     i = (to + slides.length) % slides.length;
     track.style.transform = `translateX(-${i * 100}%)`;
     dots.forEach((d,k)=>d.classList.toggle('active', k===i));
+    // after the slide moves, set hero height to match the new slide
+    requestAnimationFrame(adjustHeight);
   }
 
-  prev.addEventListener('click', () => go(i - 1));
-  next.addEventListener('click', () => go(i + 1));
+  // wire controls
+  prev.addEventListener('click', ()=> go(i - 1));
+  next.addEventListener('click', ()=> go(i + 1));
   dots.forEach((d,k)=> d.addEventListener('click', ()=> go(k)));
 
-  // Auto-advance (pause if user hovers)
+  // adjust height when images load or window resizes
+  slides.forEach(s=>{
+    const img = s.querySelector('img');
+    if (!img) return;
+    if (img.complete) { /* already loaded */ }
+    else img.addEventListener('load', adjustHeight, { once:true });
+  });
+  window.addEventListener('resize', adjustHeight);
+
+  // optional auto-advance
   let timer = setInterval(()=> go(i+1), 6000);
   track.addEventListener('mouseenter', ()=> clearInterval(timer));
-  track.addEventListener('mouseleave', ()=> timer = setInterval(()=> go(i+1), 6000));
+  track.addEventListener('mouseleave', ()=> (timer = setInterval(()=> go(i+1), 6000)));
 
   go(0);
 })();
