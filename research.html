@@ -1,7 +1,165 @@
 ---
 layout: default
 title: Research
+media:
+  # Video example
+  - type: "video"
+    src: "/assets/videos/persistent_ergodic.mp4"
+    caption: "Persistent Ergodic Search."
+
+  # Image example (GIF or static)
+  - type: "image"
+    src: "/assets/dual_gatekeeper_full.png"
+    caption: "Dual gatekeeper framework for uncertainty reduction"
+
+  - type: "image"
+    src: "/assets/NST_Alg_fig4.png"
+    caption: "Multi-Robot Allocation for Non-Uniform Spatiotemporal Environments"
+
+  # PDF example (embedded directly)
+  <!-- - type: "pdf"
+    src: "/assets/research/paper-summary.pdf"
+    caption: "Project summary PDF." -->
 ---
 
-<h1>Research</h1>
-Coming soon.
+<h1 class="page-title">Research</h1>
+
+<div class="slider">
+  <button class="nav prev" aria-label="Previous slide">⟨</button>
+  <div class="track" id="slider-track">
+    {% for m in page.media %}
+    <figure class="slide">
+      {% case m.type %}
+      {% when "video" %}
+        <video class="media" controls playsinline muted loop>
+          <source src="{{ m.src }}" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      {% when "pdf" %}
+        <object class="media" data="{{ m.src }}" type="application/pdf">
+          <p style="color:white;">PDF preview not supported in this browser. <a href="{{ m.src }}" target="_blank">Download PDF</a>.</p>
+        </object>
+      {% when "image" %}
+        <img class="media" src="{{ m.src }}" alt="{{ m.caption | default: 'Research media' }}">
+      {% endcase %}
+
+      {% if m.caption %}
+      <figcaption class="caption">{{ m.caption }}</figcaption>
+      {% endif %}
+    </figure>
+    {% endfor %}
+  </div>
+  <button class="nav next" aria-label="Next slide">⟩</button>
+
+  <div class="dots" id="slider-dots">
+    {% for m in page.media %}
+      <button class="dot{% if forloop.first %} active{% endif %}"></button>
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+.page-title {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+.slider {
+  position: relative;
+  max-width: 1000px;
+  margin: 0 auto 2rem;
+  padding: 0 2rem;
+}
+.track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 100%;
+  overflow: hidden;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px rgba(0,0,0,.1);
+  background: #000;
+}
+.slide {
+  position: relative;
+  height: min(60vh, 640px);
+  display: grid;
+  place-items: center;
+  background: #000;
+}
+.media {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+.caption {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.65), rgba(0,0,0,0));
+  color: #fff;
+  padding: .6rem 1rem;
+  font-size: .95rem;
+}
+.nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 2.25rem; width: 2.25rem;
+  border-radius: 999px;
+  border: none;
+  background: rgba(255,255,255,.9);
+  box-shadow: 0 2px 10px rgba(0,0,0,.15);
+  cursor: pointer;
+  transition: transform .15s ease;
+  z-index: 2;
+}
+.nav:hover { transform: translateY(-50%) scale(1.06); }
+.nav.prev { left: .5rem; }
+.nav.next { right: .5rem; }
+.dots {
+  display: flex;
+  gap: .5rem;
+  justify-content: center;
+  margin-top: .75rem;
+}
+.dot {
+  width: .6rem; height: .6rem;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  background: #ccc;
+}
+.dot.active { background: #111; }
+
+@media (max-width: 640px) {
+  .slider { padding: 0 1rem; }
+  .slide { height: 48vh; }
+}
+</style>
+
+<script>
+(function () {
+  const track = document.getElementById('slider-track');
+  const slides = Array.from(track.children);
+  const prevBtn = document.querySelector('.nav.prev');
+  const nextBtn = document.querySelector('.nav.next');
+  const dots = Array.from(document.getElementById('slider-dots').children);
+  let i = 0;
+
+  function go(to) {
+    i = (to + slides.length) % slides.length;
+    track.style.transform = `translateX(-${i * 100}%)`;
+    dots.forEach((d, k) => d.classList.toggle('active', k === i));
+  }
+
+  prevBtn.addEventListener('click', () => go(i - 1));
+  nextBtn.addEventListener('click', () => go(i + 1));
+  dots.forEach((d, k) => d.addEventListener('click', () => go(k)));
+
+  // Optional auto-slide every 6 seconds
+  let timer = setInterval(() => go(i + 1), 6000);
+  track.addEventListener('mouseenter', () => clearInterval(timer));
+  track.addEventListener('mouseleave', () => timer = setInterval(() => go(i + 1), 6000));
+
+  go(0);
+})();
+</script>
