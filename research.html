@@ -36,10 +36,10 @@ slides:
 
     <!-- CATEGORY 1 -->
     <li>
-      <strong>Long-horizon energy-constrained planning:</strong>
+      <strong>Long-horizon energy-constrained planning:</strong><br>
       <a href="https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=10611286" target="_blank" class="paper-link">
         How can a robot perform long-horizon exploration by tracking online-updated nominal trajectories while ensuring enough energy to return for recharging when needed?
-      </a>
+      </a><br>
       <a href="https://arxiv.org/abs/2406.04560" target="_blank" class="paper-link">
         How can multiple robots coordinate to share a single mobile charging station during such missions?
       </a>
@@ -47,13 +47,13 @@ slides:
 
     <!-- CATEGORY 2 -->
     <li>
-      <strong>Informative Planning in spatiotemporal environments:</strong>
+      <strong>Informative Planning in spatiotemporal environments:</strong><br>
       <a href="https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=10611286" target="_blank" class="paper-link">
         How can a robot plan trajectories that explicitly account for how information evolves and decays across space and time during exploration?
-      </a>
+      </a><br>
       <a href="https://link.springer.com/article/10.1007/s10514-025-10215-6" target="_blank" class="paper-link">
         How can this framework be extended to the multi-agent case, where robots must coordinate sensing and avoid redundant observations of the same regions?
-      </a>
+      </a><br>
       <a href="https://arxiv.org/abs/2509.22883" target="_blank" class="paper-link">
         How can a team of robots be allocated across regions with differing spatial and temporal correlations to effectively capture the varying degrees of variability across the regions?
       </a>
@@ -61,8 +61,8 @@ slides:
 
     <!-- CATEGORY 3 -->
     <li>
-      <strong>Planning under uncertainty:</strong>
-      How can we design trajectories that reduce uncertainty safely, and only when it improves performance and lowers cost?
+      <strong>Planning under uncertainty:</strong><br>
+      How can we design trajectories that reduce uncertainty safely, and only when it improves performance and lowers cost?<br>
       <a href="https://arxiv.org/abs/2510.06351" target="_blank" class="paper-link">
         How can we design trajectories that reduce uncertainty safely while staying within a fixed mission cost budget?
       </a>
@@ -76,12 +76,12 @@ slides:
   margin: 0.75rem 0 2rem;
   padding-left: 1.25rem;
   max-width: 850px;
-  line-height: 1.6;
+  line-height: 1.7;
   color: #333;
 }
 
 .research-list li {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
 
 .research-list strong {
@@ -89,15 +89,15 @@ slides:
 }
 
 .paper-link {
-  color: #0066cc;           /* academic-style blue link */
-  text-decoration: underline; /* visible underline */
-  text-decoration-thickness: 1.5px;
-  text-underline-offset: 3px;
+  display: block;          /* makes each question on its own line */
+  color: #0066cc;          /* academic-style blue */
+  text-decoration: none;   /* no underline */
+  margin-top: 0.3rem;
   transition: color 0.2s ease;
 }
 
 .paper-link:hover {
-  color: #004c99;           /* darker blue on hover */
+  color: #004c99;          /* darker blue on hover */
 }
 </style>
 
