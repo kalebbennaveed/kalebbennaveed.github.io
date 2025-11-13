@@ -2,7 +2,7 @@
   title: "Provably Safe Stein Variational Clarity-Aware Informative Planning"
   authors: "<strong>Kaleb Ben Naveed*</strong>, Utkrist Sahai*, Anouck Girard, Dimitra Panagou<br><em>*Equal Contribution</em>"
   venue: "Under Review"
-  image: "/assets/stein_clarity.png"
+  image: "/assets/stein_image_2.png"
   links:
     pdf: "/assets/pubs/Stein_Clarity_gatekeeper.pdf"
     website: "https://usahai18.github.io/stein_clarity/"
