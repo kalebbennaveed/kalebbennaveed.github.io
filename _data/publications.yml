@@ -1,6 +1,6 @@
 - year: 2025
   title: "Provably Safe Stein Variational Clarity-Aware Informative Planning"
-  authors: "<strong>Kaleb Ben Naveed*</strong>, <strong>Utkrist Sahai*</strong>, Anouck Girard, Dimitra Panagou<br><em>*Equal Contribution</em>"
+  authors: "<strong>Kaleb Ben Naveed*</strong>, Utkrist Sahai*, Anouck Girard, Dimitra Panagou<br><em>*Equal Contribution</em>"
   venue: "Under Review"
   image: "/assets/stein_clarity.png"
   links:
