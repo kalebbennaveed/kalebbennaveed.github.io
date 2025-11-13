@@ -1,4 +1,15 @@
 - year: 2025
+  title: "Provably Safe Stein Variational Clarity-Aware Informative Planning"
+  authors: "<strong>Kaleb Ben Naveed</strong>, Utkrisht Sahai, Anouck Girard, Dimitra Panagou"
+  venue: "Under Review"
+  image: "/assets/stein_clarity.png"
+  links:
+    pdf: "/assets/pubs/Stein_Clarity_gatekeeper.pdf"
+    website: "https://usahai18.github.io/stein_clarity/"
+
+
+
+- year: 2025
   title: "A Formal gatekeeper Framework for Safe Dual Control with Active Exploration"
   authors: "<strong>Kaleb Ben Naveed</strong>, Devansh R. Agrawal, Dimitra Panagou"
   venue: "Under Review"

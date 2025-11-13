@@ -47,7 +47,16 @@ title: Publications
                 </a>
               {% endif %}
               {% if pub.links.website %}
-                <a class="pub-btn" href="{{ pub.links.website }}" target="_blank">
+                <a class="pub-btn" href="{{ pub.links.website }}" target="_blank" title="Paper Website">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#FF6600" 
+                      viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 0.3em;">
+                    <path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 
+                            10-4.486 10-10S17.514 2 12 2zm-1 17.93A8.001 
+                            8.001 0 014.07 13H11v6.93zM11 11H4.07a8.001 
+                            8.001 0 016.93-6.93V11zm2 0V4.07A8.001 8.001 
+                            0 0119.93 11H13zm0 2h6.93A8.001 8.001 0 0113 
+                            19.93V13z"/>
+                  </svg>
                   Paper Website
                 </a>
               {% endif %}
