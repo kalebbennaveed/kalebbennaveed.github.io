@@ -4,7 +4,7 @@
   venue: "Under Review"
   image: "/assets/stein_image_2.png"
   links:
-    pdf: "/assets/pubs/Stein_Clarity_gatekeeper.pdf"
+    pdf: "https://arxiv.org/abs/2511.09836"
     website: "https://usahai18.github.io/stein_clarity/"
 
 
