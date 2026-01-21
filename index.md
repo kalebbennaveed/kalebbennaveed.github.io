@@ -40,6 +40,8 @@ title: "Kaleb Ben Naveed"
 
 ## Recent News
 
+- **21 January 2026** – Two papers accepted at American Control Conference (ACC) 2026!
+
 - **08 September 2025** – Our paper “[Adaptive Ergodic Search with Energy-Aware Scheduling for Persistent Multi-Robot Missions](https://arxiv.org/abs/2505.11663)” was accepted to [Autonomous Robots](https://link.springer.com/journal/10514).
 
 - **16 June 2025** – Our paper “[meSch: Multi-Agent Energy-Aware Scheduling for Task Persistence](https://arxiv.org/abs/2406.04560)” was accepted to [IEEE IROS 2025](https://www.iros25.org/).
