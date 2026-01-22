@@ -1,4 +1,4 @@
-- year: 2025
+- year: 2026
   title: "Provably Safe Stein Variational Clarity-Aware Informative Planning"
   authors: "<strong>Kaleb Ben Naveed*</strong>, Utkrist Sahai*, Anouck Girard, Dimitra Panagou<br><em>*Equal Contribution</em>"
   venue: "Under Review"
@@ -9,7 +9,7 @@
 
 
 
-- year: 2025
+- year: 2026
   title: "A Formal gatekeeper Framework for Safe Dual Control with Active Exploration"
   authors: "<strong>Kaleb Ben Naveed</strong>, Devansh R. Agrawal, Dimitra Panagou"
   venue: "American Control Conference (ACC) 2026"
@@ -17,7 +17,7 @@
   links:
     pdf: "https://arxiv.org/abs/2510.06351"
 
-- year: 2025
+- year: 2026
   title: "Multi-Robot Allocation for Information Gathering in Non-Uniform Spatiotemporal Environments"
   authors: "<strong>Kaleb Ben Naveed</strong>, Haejoon Lee, Dimitra Panagou"
   venue: "American Control Conference (ACC) 2026"
