@@ -1,9 +1,9 @@
 - year: 2026
   title: "Provably Safe Stein Variational Clarity-Aware Informative Planning"
   authors: "<strong>Kaleb Ben Naveed*</strong>, Utkrist Sahai*, Anouck Girard, Dimitra Panagou<br><em>*Equal Contribution</em>"
-  venue: "Under Review"
+  venue: "2026 Learning for Dynamics and Control Conference (L4DC)"
   image: "/assets/stein_image_2.png"
-  links:
+  links: 
     pdf: "https://arxiv.org/abs/2511.09836"
     website: "https://usahai18.github.io/stein_clarity/"
 

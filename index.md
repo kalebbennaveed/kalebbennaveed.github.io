@@ -40,6 +40,8 @@ title: "Kaleb Ben Naveed"
 
 ## Recent News
 
+- **22 January 2026** – Our paper “[Provably Safe Stein Variational Clarity-Aware Informative Planning](https://arxiv.org/abs/2511.09836)” was accepted to [8th Annual Learning for Dynamics & Control Conference 2026](https://sites.google.com/usc.edu/l4dc2026/).
+
 - **21 January 2026** – Two papers accepted at American Control Conference (ACC) 2026!
 
 - **08 September 2025** – Our paper “[Adaptive Ergodic Search with Energy-Aware Scheduling for Persistent Multi-Robot Missions](https://arxiv.org/abs/2505.11663)” was accepted to [Autonomous Robots](https://link.springer.com/journal/10514).
