@@ -7,7 +7,8 @@ title: "Kaleb Ben Naveed"
   <div class="bio-text">
     <h1><strong>Kaleb</strong> <span class="normal-weight">Ben Naveed</span></h1>
     <p><strong>PhD Student</strong> in Robotics, University of Michigan, Ann Arbor</p>
-
+    <p><strong>Office:</strong> 3310 Ford Robotics Building</p>
+    
     <p>I am a fourth-year Robotics Ph.D. student in
   <a href="https://dasc-lab.github.io/" target="_blank">The DASC Lab</a>
   at the
