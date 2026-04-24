@@ -1,0 +1,6 @@
+title: Notes
+author: Kaleb Ben Naveed
+execute:
+  execute_notebooks: off
+html:
+  use_repository_button: false
