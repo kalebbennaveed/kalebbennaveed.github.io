@@ -44,7 +44,7 @@ title: "Kaleb Ben Naveed"
 
 ## Recent News
 
-- **11 May 2026** – Joined Mitsubishi Electric Research Laboratories (MERL) as a Research Intern.
+- **11 May 2026** – Joined Mitsubishi Electric Research Laboratories (MERL) in Cambridge, MA as a Research Intern.
 
 - **22 January 2026** – Our paper “[Provably Safe Stein Variational Clarity-Aware Informative Planning](https://arxiv.org/abs/2511.09836)” was accepted to [8th Annual Learning for Dynamics & Control Conference 2026](https://sites.google.com/usc.edu/l4dc2026/).
 
