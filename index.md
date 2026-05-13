@@ -8,12 +8,15 @@ title: "Kaleb Ben Naveed"
     <h1><strong>Kaleb</strong> <span class="normal-weight">Ben Naveed</span></h1>
     <p><strong>PhD Student</strong> in Robotics, University of Michigan, Ann Arbor</p>
 
-    <p>I am a fourth-year Robotics Ph.D. student in
+<p>I am a fourth-year Robotics Ph.D. student in
   <a href="https://dasc-lab.github.io/" target="_blank">The DASC Lab</a>
   at the
   <a href="https://robotics.umich.edu/" target="_blank">Department of Robotics</a>,
   advised by
-  <a href="https://websites.umich.edu/~dpanagou/" target="_blank">Professor Dimitra Panagou</a>. My goal is to develop principled planning algorithms that enable safe long-term autonomy in robotic systems. My research is at the intersection of informative path planning, multi-agent coordination, and safe trajectory planning under uncertainty and disturbances, and is motivated by challenges in persistent exploration, reconstruction, and mapping in dynamic spatiotemporal environments. </p>
+  <a href="https://websites.umich.edu/~dpanagou/" target="_blank">Professor Dimitra Panagou</a>.
+  <strong>I am currently a Research Intern at Mitsubishi Electric Research Laboratories (MERL) under Dr. Stefano Di Cairano.</strong>
+  My goal is to develop principled planning algorithms that enable safe long-term autonomy in robotic systems. My research is at the intersection of informative path planning, multi-agent coordination, and safe trajectory planning under uncertainty and disturbances, and is motivated by challenges in persistent exploration, reconstruction, and mapping in dynamic spatiotemporal environments.
+</p>
 
 <p>
   In the past, I have worked with 
@@ -39,6 +42,8 @@ title: "Kaleb Ben Naveed"
 ---
 
 ## Recent News
+
+- **11 May 2026** – Joined Mitsubishi Electric Research Laboratories (MERL) as a Research Intern.
 
 - **22 January 2026** – Our paper “[Provably Safe Stein Variational Clarity-Aware Informative Planning](https://arxiv.org/abs/2511.09836)” was accepted to [8th Annual Learning for Dynamics & Control Conference 2026](https://sites.google.com/usc.edu/l4dc2026/).
 
