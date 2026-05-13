@@ -7,6 +7,7 @@ title: "Kaleb Ben Naveed"
   <div class="bio-text">
     <h1><strong>Kaleb</strong> <span class="normal-weight">Ben Naveed</span></h1>
     <p><strong>PhD Student</strong> in Robotics, University of Michigan, Ann Arbor</p>
+    <p><strong>Office:</strong> 3010 Ford Robotics Building</p>
 
 <p>I am a fourth-year Robotics Ph.D. student in
   <a href="https://dasc-lab.github.io/" target="_blank">The DASC Lab</a>
@@ -34,7 +35,7 @@ title: "Kaleb Ben Naveed"
   </div>
 
   <div class="bio-photo">
-    <img src="/assets/profile2.jpg" alt="Kaleb Ben Naveed">
+    <img src="/assets/kaleb_pic.jpg" alt="Kaleb Ben Naveed">
     <!-- <p class="caption">Kaleb, 2025</p> -->
   </div>
 </div>
