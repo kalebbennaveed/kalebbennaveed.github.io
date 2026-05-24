@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="Trajectory Planning for Safe Dual Control with Active Exploration">
+  <meta name="keywords" content="safe dual control, active exploration, gatekeeper, robust planning">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta property="og:title" content="Trajectory Planning for Safe Dual Control with Active Exploration">
+  <meta property="og:description" content="Dual-gatekeeper plans safe, budget-feasible exploratory trajectories that reduce model uncertainty.">
+  <meta property="og:image" content="/tro_dual_gtk/assets/racing_policy.png">
+  <title>Trajectory Planning for Safe Dual Control with Active Exploration</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link rel="stylesheet" href="/tro_dual_gtk/stein_clarity-main/static/css/bulma.min.css">
+  <link rel="stylesheet" href="/tro_dual_gtk/stein_clarity-main/static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="/tro_dual_gtk/stein_clarity-main/static/css/index.css">
+  <style>
+    :root {
+      --accent: #0f766e;
+      --accent-dark: #0f172a;
+      --muted: #5f6b7a;
+      --line: #d9dee7;
+      --soft: #f6f8fb;
+    }
+
+    body {
+      color: #1f2933;
+    }
+
+    .navbar {
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.96);
+    }
+
+    .navbar-item {
+      color: #334155;
+      font-weight: 600;
+    }
+
+    .publication-title {
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .publication-authors {
+      line-height: 1.55;
+    }
+
+    .publication-authors a {
+      color: #0f766e !important;
+    }
+
+    .venue-tag {
+      display: inline-flex;
+      align-items: center;
+      margin-top: 1rem;
+      color: #c2410c;
+      font-weight: 700;
+    }
+
+    .button.is-dark {
+      background: #111827;
+      border-color: #111827;
+    }
+
+    .button.is-light-outline {
+      background: #fff;
+      border: 1px solid var(--line);
+      color: #111827;
+      font-weight: 700;
+    }
+
+    .teaser-figure {
+      margin: 0 auto;
+      max-width: 980px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 14px 42px rgba(31, 41, 55, 0.09);
+      background: #fff;
+    }
+
+    .teaser-figure img,
+    .paper-figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .caption {
+      padding: 0.85rem 1rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+      border-top: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .paper-figure {
+      margin: 1.25rem 0;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .highlight-box {
+      height: 100%;
+      padding: 1.2rem;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .highlight-box h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.45rem;
+    }
+
+    .highlight-box p,
+    .video-copy p {
+      color: var(--muted);
+    }
+
+    .soft-section {
+      background: var(--soft);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .video-card {
+      height: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .video-copy {
+      padding: 1rem;
+    }
+
+    .video-copy h3 {
+      margin-bottom: 0.35rem;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .publication-video {
+      border-radius: 0 !important;
+      background: #0b1220;
+    }
+
+    .publication-video video {
+      object-fit: contain;
+    }
+
+    .takeaway {
+      border-left: 4px solid var(--accent);
+      padding: 0.25rem 0 0.25rem 1.1rem;
+      color: #344054;
+    }
+
+    @media (max-width: 768px) {
+      .publication-title {
+        font-size: 2.15rem !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="navbar-menu is-active">
+      <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+        <a class="navbar-item" href="/">Home</a>
+        <a class="navbar-item" href="/publications.html">Publications</a>
+        <a class="navbar-item" href="#method">Method</a>
+        <a class="navbar-item" href="#simulations">Videos</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">Trajectory Planning for Safe Dual Control with Active Exploration</h1>
+            <div class="venue-tag">Under Review, 2026</div>
+
+            <div class="is-size-5 publication-authors" style="margin-top: 1.25rem;">
+              <span class="author-block">
+                <a href="https://kalebbennaveed.github.io/">Kaleb Ben Naveed</a><sup>1</sup>,
+              </span>
+              <span class="author-block">Manveer Singh<sup>1</sup>,</span>
+              <span class="author-block">Devansh R. Agrawal<sup>1</sup>,</span>
+              <span class="author-block">Dimitra Panagou<sup>1,2</sup></span>
+            </div>
+
+            <div class="is-size-5 publication-authors">
+              <span class="author-block"><sup>1</sup>University of Michigan, Ann Arbor</span>
+            </div>
+            <div class="is-size-5 publication-authors">
+              <span class="author-block"><sup>2</sup>Department of Aerospace Engineering</span>
+            </div>
+
+            <div class="column has-text-centered">
+              <div class="publication-links">
+                <span class="link-block">
+                  <a href="/tro_dual_gtk/Dual_gk_TRO.pdf" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="fas fa-file-pdf"></i></span>
+                    <span>Paper</span>
+                  </a>
+                </span>
+                <span class="link-block">
+                  <a href="#simulations" class="external-link button is-normal is-rounded is-light-outline">
+                    <span class="icon"><i class="fas fa-play"></i></span>
+                    <span>Simulation Videos</span>
+                  </a>
+                </span>
+                <span class="link-block">
+                  <a href="/publications.html" class="external-link button is-normal is-rounded is-light-outline">
+                    <span class="icon"><i class="fas fa-arrow-left"></i></span>
+                    <span>Publications</span>
+                  </a>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hero teaser">
+    <div class="container is-max-desktop">
+      <div class="hero-body">
+        <h2 class="subtitle has-text-centered">
+          Dual-gatekeeper treats exploration as a certified decision: explore only when a candidate trajectory is safe, budget-feasible, and predicted to reduce uncertainty.
+        </h2>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="abstract">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Abstract</h2>
+          <div class="content has-text-justified">
+            <p>
+              Planning safe trajectories under model uncertainty is challenging because robust planning must guard against worst-case parameter realizations, often producing conservative behavior. Dual control offers a way to improve performance by actively reducing uncertainty during the mission, but exploration should happen only when it is beneficial, safe, and not too costly. This paper proposes <strong>Dual-gatekeeper</strong>, a budget-constrained safe dual control framework that evaluates informative candidate trajectories before execution. A candidate is committed only if it preserves safety, respects a mission-level exploration budget, and is predicted to shrink the parameter uncertainty set.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="columns" style="margin-top: 1.25rem;">
+        <div class="column">
+          <div class="highlight-box">
+            <h3>Safe by construction</h3>
+            <p>Committed trajectories must satisfy state and input constraints under admissible uncertainty and bounded disturbances.</p>
+          </div>
+        </div>
+        <div class="column">
+          <div class="highlight-box">
+            <h3>Budget constrained</h3>
+            <p>Exploration is allowed only when its predicted excess mission cost remains inside a prescribed budget.</p>
+          </div>
+        </div>
+        <div class="column">
+          <div class="highlight-box">
+            <h3>Actively informative</h3>
+            <p>Feasible candidates are scored by predicted reduction in the current parameter uncertainty set.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section soft-section" id="method">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Framework Overview</h2>
+          <div class="content has-text-justified">
+            <p>
+              At every replanning step, the robust trajectory planner supplies a conservative backup trajectory. Dual-gatekeeper then generates both robust mission candidates and informative candidates, rejects unsafe or budget-infeasible options, predicts uncertainty reduction for the remaining candidates, and commits the highest-scoring feasible trajectory to the low-level controller.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <figure class="paper-figure">
+        <img src="/tro_dual_gtk/assets/framework.png" alt="Block diagram of the Dual-gatekeeper framework">
+        <figcaption class="caption">
+          Dual-gatekeeper filters candidate trajectories using safety, budget feasibility, and predicted information gain before committing a trajectory.
+        </figcaption>
+      </figure>
+
+      <figure class="paper-figure">
+        <img src="/tro_dual_gtk/assets/method_sequence.png" alt="Five-step Dual-gatekeeper pipeline">
+        <figcaption class="caption">
+          Pipeline: build a backup trajectory, generate candidate pairs, reject unsafe candidates, select the most valuable feasible candidate, and update the backup after return.
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Uncertainty Reduction</h2>
+          <div class="content has-text-justified">
+            <p>
+              The framework uses set-membership identification to maintain a feasible parameter set that contains the true model parameter. Informative candidates are evaluated by how much they are expected to shrink this set, measured through directional widths of the uncertainty region.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <figure class="paper-figure">
+        <img src="/tro_dual_gtk/assets/bounds.png" alt="Parameter bounds shrinking over time">
+        <figcaption class="caption">
+          Parameter bounds shrink as informative data is collected, while the true parameter remains inside the feasible set.
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section soft-section" id="simulations">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Car Racing Simulation Videos</h2>
+          <div class="content has-text-justified">
+            <p>
+              The racing simulations compare conservative execution with Dual-gatekeeper variants. Together, they show how the framework uses safety filtering and active uncertainty reduction to decide which trajectory should be committed.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="columns is-centered">
+        <div class="column">
+          <article class="video-card">
+            <div class="publication-video">
+              <video src="/tro_dual_gtk/backup_policy.mp4" controls muted loop playsinline preload="metadata"></video>
+            </div>
+            <div class="video-copy">
+              <h3>Backup Policy Only</h3>
+              <p>The car follows the conservative safety-preserving policy without committing to exploratory behavior.</p>
+            </div>
+          </article>
+        </div>
+        <div class="column">
+          <article class="video-card">
+            <div class="publication-video">
+              <video src="/tro_dual_gtk/dual_gtk_final.mp4" controls muted loop playsinline preload="metadata"></video>
+            </div>
+            <div class="video-copy">
+              <h3>Dual-gatekeeper Without Uncertainty Reduction</h3>
+              <p>When the uncertainty set stays large, many candidate trajectories cannot be certified as safe, so the gatekeeper does not commit them and falls back to conservative behavior.</p>
+            </div>
+          </article>
+        </div>
+        <div class="column">
+          <article class="video-card">
+            <div class="publication-video">
+              <video src="/tro_dual_gtk/dual_gtk_with_high_uncertainty.mp4" controls muted loop playsinline preload="metadata"></video>
+            </div>
+            <div class="video-copy">
+              <h3>Dual-gatekeeper With Uncertainty Reduction</h3>
+              <p>As uncertainty is reduced, more candidate trajectories pass the safety and budget checks and can be committed; candidates that still fail certification are rejected.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Quadrotor Case Study</h2>
+          <div class="content has-text-justified">
+            <p>
+              The same architecture is demonstrated on quadrotor navigation. The planner compares backup trajectories, valid candidate trajectories, and final committed solutions while respecting obstacle constraints.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <figure class="paper-figure">
+        <img src="/tro_dual_gtk/sim_results_quad.png" alt="Quadrotor backup trajectory, valid candidates, and final solution trajectory">
+        <figcaption class="caption">
+          Quadrotor navigation results showing backup trajectories, valid candidate trajectories, and final committed solutions.
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3 has-text-centered">Takeaway</h2>
+          <p class="takeaway">
+            Dual-gatekeeper does not rely on a loosely tuned exploration reward. It treats exploration as a verifiable decision: certify safety, check the exploration budget, predict uncertainty reduction, and then commit only the best feasible candidate.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="content has-text-centered">
+      <p>
+        <strong>Trajectory Planning for Safe Dual Control with Active Exploration</strong>
+      </p>
+      <p>
+        <a href="/">Kaleb Ben Naveed</a> · <a href="/publications.html">Publications</a> · <a href="/tro_dual_gtk/Dual_gk_TRO.pdf">Paper</a>
+      </p>
+    </div>
+  </footer>
+
+  <script defer src="/tro_dual_gtk/stein_clarity-main/static/js/fontawesome.all.min.js"></script>
+</body>
+</html>
