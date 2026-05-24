@@ -1,4 +1,13 @@
 - year: 2026
+  title: "Trajectory Planning for Safe Dual Control with Active Exploration"
+  authors: "<strong>Kaleb Ben Naveed</strong>, Manveer Singh, Devansh R. Agrawal, Dimitra Panagou"
+  venue: "Under Review, 2026"
+  image: "/tro_dual_gtk/assets/dual_gatekeeper_tro_thumbnail.png"
+  links:
+    pdf: "/tro_dual_gtk/Dual_gk_TRO.pdf"
+    website: "/tro_dual_gtk/"
+
+- year: 2026
   title: "Provably Safe Stein Variational Clarity-Aware Informative Planning"
   authors: "<strong>Kaleb Ben Naveed*</strong>, Utkrist Sahai*, Anouck Girard, Dimitra Panagou<br><em>*Equal Contribution</em>"
   venue: "2026 Learning for Dynamics and Control Conference (L4DC)"
@@ -7,16 +16,13 @@
     pdf: "https://arxiv.org/abs/2511.09836"
     website: "https://usahai18.github.io/stein_clarity/"
 
-
-
 - year: 2026
-  title: "Trajectory Planning for Safe Dual Control with Active Exploration"
-  authors: "<strong>Kaleb Ben Naveed</strong>, Manveer Singh, Devansh R. Agrawal, Dimitra Panagou"
-  venue: "Under Review, 2026"
+  title: "A Formal gatekeeper Framework for Safe Dual Control with Active Exploration"
+  authors: "<strong>Kaleb Ben Naveed</strong>, Devansh R. Agrawal, Dimitra Panagou"
+  venue: "American Control Conference (ACC) 2026"
   image: "/assets/dual_gatekeeper.png"
   links:
-    pdf: "/tro_dual_gtk/Dual_gk_TRO.pdf"
-    website: "/tro_dual_gtk/"
+    pdf: "https://arxiv.org/abs/2510.06351"
 
 - year: 2026
   title: "Multi-Robot Allocation for Information Gathering in Non-Uniform Spatiotemporal Environments"
