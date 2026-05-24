@@ -4,7 +4,7 @@
   venue: "Under Review, 2026"
   image: "/tro_dual_gtk/assets/dual_gatekeeper_tro_thumbnail.png"
   links:
-    pdf: "/tro_dual_gtk/Dual_gk_TRO.pdf"
+    pdf: "https://arxiv.org/abs/2604.15507"
     website: "/tro_dual_gtk/"
 
 - year: 2026
