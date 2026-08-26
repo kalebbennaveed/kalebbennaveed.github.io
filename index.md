@@ -9,26 +9,32 @@ title: "Kaleb Ben Naveed"
     <p><strong>PhD Student</strong> in Robotics, University of Michigan, Ann Arbor</p>
     <p><strong>Office:</strong> 3010 Ford Robotics Building</p>
 
-<p>I am a fourth-year Robotics Ph.D. student in
+<p>I am a fifth year Robotics Ph.D. student in
   <a href="https://dasc-lab.github.io/" target="_blank">The DASC Lab</a>
   at the
   <a href="https://robotics.umich.edu/" target="_blank">Department of Robotics</a>,
   advised by
   <a href="https://websites.umich.edu/~dpanagou/" target="_blank">Professor Dimitra Panagou</a>.
-  <strong>I am currently a Research Intern at Mitsubishi Electric Research Laboratories (MERL) under Dr. Stefano Di Cairano.</strong>
+
   My goal is to develop principled planning algorithms that enable safe long-term autonomy in robotic systems. My research is at the intersection of informative path planning, multi-agent coordination, and safe trajectory planning under uncertainty and disturbances, and is motivated by challenges in persistent exploration, reconstruction, and mapping in dynamic spatiotemporal environments.
 </p>
 
 <p>
+  I recently finished a Research Internship at 
+  <a href="https://www.merl.com/research/robotics" target="_blank">Mitsubishi Electric Research Laboratories (MERL)</a>,
+  where I worked with 
+  <a href="https://www.merl.com/people/dicairano" target="_blank">Dr. Stefano Di Cairano</a>
+  and 
+  <a href="https://www.merl.com/people/vinod" target="_blank">Dr. Abraham Vinod</a>.
   In the past, I have worked with 
   <a href="https://www.ri.cmu.edu/ri-faculty/john-m-dolan/" target="_blank">Professor John Dolan</a>
   at the 
-  <a href="https://www.ri.cmu.edu/" target="_blank">Robotics Institute, Carnegie Mellon University</a>,
+  <a href="https://www.ri.cmu.edu/" target="_blank">Robotics Institute, Carnegie Mellon University</a>
   on trajectory planning for autonomous vehicles using model-free reinforcement learning, and with 
   <a href="https://www.ri.cmu.edu/ri-faculty/sebastian-scherer/" target="_blank">Professor Sebastian Scherer</a>
   on autonomy algorithms for reconnaissance missions. I have previously studied at 
   <a href="https://www.polyu.edu.hk/en/" target="_blank">The Hong Kong Polytechnic University</a>
-   and the 
+  and the 
   <a href="https://www.pem.cam.ac.uk/" target="_blank">University of Cambridge</a>. I was also a 
   <a href="https://riss.ri.cmu.edu/" target="_blank">Robotics Institute Summer Scholar (RISS)</a> in 2020 and 2021.
 </p>
@@ -43,6 +49,8 @@ title: "Kaleb Ben Naveed"
 ---
 
 ## Recent News
+
+- **26 August 2026** – Back at the University of Michigan after completing my summer internship. Stay tuned for some interesting work from the summer!.
 
 - **11 May 2026** – Joined Mitsubishi Electric Research Laboratories (MERL) in Cambridge, MA as a Research Intern.
 
