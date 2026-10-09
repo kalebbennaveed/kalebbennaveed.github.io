@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Dual Gatekeeper · DRS Racing</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=0cabadcae151">
 <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/controls/OrbitControls.js":"./vendor/OrbitControls.js"}}</script>
 </head><body>
 <header><div><p class="eyebrow" id="circuit-name">AUTONOMOUS RACING / BARCELONA</p><h1>Dual Gatekeeper</h1><p class="subtitle" id="scenario-description">Mission and informative trajectories under bounded tire friction.</p></div><span class="pill">Sampled DRS · β = 0</span></header>
@@ -13,4 +13,4 @@
 <section class="controls"><button id="play">Play</button><button id="reset" class="secondary">Restart</button><input id="time" type="range" min="0" max="65" step="0.05" value="0" aria-label="Simulation time"><label>Rate <select id="rate"><option value="0.25">¼×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option><option value="8">8×</option></select></label><label>Camera <select id="camera"><option value="follow">Follow</option><option value="orbit">Free orbit</option><option value="track">Whole track</option></select></label><label class="check"><input id="plan" type="checkbox" checked> Committed plan</label></section>
 <section class="results"><h2>Recorded results <span>Same circuit, initial state, sensor and safety checks</span></h2><div id="results"></div></section>
 <footer>Colored dashed: candidate prefix. Blue dashed: centerline backup. Recorded Python simulation · 7-state dynamic bicycle · fixed unknown μ · sampled DRS checks with β = 0. Uniform conditional friction and an invariant slow centerline backup are assumed. Risk and confidence apply per certification decision.</footer>
-<script src="data.js"></script><script type="module" src="app.js"></script></body></html>
+<script src="data.js?v=421d64d4d7fe"></script><script type="module" src="app.js?v=b8d8b51d3542"></script></body></html>
