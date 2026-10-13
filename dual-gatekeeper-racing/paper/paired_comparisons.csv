@@ -1,0 +1,7 @@
+scenario,comparator,complete_pairs,planned_pairs,proposed_time_wins,ties,losses,mean_time_saved,mean_cost_saved
+traction,passive,8,8,7,0,1,25.775,309.3919697785924
+traction,weighted,8,8,8,0,0,2.912499999999996,31.755111910563414
+traction,robust,8,8,8,0,0,92.025,1117.4406249738445
+traction_relaxed,passive,8,8,7,0,1,17.9625,215.56145236590618
+traction_relaxed,weighted,8,8,7,0,1,2.0749999999999957,22.99427785102452
+traction_relaxed,robust,8,8,8,0,0,90.75625,1101.4219362580025

@@ -1,0 +1,647 @@
+{
+  "implementation": "ef5c0050f493105beeec5201d96fbdcc4e73199512326a80a2bcf354641d3579",
+  "seed": 20261013,
+  "cases": [
+    {
+      "id": "000-traction-proposed",
+      "trial": 0,
+      "method": "proposed",
+      "scenario": "traction",
+      "true_mu": 0.6655113336294614,
+      "seed": 3000,
+      "seconds": 360.0,
+      "information_weight": 2.0
+    },
+    {
+      "id": "000-traction-passive",
+      "trial": 0,
+      "method": "passive",
+      "scenario": "traction",
+      "true_mu": 0.6655113336294614,
+      "seed": 3000,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "000-traction-weighted",
+      "trial": 0,
+      "method": "weighted",
+      "scenario": "traction",
+      "true_mu": 0.6655113336294614,
+      "seed": 3000,
+      "seconds": 360.0,
+      "information_weight": 0.4
+    },
+    {
+      "id": "000-traction-robust",
+      "trial": 0,
+      "method": "robust",
+      "scenario": "traction",
+      "true_mu": 0.6655113336294614,
+      "seed": 3000,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "000-traction_relaxed-proposed",
+      "trial": 0,
+      "method": "proposed",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.6655113336294614,
+      "seed": 3000,
+      "seconds": 360.0,
+      "information_weight": 2.0
+    },
+    {
+      "id": "000-traction_relaxed-passive",
+      "trial": 0,
+      "method": "passive",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.6655113336294614,
+      "seed": 3000,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "000-traction_relaxed-weighted",
+      "trial": 0,
+      "method": "weighted",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.6655113336294614,
+      "seed": 3000,
+      "seconds": 360.0,
+      "information_weight": 0.4
+    },
+    {
+      "id": "000-traction_relaxed-robust",
+      "trial": 0,
+      "method": "robust",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.6655113336294614,
+      "seed": 3000,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "001-traction-proposed",
+      "trial": 1,
+      "method": "proposed",
+      "scenario": "traction",
+      "true_mu": 0.5911084483502845,
+      "seed": 3001,
+      "seconds": 360.0,
+      "information_weight": 2.0
+    },
+    {
+      "id": "001-traction-passive",
+      "trial": 1,
+      "method": "passive",
+      "scenario": "traction",
+      "true_mu": 0.5911084483502845,
+      "seed": 3001,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "001-traction-weighted",
+      "trial": 1,
+      "method": "weighted",
+      "scenario": "traction",
+      "true_mu": 0.5911084483502845,
+      "seed": 3001,
+      "seconds": 360.0,
+      "information_weight": 0.4
+    },
+    {
+      "id": "001-traction-robust",
+      "trial": 1,
+      "method": "robust",
+      "scenario": "traction",
+      "true_mu": 0.5911084483502845,
+      "seed": 3001,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "001-traction_relaxed-proposed",
+      "trial": 1,
+      "method": "proposed",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.5911084483502845,
+      "seed": 3001,
+      "seconds": 360.0,
+      "information_weight": 2.0
+    },
+    {
+      "id": "001-traction_relaxed-passive",
+      "trial": 1,
+      "method": "passive",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.5911084483502845,
+      "seed": 3001,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "001-traction_relaxed-weighted",
+      "trial": 1,
+      "method": "weighted",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.5911084483502845,
+      "seed": 3001,
+      "seconds": 360.0,
+      "information_weight": 0.4
+    },
+    {
+      "id": "001-traction_relaxed-robust",
+      "trial": 1,
+      "method": "robust",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.5911084483502845,
+      "seed": 3001,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "002-traction-proposed",
+      "trial": 2,
+      "method": "proposed",
+      "scenario": "traction",
+      "true_mu": 0.8591889598677336,
+      "seed": 3002,
+      "seconds": 360.0,
+      "information_weight": 2.0
+    },
+    {
+      "id": "002-traction-passive",
+      "trial": 2,
+      "method": "passive",
+      "scenario": "traction",
+      "true_mu": 0.8591889598677336,
+      "seed": 3002,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "002-traction-weighted",
+      "trial": 2,
+      "method": "weighted",
+      "scenario": "traction",
+      "true_mu": 0.8591889598677336,
+      "seed": 3002,
+      "seconds": 360.0,
+      "information_weight": 0.4
+    },
+    {
+      "id": "002-traction-robust",
+      "trial": 2,
+      "method": "robust",
+      "scenario": "traction",
+      "true_mu": 0.8591889598677336,
+      "seed": 3002,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "002-traction_relaxed-proposed",
+      "trial": 2,
+      "method": "proposed",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.8591889598677336,
+      "seed": 3002,
+      "seconds": 360.0,
+      "information_weight": 2.0
+    },
+    {
+      "id": "002-traction_relaxed-passive",
+      "trial": 2,
+      "method": "passive",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.8591889598677336,
+      "seed": 3002,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "002-traction_relaxed-weighted",
+      "trial": 2,
+      "method": "weighted",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.8591889598677336,
+      "seed": 3002,
+      "seconds": 360.0,
+      "information_weight": 0.4
+    },
+    {
+      "id": "002-traction_relaxed-robust",
+      "trial": 2,
+      "method": "robust",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.8591889598677336,
+      "seed": 3002,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "003-traction-proposed",
+      "trial": 3,
+      "method": "proposed",
+      "scenario": "traction",
+      "true_mu": 0.5157484887470334,
+      "seed": 3003,
+      "seconds": 360.0,
+      "information_weight": 2.0
+    },
+    {
+      "id": "003-traction-passive",
+      "trial": 3,
+      "method": "passive",
+      "scenario": "traction",
+      "true_mu": 0.5157484887470334,
+      "seed": 3003,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "003-traction-weighted",
+      "trial": 3,
+      "method": "weighted",
+      "scenario": "traction",
+      "true_mu": 0.5157484887470334,
+      "seed": 3003,
+      "seconds": 360.0,
+      "information_weight": 0.4
+    },
+    {
+      "id": "003-traction-robust",
+      "trial": 3,
+      "method": "robust",
+      "scenario": "traction",
+      "true_mu": 0.5157484887470334,
+      "seed": 3003,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "003-traction_relaxed-proposed",
+      "trial": 3,
+      "method": "proposed",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.5157484887470334,
+      "seed": 3003,
+      "seconds": 360.0,
+      "information_weight": 2.0
+    },
+    {
+      "id": "003-traction_relaxed-passive",
+      "trial": 3,
+      "method": "passive",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.5157484887470334,
+      "seed": 3003,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "003-traction_relaxed-weighted",
+      "trial": 3,
+      "method": "weighted",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.5157484887470334,
+      "seed": 3003,
+      "seconds": 360.0,
+      "information_weight": 0.4
+    },
+    {
+      "id": "003-traction_relaxed-robust",
+      "trial": 3,
+      "method": "robust",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.5157484887470334,
+      "seed": 3003,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "004-traction-proposed",
+      "trial": 4,
+      "method": "proposed",
+      "scenario": "traction",
+      "true_mu": 0.9133361919973413,
+      "seed": 3004,
+      "seconds": 360.0,
+      "information_weight": 2.0
+    },
+    {
+      "id": "004-traction-passive",
+      "trial": 4,
+      "method": "passive",
+      "scenario": "traction",
+      "true_mu": 0.9133361919973413,
+      "seed": 3004,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "004-traction-weighted",
+      "trial": 4,
+      "method": "weighted",
+      "scenario": "traction",
+      "true_mu": 0.9133361919973413,
+      "seed": 3004,
+      "seconds": 360.0,
+      "information_weight": 0.4
+    },
+    {
+      "id": "004-traction-robust",
+      "trial": 4,
+      "method": "robust",
+      "scenario": "traction",
+      "true_mu": 0.9133361919973413,
+      "seed": 3004,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "004-traction_relaxed-proposed",
+      "trial": 4,
+      "method": "proposed",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.9133361919973413,
+      "seed": 3004,
+      "seconds": 360.0,
+      "information_weight": 2.0
+    },
+    {
+      "id": "004-traction_relaxed-passive",
+      "trial": 4,
+      "method": "passive",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.9133361919973413,
+      "seed": 3004,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "004-traction_relaxed-weighted",
+      "trial": 4,
+      "method": "weighted",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.9133361919973413,
+      "seed": 3004,
+      "seconds": 360.0,
+      "information_weight": 0.4
+    },
+    {
+      "id": "004-traction_relaxed-robust",
+      "trial": 4,
+      "method": "robust",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.9133361919973413,
+      "seed": 3004,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "005-traction-proposed",
+      "trial": 5,
+      "method": "proposed",
+      "scenario": "traction",
+      "true_mu": 0.6802615953763724,
+      "seed": 3005,
+      "seconds": 360.0,
+      "information_weight": 2.0
+    },
+    {
+      "id": "005-traction-passive",
+      "trial": 5,
+      "method": "passive",
+      "scenario": "traction",
+      "true_mu": 0.6802615953763724,
+      "seed": 3005,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "005-traction-weighted",
+      "trial": 5,
+      "method": "weighted",
+      "scenario": "traction",
+      "true_mu": 0.6802615953763724,
+      "seed": 3005,
+      "seconds": 360.0,
+      "information_weight": 0.4
+    },
+    {
+      "id": "005-traction-robust",
+      "trial": 5,
+      "method": "robust",
+      "scenario": "traction",
+      "true_mu": 0.6802615953763724,
+      "seed": 3005,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "005-traction_relaxed-proposed",
+      "trial": 5,
+      "method": "proposed",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.6802615953763724,
+      "seed": 3005,
+      "seconds": 360.0,
+      "information_weight": 2.0
+    },
+    {
+      "id": "005-traction_relaxed-passive",
+      "trial": 5,
+      "method": "passive",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.6802615953763724,
+      "seed": 3005,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "005-traction_relaxed-weighted",
+      "trial": 5,
+      "method": "weighted",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.6802615953763724,
+      "seed": 3005,
+      "seconds": 360.0,
+      "information_weight": 0.4
+    },
+    {
+      "id": "005-traction_relaxed-robust",
+      "trial": 5,
+      "method": "robust",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.6802615953763724,
+      "seed": 3005,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "006-traction-proposed",
+      "trial": 6,
+      "method": "proposed",
+      "scenario": "traction",
+      "true_mu": 0.613166075998727,
+      "seed": 3006,
+      "seconds": 360.0,
+      "information_weight": 2.0
+    },
+    {
+      "id": "006-traction-passive",
+      "trial": 6,
+      "method": "passive",
+      "scenario": "traction",
+      "true_mu": 0.613166075998727,
+      "seed": 3006,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "006-traction-weighted",
+      "trial": 6,
+      "method": "weighted",
+      "scenario": "traction",
+      "true_mu": 0.613166075998727,
+      "seed": 3006,
+      "seconds": 360.0,
+      "information_weight": 0.4
+    },
+    {
+      "id": "006-traction-robust",
+      "trial": 6,
+      "method": "robust",
+      "scenario": "traction",
+      "true_mu": 0.613166075998727,
+      "seed": 3006,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "006-traction_relaxed-proposed",
+      "trial": 6,
+      "method": "proposed",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.613166075998727,
+      "seed": 3006,
+      "seconds": 360.0,
+      "information_weight": 2.0
+    },
+    {
+      "id": "006-traction_relaxed-passive",
+      "trial": 6,
+      "method": "passive",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.613166075998727,
+      "seed": 3006,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "006-traction_relaxed-weighted",
+      "trial": 6,
+      "method": "weighted",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.613166075998727,
+      "seed": 3006,
+      "seconds": 360.0,
+      "information_weight": 0.4
+    },
+    {
+      "id": "006-traction_relaxed-robust",
+      "trial": 6,
+      "method": "robust",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.613166075998727,
+      "seed": 3006,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "007-traction-proposed",
+      "trial": 7,
+      "method": "proposed",
+      "scenario": "traction",
+      "true_mu": 0.49881895738438675,
+      "seed": 3007,
+      "seconds": 360.0,
+      "information_weight": 2.0
+    },
+    {
+      "id": "007-traction-passive",
+      "trial": 7,
+      "method": "passive",
+      "scenario": "traction",
+      "true_mu": 0.49881895738438675,
+      "seed": 3007,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "007-traction-weighted",
+      "trial": 7,
+      "method": "weighted",
+      "scenario": "traction",
+      "true_mu": 0.49881895738438675,
+      "seed": 3007,
+      "seconds": 360.0,
+      "information_weight": 0.4
+    },
+    {
+      "id": "007-traction-robust",
+      "trial": 7,
+      "method": "robust",
+      "scenario": "traction",
+      "true_mu": 0.49881895738438675,
+      "seed": 3007,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "007-traction_relaxed-proposed",
+      "trial": 7,
+      "method": "proposed",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.49881895738438675,
+      "seed": 3007,
+      "seconds": 360.0,
+      "information_weight": 2.0
+    },
+    {
+      "id": "007-traction_relaxed-passive",
+      "trial": 7,
+      "method": "passive",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.49881895738438675,
+      "seed": 3007,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    },
+    {
+      "id": "007-traction_relaxed-weighted",
+      "trial": 7,
+      "method": "weighted",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.49881895738438675,
+      "seed": 3007,
+      "seconds": 360.0,
+      "information_weight": 0.4
+    },
+    {
+      "id": "007-traction_relaxed-robust",
+      "trial": 7,
+      "method": "robust",
+      "scenario": "traction_relaxed",
+      "true_mu": 0.49881895738438675,
+      "seed": 3007,
+      "seconds": 360.0,
+      "information_weight": 0.0
+    }
+  ],
+  "description": "Fresh paired IID friction draws, fixed within an episode. Same realization and controller seed across methods/tolerances. Proposed uses the fixed gamma=2 informative objective; only the weighted baseline has a weight sweep in the separate demonstrations. All planned trials counted."
+}

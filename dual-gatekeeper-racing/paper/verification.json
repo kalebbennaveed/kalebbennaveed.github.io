@@ -1,0 +1,21 @@
+{
+  "numerical_source": "ef5c0050f493105beeec5201d96fbdcc4e73199512326a80a2bcf354641d3579",
+  "unit_tests_passed": 57,
+  "reference_runs": 14,
+  "reference_audits_passed": 14,
+  "validation_cases": 64,
+  "validation_audits_passed": 64,
+  "completed_validation_laps": 64,
+  "validation_constraint_violations": 0,
+  "original_safety_unchanged": true,
+  "original_safety_sha256": "b4806091be209d5a60344ce1014de0e5d5845ab27778d0a1ba1ae061efd98bdd",
+  "exact_weighted_zero_equals_passive_both_reference_laps": true,
+  "certificate_holdout_batches": 12,
+  "holdout_samples_per_batch": 10000,
+  "environment": {
+    "python": "3.11.15",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "numba": "0.65.1"
+  }
+}
