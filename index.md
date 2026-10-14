@@ -50,8 +50,6 @@ title: "Kaleb Ben Naveed"
 
 ## Recent News
 
-- **13 October 2026** – Research update on safely racing at the limits of handling: [method, derivations and results](/safe-drone-racing/update-slides/) and an [interactive simulation replay](/safe-drone-racing/simulations/safety-gatekeeper/).
-
 - **26 August 2026** – Back at the University of Michigan after completing my summer internship. Stay tuned for some interesting work from the summer!.
 
 - **11 May 2026** – Joined Mitsubishi Electric Research Laboratories (MERL) in Cambridge, MA as a Research Intern.
@@ -67,5 +65,4 @@ title: "Kaleb Ben Naveed"
 - **11 April 2025** – Our workshop paper “[Enabling Safety for Aerial Robots: Planning and Control Architectures](https://arxiv.org/abs/2504.08601)” was accepted to the ICRA 2025 Workshop on *25 Years of Aerial Robotics: Challenges and Opportunities*.
 
 - **30 January 2024** – Our paper “[Eclares: Energy-Aware Clarity-Driven Ergodic Search](https://ieeexplore.ieee.org/abstract/document/10611286)” was accepted to [IEEE ICRA 2024](https://2024.ieee-icra.org/).
-
 
