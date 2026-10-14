@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Safely racing at the limits of handling</title>
-  <link rel="stylesheet" href="styles.css?v=3">
+  <link rel="stylesheet" href="styles.css?v=5">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/controls/OrbitControls.js":"./vendor/OrbitControls.js"}}</script>
 </head>
 <body>
@@ -67,7 +67,18 @@
       <button id="next-decision">Next decision →</button>
     </section>
   </main>
+  <section id="model-knowledge" class="knowledge-panel" aria-label="Dynamics knowledge in state space">
+    <div class="knowledge-title"><div><span class="eyebrow">LEARNED DYNAMICS</span><h2>Where is the model accurate enough?</h2><p>Compare model-error allowances as learning continues, at the same states and commands.</p></div>
+    <div class="knowledge-selects"><label>DATA SOURCE<select id="knowledge-source"><option value="replay">Selected recording</option><option value="live">Live local run</option></select></label><label>ERROR BOUND<select id="knowledge-bound"><option value="data">From measurements + distance</option><option value="combined">Used by checks · includes physics prior</option></select></label></div></div>
+    <p class="knowledge-status" id="knowledge-status"></p>
+    <div class="knowledge-maps"><figure id="knowledge-baseline-panel"><figcaption id="knowledge-baseline-title">At start</figcaption><canvas id="knowledge-baseline" aria-label="Initial error bound in velocity space"></canvas></figure><figure><figcaption id="knowledge-current-title">Current model</figcaption><canvas id="knowledge-map" aria-label="Current error bound in velocity space"></canvas></figure></div>
+    <div class="knowledge-legend"><span>Smaller allowance</span><i></i><span>Larger allowance</span><strong>0 → <span id="knowledge-scale-max">4.5+ m/s²</span></strong><span>White dots: nearby measurements</span></div>
+    <div class="knowledge-readout"><span id="knowledge-count"></span><span id="knowledge-hover">Move over a map to inspect a state.</span></div>
+    <p id="knowledge-policy"></p>
+    <p class="knowledge-note">This is a two-dimensional slice of state–control space. Only horizontal velocity varies; the other quantities stay fixed. A smaller value means a tighter model-error allowance under the stated noise and smoothness assumptions. It does not certify a trajectory. Bounds can increase when the model changes.</p>
+    <details><summary>Fixed state and command values</summary><p id="knowledge-anchor"></p></details>
+  </section>
   <footer><span>JAX MPPI <b>·</b> ONLINE RESIDUAL LEARNING <b>·</b> GATEKEEPER</span><span id="recording-note">Actual simulation recordings. No scripted flight animation.</span></footer>
-  <script type="module" src="app.js?v=4"></script>
+  <script type="module" src="app.js?v=6"></script>
 </body>
 </html>

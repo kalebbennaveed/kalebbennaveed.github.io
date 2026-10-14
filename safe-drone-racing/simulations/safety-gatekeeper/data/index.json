@@ -5,6 +5,11 @@
     "mode": "experimental"
   },
   {
+    "file": "experimental-7-neural.json",
+    "label": "Experimental \u00b7 Neural tracker \u00b7 seed 7",
+    "mode": "experimental"
+  },
+  {
     "file": "nominal-7.json",
     "label": "Nominal \u00b7 seed 7",
     "mode": "nominal"

@@ -1,3 +1,4 @@
+import { updateKnowledge } from './knowledge.js?v=2';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { createGate, createDrone } from './models.js?v=2';
@@ -84,7 +85,7 @@ function updateRejection(epoch,candidate){
     $('rejection-title').textContent=candidate?'This candidate passed the experimental checks.':'No Gatekeeper candidate in this run.';
     $('rejection-detail').textContent='';$('rejection-geometry-note').textContent='';return;
   }
-  const names={trusted_domain:'Error bound exceeds the trust limit',reachable_tube_boundary:'Reachable set overlaps a boundary',terminal_recovery:'Terminal recovery check failed',backup_invariance_unestablished:'Backup invariance is unestablished',flow_enclosure_failed:'Flow enclosure failed'};
+  const names={trusted_domain:'Error bound exceeds the trust limit',reachable_tube_boundary:'Reachable set overlaps a boundary',terminal_recovery:'Terminal tracking-error check failed',backup_invariance_unestablished:'Backup invariance is unestablished',neural_policy_interval_bound_unimplemented:'No validated enclosure for the neural controller',flow_enclosure_failed:'Flow enclosure failed'};
   $('rejection-title').textContent=names[r?.reason||candidate.verification.reason]||'Candidate rejected';
   let detail='',note='Red dashed: rejected proposal. Solid red: failure location. Later steps were not checked.';
   if(r?.segment){
@@ -99,7 +100,7 @@ function updateRejection(epoch,candidate){
       detail=`First negative boundary margin: ${number(r.boundary_margin,' m',3)}, during +${number(r.interval_offsets[0])}–${number(r.interval_offsets[1],' s')}. The swept reachable set fails the clearance check.`;
       note+=' Red box: saved endpoint position bound. The larger swept box was not saved.';
     }else{
-      detail=`The endpoint at +${offset} (predicted time ${absolute}) fails the combined position, velocity and tilt recovery test.`;
+      detail=`The endpoint at +${offset} (predicted time ${absolute}) fails the combined terminal position, velocity and tilt limits.`;
       note='Red box: terminal position projection. The failure may involve velocity or tilt; red does not imply a position collision. The crosshair marks the endpoint.';
     }
   }else{
@@ -141,14 +142,14 @@ function updateInspector(epoch,candidate,com,index){
     $('decision-label').textContent='PROPOSAL REJECTED';$('decision-title').textContent='The previous commitment stays active.';
     $('decision-detail').textContent=`${humanReason(verification?.reason)}. Commitment ${com.id} retains model v${com.model_version} and its original error envelope.`;
     if(com.verification_end_time!=null&&time>=com.verification_end_time){
-      $('decision-detail').textContent+=` It now follows the frozen backup beyond its ${com.verification_end_time.toFixed(1)} s finite check; this continuation has no certified tube.`;
+      $('decision-detail').textContent+=` It now follows the retained backup reference beyond its ${com.verification_end_time.toFixed(1)} s finite check; this continuation has no certified tube.`;
     }
   }else if(candidate&&!candidate.verification.accepted){
     $('decision-label').textContent='LONGER CANDIDATE REJECTED';$('decision-title').textContent='A shorter candidate was committed.';
     $('decision-detail').textContent=`The inspected ${candidate.switch_seconds.toFixed(2)} s proposal failed: ${humanReason(verification.reason).toLowerCase()}. Active commitment ${com.id} switches to backup after ${com.switch_seconds.toFixed(2)} s.`;
   }else{
     $('decision-label').textContent='EXPERIMENTAL COMMITMENT';$('decision-title').textContent='Candidate accepted for experimental tracking.';
-    $('decision-detail').textContent=`Commitment ${com.id}: ${com.switch_seconds.toFixed(2)} s of racing-reference tracking, then centerline recovery. These development checks are not a safety certificate.`;
+    $('decision-detail').textContent=`Commitment ${com.id}: ${com.switch_seconds.toFixed(2)} s of racing-reference tracking, then tracking the centerline at 2 m/s. These development checks are not a safety certificate.`;
   }
 }
 function updateUncertaintyGeometry(epoch,candidate,com){
@@ -170,7 +171,7 @@ function updateUncertaintyGeometry(epoch,candidate,com){
   }else if(data.mode==='strict'){
     $('tube-detail').textContent='This strict recording has interval radii but no interval centers. A position envelope cannot be reconstructed safely.';
   }else if(com&&name==='Committed'){
-    $('tube-detail').textContent=`The committed tube ends at ${com.verification_end_time.toFixed(2)} s. The frozen backup continues beyond it without a recorded enclosure.`;
+    $('tube-detail').textContent=`The committed tube ends at ${com.verification_end_time.toFixed(2)} s. The retained backup reference continues beyond it without a recorded enclosure.`;
     $('bounds-caption').textContent=`Committed tube ended at ${com.verification_end_time.toFixed(2)} s`;
   }else{
     $('tube-detail').textContent='Verification stopped before recording a position-bound node for this candidate.';
@@ -207,7 +208,7 @@ function drawUncertaintyChart(){
   ctx.strokeStyle='#ede8f4aa';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(time/end*w,2);ctx.lineTo(time/end*w,bottom);ctx.stroke();
   ctx.fillStyle='#797381';ctx.font='8px system-ui';ctx.fillText('0 s',0,h-2);ctx.textAlign='right';ctx.fillText(`${end.toFixed(1)} s`,w,h-2);
 }
-function humanReason(reason){return ({trusted_domain:'The reachable state-control region exceeds the trusted error threshold',reachable_tube_boundary:'The predicted tube overlaps a gate or track boundary',terminal_recovery:'Recovery cannot reach the required backup envelope',backup_invariance_unestablished:'Indefinite backup safety has not been proved',flow_enclosure_failed:'The nonlinear flow could not be enclosed',experimental_checks_passed:'Finite-horizon experimental checks passed'})[reason]||reason||'No candidate available';}
+function humanReason(reason){return ({trusted_domain:'The reachable state-control region exceeds the trusted error threshold',reachable_tube_boundary:'The predicted tube overlaps a gate or track boundary',terminal_recovery:'The terminal tracking-error set exceeds the allowed position, velocity or tilt limits',backup_invariance_unestablished:'Indefinite backup safety has not been proved',flow_enclosure_failed:'The nonlinear flow could not be enclosed',experimental_checks_passed:'Finite-horizon experimental checks passed'})[reason]||reason||'No candidate available';}
 function sampleAt(t){
   const samples=data.samples;if(!samples.length)return null;let lo=0,hi=samples.length-1;
   while(lo<hi){const mid=Math.ceil((lo+hi)/2);if(samples[mid].time<=t+1e-7)lo=mid;else hi=mid-1;}
@@ -228,7 +229,7 @@ function updateTime(){
     missMarkers.children.forEach(marker=>marker.visible=marker.userData.time<=time+1e-7);
     updateUncertaintyValues(sample);
   }
-  updatePaths();drawChart();drawUncertaintyChart();
+  updatePaths();drawChart();drawUncertaintyChart();updateKnowledge(data,time);
 }
 function drawChart(){
   if(!data)return;const canvas=$('speed-chart'),r=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio,2);canvas.width=Math.max(1,r.width*dpr);canvas.height=Math.max(1,r.height*dpr);const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);const w=r.width,h=r.height;ctx.clearRect(0,0,w,h);
@@ -239,7 +240,7 @@ function drawChart(){
   ctx.font='8px system-ui';ctx.fillStyle='#68727e';ctx.fillText('0 s',0,h-1);ctx.textAlign='right';ctx.fillText(end.toFixed(1)+' s',w,h-1);
 }
 async function loadRun(filename){
-  const request=++loadRequest;setPlaying(false);const response=await fetch(`./data/${filename}`);if(!response.ok)throw new Error(`Recording could not be loaded (${response.status}).`);const recording=await response.json();if(request!==loadRequest)return;data=recording;time=0;epochIndex=-1;selectedCandidate=0;
+  const request=++loadRequest;setPlaying(false);const response=await fetch(`./data/${filename}?v=6`,{cache:'no-cache'});if(!response.ok)throw new Error(`Recording could not be loaded (${response.status}).`);const recording=await response.json();if(request!==loadRequest)return;data=recording;time=0;epochIndex=-1;selectedCandidate=0;
   $('scene-error').hidden=true;if(trail){dispose(trail);trail=null;}
   while(missMarkers.children.length)dispose(missMarkers.children[0]);
   data.samples.filter(s=>s.state_bound_exceeded).forEach(s=>{const marker=new THREE.Mesh(new THREE.SphereGeometry(.065,12,10),new THREE.MeshBasicMaterial({color:0xf0796d,toneMapped:false}));marker.position.set(...s.state.slice(0,3));marker.userData.time=s.time;missMarkers.add(marker);});
@@ -251,7 +252,7 @@ async function loadRun(filename){
   while(course.children.length)dispose(course.children[0]);data.track.gates.forEach((g,i)=>course.add(createGate(g,i)));
   $('timeline').max=data.samples.at(-1)?.time||0;$('timeline').disabled=data.samples.length<2;$('play').disabled=data.samples.length<2;
   $('peak-value').textContent=number(data.metrics.max_speed,' m/s peak',1);
-  $('assurance-text').textContent=data.mode==='nominal'?'Nominal-model diagnostic. No uncertain-dynamics safety claim. Planning runs offline; the browser replays the recording.':data.mode==='strict'?'Strict verification fails closed. The nonlinear enclosure and a robustly invariant backup must be established before flight can be authorized.':'Experimental simulation. The linearized tube and terminal recovery envelope have not established a formal nonlinear safety guarantee.';
+  $('assurance-text').textContent=data.mode==='nominal'?'Nominal-model diagnostic. No uncertain-dynamics safety claim. Planning runs offline; the browser replays the recording.':data.mode==='strict'?'Strict verification fails closed. The nonlinear enclosure and a robustly invariant backup must be established before flight can be authorized.':'Experimental simulation. The linearized tube and terminal error envelope have not established a formal nonlinear safety guarantee.';
   if(data.mode==='experimental'&&data.metrics.duration){
     $('assurance-text').textContent+=` ${data.metrics.full_state_tube_violations} full-state enclosure misses in ${data.metrics.tube_covered_steps} checked steps; ${data.metrics.continuation_steps} steps beyond the finite check.`;
   }
@@ -276,4 +277,4 @@ $('color-uncertainty').onchange=updateTime;
 $('next-bound-miss').onclick=()=>{const misses=data.samples.filter(s=>s.state_bound_exceeded);const next=misses.find(s=>s.time>time+1e-6)||misses[0];if(next){time=next.time;setPlaying(false);updateTime();}};
 function showError(error){console.error(error);$('scene-error').hidden=false;$('scene-error').textContent=error.message;$('decision-label').textContent='REPLAY UNAVAILABLE';}
 function frame(now){requestAnimationFrame(frame);const delta=Math.min((now-lastFrame)/1000,.1);lastFrame=now;if(data&&playing){time+=delta*Number($('playback-speed').value);if(time>=data.samples.at(-1).time)setPlaying(false);updateTime();}if(playing)rotors.forEach((r,i)=>r.rotation.z+=(i%2?1:-1)*delta*60);controls?.update();if(renderer)renderer.render(scene,camera);}
-try{initScene();requestAnimationFrame(frame);const response=await fetch('./data/index.json');if(!response.ok)throw new Error('No recordings found. Run the simulation and export the demo data first.');const runs=await response.json();$('run').replaceChildren(...runs.map(run=>{const option=document.createElement('option');option.value=run.file;option.textContent=run.label;return option;}));if(!runs.length)throw new Error('The recording index is empty.');await loadRun(runs[0].file);}catch(error){showError(error);}
+try{initScene();requestAnimationFrame(frame);const response=await fetch('./data/index.json?v=6',{cache:'no-cache'});if(!response.ok)throw new Error('No recordings found. Run the simulation and export the demo data first.');const runs=await response.json();$('run').replaceChildren(...runs.map(run=>{const option=document.createElement('option');option.value=run.file;option.textContent=run.label;return option;}));if(!runs.length)throw new Error('The recording index is empty.');await loadRun(runs[0].file);}catch(error){showError(error);}
