@@ -1339,7 +1339,7 @@ B\hat r_k=\begin{bmatrix}0_3\\\hat r_k\\0_4\\0\\0_3\end{bmatrix}.</span></p>
 </section>
 <section id="give-the-learner-comparable-input-coordinates" class="slide level2">
 <h2>Give the learner comparable input coordinates</h2>
-<p>The learner uses a feature vector <span class="math inline">z=\varphi(x,u)\in\mathbb R^{23}</span>:</p>
+<p>The learner uses <span class="math inline">z=\varphi(x,u)\in\mathbb R^{23}</span>, with command scales <span class="math inline">D=\operatorname{diag}(20,7,7,7)</span>:</p>
 <p><span class="math display">z=\left[\frac p{10},\frac v{12},\operatorname{vec}R(q),
 \frac c{20},\frac\omega7,D^{-1}u\right].</span></p>
 <p><span class="math inline">\varphi</span> is the feature-construction rule. <code>vec</code> lists the rotation matrix’s nine entries. The scale factors use the corresponding physical units so these coordinates are dimensionless.</p>
