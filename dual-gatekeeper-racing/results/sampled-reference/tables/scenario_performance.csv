@@ -1,9 +1,0 @@
-Tolerance,Method,Completed / trials,Mean lap [s],Mean cost,Minimum clearance [m]
-1%,Proposed,100 / 100,176.47,1544.86,3.144116
-1%,Passive,100 / 100,264.08,2597.90,5.364207
-1%,Weighted information,100 / 100,206.78,1944.86,0.000587
-1%,No learning,100 / 100,264.08,2597.90,5.364207
-5%,Proposed,100 / 100,176.47,1544.87,3.144116
-5%,Passive,100 / 100,264.08,2597.90,5.364207
-5%,Weighted information,100 / 100,206.84,1945.58,0.000587
-5%,No learning,100 / 100,264.08,2597.90,5.364207

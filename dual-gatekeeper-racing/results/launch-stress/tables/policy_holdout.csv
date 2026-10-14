@@ -1,3 +1,0 @@
-epsilon,policy,speed,amplitude,duration,certificate_failures,certificate_samples,certificate_upper,certificate_seed,holdout_seed,holdout_samples,holdout_failures,holdout_physical,holdout_terminal,holdout_nonfinite,holdout_rate,ci95_lower,ci95_upper
-0.01,informative,8.0,-3.0,0.6,0,1000,0.007129082026468943,3835300069,20261193,100000,0,0,0,0,0.0,0.0,3.68881141579242e-05
-0.05,mission,42.4446895553122,0.0,1.8,23,1000,0.042118262377871155,1766902814,20261193,100000,2229,2229,0,0,0.02229,0.021383902466011788,0.023223949864391018
