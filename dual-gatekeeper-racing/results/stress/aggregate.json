@@ -3,8 +3,8 @@
     "scenario": "traction",
     "method": "proposed",
     "planned": 1000,
-    "executed": 25,
-    "safe_horizon_completed": 25,
+    "executed": 506,
+    "safe_horizon_completed": 506,
     "violations": 0,
     "certificate_unavailable": 0,
     "simulation_errors": 0,
@@ -12,15 +12,15 @@
     "unresolved": 0,
     "violation_rate": 0.0,
     "ci95_lower": 0.0,
-    "ci95_upper": 0.13718517153071255,
-    "unsafe_or_unresolved_upper95": 0.11292814500684323
+    "ci95_upper": 0.007263766001725992,
+    "unsafe_or_unresolved_upper95": 0.005902928364683231
   },
   {
     "scenario": "traction_relaxed",
     "method": "proposed",
     "planned": 1000,
-    "executed": 25,
-    "safe_horizon_completed": 25,
+    "executed": 504,
+    "safe_horizon_completed": 504,
     "violations": 0,
     "certificate_unavailable": 0,
     "simulation_errors": 0,
@@ -28,7 +28,7 @@
     "unresolved": 0,
     "violation_rate": 0.0,
     "ci95_lower": 0.0,
-    "ci95_upper": 0.13718517153071255,
-    "unsafe_or_unresolved_upper95": 0.11292814500684323
+    "ci95_upper": 0.007292485113072575,
+    "unsafe_or_unresolved_upper95": 0.005926283136768087
   }
 ]
