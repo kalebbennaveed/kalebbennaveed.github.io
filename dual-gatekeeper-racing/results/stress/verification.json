@@ -1,0 +1,13 @@
+{
+  "implementation": "ef5c0050f493105beeec5201d96fbdcc4e73199512326a80a2bcf354641d3579",
+  "planned": 2000,
+  "executed": 2000,
+  "unique_trials": 1000,
+  "record_hashes_verified": 2000,
+  "replay_audits_passed": 2000,
+  "simulation_errors": 0,
+  "audit_errors": 0,
+  "safety_sha256": "b4806091be209d5a60344ce1014de0e5d5845ab27778d0a1ba1ae061efd98bdd",
+  "python": "3.11.15",
+  "numpy": "2.4.6"
+}
