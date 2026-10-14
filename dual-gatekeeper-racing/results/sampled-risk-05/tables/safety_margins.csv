@@ -1,0 +1,5 @@
+Method,Minimum clearance [m],Minimum tire margin,Minimum SMID containment
+Proposed,3.144116,0.0005402,0.000003198
+Passive,5.364207,0.1929822,0.000084977
+Weighted information,0.000587,0.0000221,0.000000076
+No learning,5.364207,0.1929822,0.000084977

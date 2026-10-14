@@ -1,4 +1,4 @@
-# Local MPPI racing results
+# MPPI racing results
 
 The current implementation optimizes physical control sequences locally. The old finite policy library is not used in these records.
 

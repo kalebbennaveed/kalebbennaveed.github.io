@@ -1,0 +1,9 @@
+Method,Metric,Completed pairs,Mean 5% − 1%,95% bootstrap interval,Lower / same / higher
+Proposed,time,100,0.001,"[0.000, 0.002]",0 / 99 / 1
+Proposed,cost,100,0.006,"[0.000, 0.019]",0 / 99 / 1
+Passive,time,100,0.000,"[0.000, 0.000]",0 / 100 / 0
+Passive,cost,100,0.000,"[0.000, 0.000]",0 / 100 / 0
+Weighted information,time,100,0.062,"[0.000, 0.188]",0 / 99 / 1
+Weighted information,cost,100,0.728,"[0.000, 2.183]",0 / 99 / 1
+No learning,time,100,0.000,"[0.000, 0.000]",0 / 100 / 0
+No learning,cost,100,0.000,"[0.000, 0.000]",0 / 100 / 0

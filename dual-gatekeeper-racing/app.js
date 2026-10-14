@@ -36,6 +36,7 @@ function car(color){const g=new THREE.Group();g.add(mesh(new THREE.BoxGeometry(2
  const cabin=mesh(new THREE.BoxGeometry(.85,.85,.25),'#283b43');cabin.position.set(-.1,0,.58);g.add(cabin);
  const wheels=[];for(const x of [-.92,.92])for(const y of [-.5,.5]){const w=new THREE.Group();w.position.set(x,y,.34);const tyre=mesh(new THREE.CylinderGeometry(.16,.16,.14,16),'#141a1b');w.add(tyre);g.add(w);wheels.push(w);}g.scale.setScalar(3.05/1.84);g.children.forEach(c=>c.position.x-=.075/(3.05/1.84));g.userData.wheels=wheels;return g;}
 keys.forEach(k=>{cars[k]=car(colors[k]);scene.add(cars[k]);const pts=runs[k].frames.map(f=>new THREE.Vector3(f.pose[0],f.pose[1],.085));trails[k]=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:colors[k]}));scene.add(trails[k]);plans[k]=new THREE.Line(new THREE.BufferGeometry(),new THREE.LineDashedMaterial({color:colors[k],dashSize:1,gapSize:.8}));scene.add(plans[k]);backupPlans[k]=new THREE.Line(new THREE.BufferGeometry(),new THREE.LineDashedMaterial({color:0x63b7e4,dashSize:1,gapSize:.8}));scene.add(backupPlans[k]);});
+let assetReady=false;
 new GLTFLoader().load('./racecar.glb',gltf=>{keys.forEach(k=>{const group=new THREE.Group(),visual=gltf.scene.clone(true);
  // The supplied Kenney asset uses Y up and faces +Z. Map forward to world +X.
  visual.rotation.set(Math.PI/2,Math.PI/2,0);group.add(visual);group.updateMatrixWorld(true);
@@ -43,13 +44,14 @@ new GLTFLoader().load('./racecar.glb',gltf=>{keys.forEach(k=>{const group=new TH
  const scale=3.98/size.x;visual.scale.setScalar(scale);group.scale.y=1.82/(size.y*scale);visual.position.set(-center.x*scale-.075,-center.y*scale,-b.min.z*scale+.04);
  visual.traverse(n=>{if(n.isMesh){n.material=n.material.clone();if(n.material.name==='red')n.material.color.set(colors[k]);}});
  const old=cars[k];group.position.copy(old.position);group.rotation.copy(old.rotation);group.userData.wheels=[];scene.remove(old);cars[k]=group;scene.add(group);
- });draw();},undefined,error=>console.error('Racecar asset could not load',error));
+ });assetReady=true;draw();},undefined,error=>console.error('Racecar asset could not load',error));
 function active(){if(selected!=='comparison')return [selected];const choice=$('compare-set').value;if(choice==='primary')return keys.filter(k=>['proposed','passive','weighted','robust'].includes(k));if(choice==='weights')return keys.filter(k=>isWeighted(k)||k==='proposed');return keys;}
 function focusKey(){return selected==='comparison'?(runs.proposed?'proposed':keys[0]):selected;}
 function frame(k,t){const fs=runs[k].frames,i=Math.min(fs.length-1,Math.floor(t/runs[k].dt+1e-7));return {f:fs[i],i};}
 const lastTarget=new THREE.Vector3();let lastYaw=0;
 function resetCamera(){const f=frame(focusKey(),time).f,p=new THREE.Vector3(f.pose[0],f.pose[1],.3),yaw=f.pose[2];orbit.target.copy(p);camera.position.copy(p).add(new THREE.Vector3(-18*Math.cos(yaw)+7*Math.sin(yaw),-18*Math.sin(yaw)-7*Math.cos(yaw),12));lastTarget.copy(p);lastYaw=yaw;orbit.update();}
 function wholeTrack(){const box=new THREE.Box3().setFromPoints(track.xy.map(([x,y])=>new THREE.Vector3(x,y,0)));const c=box.getCenter(new THREE.Vector3()),size=box.getSize(new THREE.Vector3());const tangent=Math.tan(THREE.MathUtils.degToRad(camera.fov/2)),distance=1.12*(Math.max((size.x+28)/(2*tangent*camera.aspect),(size.y+28)/(2*tangent))+.12*(size.y+28));orbit.target.copy(c);camera.position.copy(c).add(new THREE.Vector3(0,-.23,1).normalize().multiplyScalar(distance));scene.fog=null;orbit.update();}
+function topCamera(){const f=frame(focusKey(),time).f;orbit.target.set(f.pose[0],f.pose[1],0);camera.position.set(f.pose[0],f.pose[1]-0.01,115);scene.fog=null;orbit.update();}
 function select(k){selected=k;$('legend').innerHTML=active().map(name=>`<span><i class="dot" style="background:${colors[name]}"></i>${names[name]}</span>`).join('');document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.key===k));lastEvent=-1;lastPlot=-1;if(k==='comparison'){$('camera').value='track';$('camera-note').textContent='Whole circuit';}if($('camera').value==='track')wholeTrack();else resetCamera();draw();}
 [...keys,'comparison'].forEach(k=>{const b=document.createElement('button');b.dataset.key=k;b.innerHTML=k==='comparison'?'Comparison':`<span class="dot" style="background:${colors[k]}"></span>${names[k]}`;b.onclick=()=>select(k);$('tabs').append(b);});
 $('legend').innerHTML=keys.map(k=>`<span><i class="dot" style="background:${colors[k]}"></i>${names[k]}</span>`).join('');
@@ -69,6 +71,7 @@ function minimap(){const c=$('map'),g=c.getContext('2d'),w=c.width,h=c.height,sc
 function draw(){const visible=active();keys.forEach(k=>{const {f,i}=frame(k,time);cars[k].visible=trails[k].visible=visible.includes(k);cars[k].position.set(f.pose[0],f.pose[1],0);cars[k].rotation.z=f.pose[2];cars[k].userData.wheels.forEach(w=>{if(w.position.x>0)w.rotation.z=f.state[6];w.children[0].rotation.y=-f.state[0]/.16;});trails[k].geometry.setDrawRange(0,i+1);plans[k].visible=backupPlans[k].visible=visible.includes(k)&&$('plan').checked;
  const event=runs[k].events.findLast(e=>e.time<=time&&e.plan);if(event){const pts=event.plan.map(p=>new THREE.Vector3(p[0],p[1],.13));if(plans[k].userData.event!==event.time){plans[k].geometry.dispose();const cut=Math.round(event.policy.duration/.15);plans[k].geometry=new THREE.BufferGeometry().setFromPoints(pts.slice(0,cut+1));backupPlans[k].geometry.dispose();backupPlans[k].geometry=new THREE.BufferGeometry().setFromPoints(pts.slice(cut));plans[k].computeLineDistances();backupPlans[k].computeLineDistances();plans[k].userData.event=event.time;}}});
  const f=frame(focusKey(),time).f;$('clock').textContent=time.toFixed(2)+' s';$('speed').textContent=f.state[3].toFixed(1);$('position').textContent=(f.state[0]-runs[focusKey()].frames[0].state[0]).toFixed(1)+' m travelled';$('mode').textContent=selected==='comparison'?'COMPARISON':(time>=runs[focusKey()].summary.time?(runs[focusKey()].summary.lap_complete?'LAP COMPLETE':'RECORDING END'):f.mode.toUpperCase());$('clearance').textContent=f.clearance.toFixed(2)+' m';$('mu-value').textContent=`[${f.mu[0].toFixed(3)}, ${f.mu[1].toFixed(3)}]`;$('time').value=time;
+ if($('camera').value==='top')topCamera();
  if($('camera').value==='follow'){const p=new THREE.Vector3(f.pose[0],f.pose[1],.3),axis=new THREE.Vector3(0,0,1),yawDelta=f.pose[2]-lastYaw;camera.position.sub(lastTarget).applyAxisAngle(axis,yawDelta).add(p);orbit.target.sub(lastTarget).applyAxisAngle(axis,yawDelta).add(p);lastTarget.copy(p);lastYaw=f.pose[2];}
  if(scenario.traction){const event=runs[focusKey()].events.findLast(e=>e.time<=time&&(e.nominal_attempts?.length||e.weighted_attempts?.length)),attempts=event&&(event.nominal_attempts?.length?event.nominal_attempts:event.weighted_attempts),blocked=attempts&&attempts.every(a=>!a.certificate.accepted);let status=time>=runs[focusKey()].summary.time?(runs[focusKey()].summary.lap_complete?'Lap complete':runs[focusKey()].summary.termination.replaceAll('_',' ')):f.mode==='informative'?(isWeighted(focusKey())?'Persistent weighted excitation · the information reward remains active':'Certified informative MPPI prefix · learning from measured yaw acceleration'):f.mode==='backup'?(blocked?'Racing rejected · '+(f.state[3]>9.2?'braking toward the 8 m/s backup':'following the 8 m/s centerline backup'):'Following the committed centerline backup'):'Racing accepted · sampled risk bound meets the selected tolerance';if(isWeighted(focusKey())&&blocked&&time<runs[focusKey()].summary.time){const force=attempts.every(a=>a.certificate.reason==='violating_tire_force');status=`${attempts.length} weighted candidates rejected${force?' · insufficient certified tire grip':''} · continuing backup`;}$('decision').textContent=(selected==='comparison'?names[focusKey()]+': ':'')+status;
  const accepted=runs[focusKey()].events.findLast(e=>e.time<=time&&(e.selected?.certificate?.accepted||e.status==='backup_renewal'));
@@ -86,7 +89,7 @@ function drawPlanner(){
  }
  if(!event){$('planner-info').textContent='Initial certified fallback';$('candidate-table').innerHTML='';return;}
  const diagnostics=Object.values(event.planner_diagnostics),solve=diagnostics.reduce((a,b)=>a+b.solve_seconds,0);
- $('planner-info').textContent=`Local MPPI · ${diagnostics[0].samples} samples × ${diagnostics[0].iterations} updates · plan at ${event.time.toFixed(2)} s · ${Math.round(solve*1000)} ms`;
+ $('planner-info').textContent=`MPPI · ${diagnostics[0].samples} samples × ${diagnostics[0].iterations} updates · plan at ${event.time.toFixed(2)} s · ${Math.round(solve*1000)} ms`;
  const charged=frameNow.budget||0;$('budget').textContent=run.summary.method==='proposed'?`Exploration budget: ${charged.toFixed(4)} / ${run.summary.budget_limit.toFixed(2)}`:'Selection: longest certified prefix';
  const commitment=run.events.findLast(e=>e.time<=time&&e.status==='committed'),candidate=commitment?.selected;
  if(candidate){const elapsed=Math.max(0,time-commitment.time),end=Math.min(time,commitment.time+candidate.duration),endFrame=frame(focusKey(),end).f;
@@ -101,11 +104,26 @@ function drawPlanner(){
  return `<tr class="${chosen?'chosen':''}"><td>${a.duration.toFixed(2)} s</td><td>${nominal?pct(nominal.certificate):'—'}</td><td>${pct(a.certificate)}</td><td>${a.gain.toFixed(5)}</td><td>${a.paired_safe===undefined?'—':a.score.toFixed(5)}</td><td>${(a.charge||0).toFixed(5)}</td><td>${status}</td></tr>`;
  }).join('')+'</tbody></table>';
 }
-$('play').onclick=()=>{if(time>=end)time=0;playing=!playing;$('play').textContent=playing?'Pause':'Play';};$('reset').onclick=()=>{time=0;if($('camera').value==='track')wholeTrack();else resetCamera();draw();};$('time').oninput=e=>{time=Number(e.target.value);draw();};$('camera').onchange=()=>{$('camera-note').textContent={follow:'Follow camera · drag to orbit',orbit:'Free orbit · drag to explore',track:'Whole circuit'}[$('camera').value];if($('camera').value==='track')wholeTrack();else{scene.fog=new THREE.Fog('#c7d5c7',180,650);resetCamera();}};$('compare-set').onchange=()=>{select('comparison');};$('plan').onchange=draw;$('candidates').onchange=draw;
+$('play').onclick=()=>{if(time>=end)time=0;playing=!playing;$('play').textContent=playing?'Pause':'Play';};$('reset').onclick=()=>{time=0;if($('camera').value==='track')wholeTrack();else resetCamera();draw();};$('time').oninput=e=>{time=Number(e.target.value);draw();};$('camera').onchange=()=>{$('camera-note').textContent={follow:'Follow camera · drag to orbit',orbit:'Free orbit · drag to explore',track:'Whole circuit',top:'Overhead camera'}[$('camera').value];if($('camera').value==='track')wholeTrack();else if($('camera').value==='top')topCamera();else{scene.fog=new THREE.Fog('#c7d5c7',180,650);resetCamera();}};$('compare-set').onchange=()=>{select('comparison');};$('plan').onchange=draw;$('candidates').onchange=draw;
 new ResizeObserver(()=>{const el=$('scene');camera.aspect=el.clientWidth/el.clientHeight;camera.updateProjectionMatrix();renderer.setSize(el.clientWidth,el.clientHeight);if($('camera').value==='track')wholeTrack();lastPlot=-1;draw();}).observe($('scene'));
 const labels=document.createElement('div');labels.className='car-labels';$('scene').append(labels);
 function annotateCars(){labels.replaceChildren();if(selected!=='comparison')return;
  const groups=[];for(const k of active()){const f=frame(k,time).f;let group=groups.find(g=>Math.hypot(g.f.pose[0]-f.pose[0],g.f.pose[1]-f.pose[1])<3);if(group)group.keys.push(k);else groups.push({f,keys:[k]});}
  for(const [index,g] of groups.entries()){const p=new THREE.Vector3(g.f.pose[0],g.f.pose[1],1).project(camera);if(p.z>1||p.z<-1||Math.abs(p.x)>1||Math.abs(p.y)>1)continue;const label=document.createElement('div');label.className='car-label'+(index%2?' lower':'');label.style.left=(p.x+1)*50+'%';label.style.top=(1-p.y)*50+'%';label.style.borderColor=colors[g.keys[0]];label.textContent=g.keys.map(k=>names[k]).join(' / ')+' · '+g.f.state[3].toFixed(1)+' m/s';labels.append(label);}}
-function animate(now){requestAnimationFrame(animate);if(previous&&playing){time=Math.min(end,time+(now-previous)/1000*Number($('rate').value));if(time>=end){playing=false;$('play').textContent='Play';}draw();}previous=now;orbit.update();renderer.render(scene,camera);annotateCars();}
+function animate(now){if(!new URLSearchParams(location.search).has('capture'))requestAnimationFrame(animate);if(previous&&playing){time=Math.min(end,time+(now-previous)/1000*Number($('rate').value));if(time>=end){playing=false;$('play').textContent='Play';}draw();}previous=now;orbit.update();renderer.render(scene,camera);annotateCars();}
 select(selected);requestAnimationFrame(animate);
+
+// Deterministic frames for the README film, rendered by this same demo scene.
+if(new URLSearchParams(location.search).has('capture')){
+ document.body.classList.add('film');
+ const title=document.createElement('div');title.className='film-title';
+ title.innerHTML='<strong>Dual Gatekeeper</strong><span>Proposed · Passive · Weighted γ = 0.4 · No learning · 3× playback</span>';
+ document.body.prepend(title);
+ window.RACING_CAPTURE={get ready(){return assetReady;},frame(t,view){
+  playing=false;selected='comparison';time=t;$('camera').value=view;$('plan').checked=false;
+  $('legend').innerHTML=active().map(k=>`<span><i class="dot" style="background:${colors[k]}"></i>${names[k]}</span>`).join('');
+  if(view==='track')wholeTrack();else if(view==='top')topCamera();else {scene.fog=new THREE.Fog('#c7d5c7',180,650);resetCamera();}
+  $('camera-note').textContent={track:'Whole circuit',top:'Overhead',follow:'Following proposed'}[view];
+  draw();orbit.update();renderer.render(scene,camera);annotateCars();
+ }};
+}

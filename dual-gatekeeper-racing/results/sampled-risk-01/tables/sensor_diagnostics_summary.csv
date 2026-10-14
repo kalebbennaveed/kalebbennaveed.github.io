@@ -1,0 +1,5 @@
+Method,Samples,Nonzero readings,Contracting updates,Peak yaw accel.,Min prior-strip slack
+Proposed,1656,60,7,2.6989,-0.99685
+Passive,5281,0,0,0.0214,0.15306
+Weighted information,3103,2973,16,3.5356,-1.61069
+No learning,5281,0,0,0.0214,0.15306

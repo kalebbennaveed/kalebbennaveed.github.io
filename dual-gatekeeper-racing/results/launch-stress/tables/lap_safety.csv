@@ -1,0 +1,9 @@
+Tolerance,Method,Trials,Tire violations,State violations,Observed failure,95% interval,Unresolved / errors
+1%,Proposed,100,0,0,0.00%,"[0.00, 3.62]%",0 / 0
+1%,Passive,100,0,0,0.00%,"[0.00, 3.62]%",0 / 0
+1%,Weighted information,100,0,0,0.00%,"[0.00, 3.62]%",0 / 0
+1%,No learning,100,0,0,0.00%,"[0.00, 3.62]%",0 / 0
+5%,Proposed,100,6,0,6.00%,"[2.23, 12.60]%",0 / 0
+5%,Passive,100,8,0,8.00%,"[3.52, 15.16]%",0 / 0
+5%,Weighted information,100,0,0,0.00%,"[0.00, 3.62]%",0 / 0
+5%,No learning,100,8,0,8.00%,"[3.52, 15.16]%",0 / 0

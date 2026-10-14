@@ -8,3 +8,6 @@
 .planner-panel{margin:12px 28px;padding:14px 18px;border:1px solid #d9e3dc;border-radius:12px;background:#fff;font-size:12px;overflow-x:auto}.planner-panel p{margin:4px 0 8px}.planner-panel table{width:100%;border-collapse:collapse;text-align:left}.planner-panel td,.planner-panel th{padding:7px;border-bottom:1px solid #edf1ed}.planner-panel .chosen{background:#e3f3e9;font-weight:600}nav{flex-wrap:wrap}.controls{flex-wrap:wrap}
 
 @media(max-width:720px){.planner-panel{margin:12px 0}.scenario-nav,.case-nav,.certificate{margin-left:0;margin-right:0}.planner-panel td,.planner-panel th{white-space:nowrap}.controls{position:sticky;bottom:0;z-index:8;background:#f4f6f5f5;padding:10px 0;margin-bottom:16px;border-top:1px solid #d8e1da}}
+
+body.film{width:1280px;height:720px;max-width:none;padding:20px 24px;overflow:hidden;background:#f4f6f5}
+.film> :not(main):not(.film-title){display:none!important}.film-title{height:64px;display:flex;align-items:baseline;justify-content:space-between}.film-title strong{font-size:28px}.film-title span{font-size:14px;color:#53695c}.film main{grid-template-columns:minmax(0,1fr) 290px;gap:16px}.film .stage{height:606px}.film aside{height:606px}.film .chart canvas{height:98px}.film .statrow{margin-bottom:22px}.film #legend{font-size:12px;gap:12px}.film #map{width:185px;height:125px}.film .scene-bottom p{display:none}

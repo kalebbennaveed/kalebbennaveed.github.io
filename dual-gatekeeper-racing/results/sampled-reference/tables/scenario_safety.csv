@@ -1,0 +1,9 @@
+Tolerance,Method,Constraint violations,Certificate unavailable,Audit errors,SMID exclusions,95% unsafe/unresolved upper
+1%,Proposed,0,0,0,0,2.95%
+1%,Passive,0,0,0,0,2.95%
+1%,Weighted information,0,0,0,0,2.95%
+1%,No learning,0,0,0,0,2.95%
+5%,Proposed,0,0,0,0,2.95%
+5%,Passive,0,0,0,0,2.95%
+5%,Weighted information,0,0,0,0,2.95%
+5%,No learning,0,0,0,0,2.95%

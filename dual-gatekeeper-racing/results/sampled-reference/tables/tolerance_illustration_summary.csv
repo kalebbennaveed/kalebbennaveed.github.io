@@ -1,0 +1,9 @@
+Tolerance,Method,Lap [s],Cost,Peak speed [m/s],Final width,Largest accepted upper
+1%,Proposed,156.00,1263.91,43.34,0.001364,0.947%
+1%,Passive,264.05,2597.58,8.00,0.600000,0.713%
+1%,Weighted information,267.10,2662.48,8.00,0.000049,0.713%
+1%,No learning,264.05,2597.58,8.00,0.600000,0.713%
+5%,Proposed,161.05,1328.60,43.84,0.000826,4.982%
+5%,Passive,264.05,2597.58,8.00,0.600000,0.713%
+5%,Weighted information,267.10,2662.48,8.00,0.000049,0.713%
+5%,No learning,264.05,2597.58,8.00,0.600000,0.713%

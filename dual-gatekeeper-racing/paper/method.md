@@ -1,4 +1,4 @@
-# Local MPPI with dual selection and sampled DRS
+# Dual Gatekeeper: Planning, Identification and Safety
 
 ## Plant and controls
 
@@ -8,7 +8,7 @@ A fixed error-feedback law tracks an optimized state/input sequence. It is zero 
 
 ## MPPI
 
-`mppi.py` contains the local optimizer. It has no runtime imports from uncertain-racecar-gym or the ROS racing repo. The supplied car-racing `build_mppi` was the algorithm reference: perturb control sequences, roll out each, compute exponential weights, and average bounded controls. The implementation retains the best incumbent/sample when finite-sample averaging is worse; this safeguard is explicit. It optimizes continuous signed force and steering-rate coordinates and converts signed force into separate drive/brake inputs, excluding simultaneous drive and brake.
+`mppi.py` implements the MPPI optimizer. It has no runtime imports from uncertain-racecar-gym or the ROS racing repo. The supplied car-racing `build_mppi` was the algorithm reference: perturb control sequences, roll out each, compute exponential weights, and average bounded controls. The implementation retains the best incumbent/sample when finite-sample averaging is worse; this safeguard is explicit. It optimizes continuous signed force and steering-rate coordinates and converts signed force into separate drive/brake inputs, excluding simultaneous drive and brake.
 
 Default settings: 60 steps (3 s), 384 samples, four updates, temperature 0.35, force-noise scale 500 N, steering-rate-noise scale 0.055 rad/s, temporal noise correlation 0.8. Control increments in the planner are limited to 150 N and 0.12 rad/s per step for numerical smoothness. Physical actuator limits remain drive 0–2880 N, brake −5040–0 N, steering rate ±0.65 rad/s. Feedback can adjust the planned increment but is always physically bounded and is included in certification.
 

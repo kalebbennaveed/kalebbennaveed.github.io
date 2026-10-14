@@ -1,0 +1,9 @@
+method,metric,pairs,mean_5pct_minus_1pct,ci95_low,ci95_high,identical,lower_at_5pct,higher_at_5pct
+proposed,time,100,0.0005000000000001136,0.0,0.0015000000000003411,99,0,1
+proposed,cost,100,0.00630814324618882,0.0,0.01892442973856646,99,0,1
+passive,time,100,0.0,0.0,0.0,100,0,0
+passive,cost,100,0.0,0.0,0.0,100,0,0
+weighted,time,100,0.0625,0.0,0.1875,99,0,1
+weighted,cost,100,0.7275741773326218,0.0,2.1827225319978654,99,0,1
+robust,time,100,0.0,0.0,0.0,100,0,0
+robust,cost,100,0.0,0.0,0.0,100,0,0
