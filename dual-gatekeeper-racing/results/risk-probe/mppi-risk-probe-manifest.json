@@ -1,0 +1,2769 @@
+{
+  "implementation": "ef5c0050f493105beeec5201d96fbdcc4e73199512326a80a2bcf354641d3579",
+  "cases": [
+    {
+      "id": "paired-000",
+      "trial": 0,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.8811835760384004,
+      "seed": 10000,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-001",
+      "trial": 1,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.8338808875208333,
+      "seed": 10001,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-002",
+      "trial": 2,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 1.0062347770289874,
+      "seed": 10002,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-003",
+      "trial": 3,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.9174943869670589,
+      "seed": 10003,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-004",
+      "trial": 4,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 1.0201278579787232,
+      "seed": 10004,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-005",
+      "trial": 5,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.8094837271149766,
+      "seed": 10005,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-006",
+      "trial": 6,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.8900151375816094,
+      "seed": 10006,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-007",
+      "trial": 7,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.9449832636085832,
+      "seed": 10007,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-008",
+      "trial": 8,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.913670611998105,
+      "seed": 10008,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-009",
+      "trial": 9,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 1.0357372469153596,
+      "seed": 10009,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-010",
+      "trial": 10,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.8585673413639524,
+      "seed": 10010,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-011",
+      "trial": 11,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.8294081937537284,
+      "seed": 10011,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-012",
+      "trial": 12,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.8464981467784524,
+      "seed": 10012,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-013",
+      "trial": 13,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.9413652491434858,
+      "seed": 10013,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-014",
+      "trial": 14,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.8423107539089011,
+      "seed": 10014,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-015",
+      "trial": 15,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 1.0381160552068909,
+      "seed": 10015,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-016",
+      "trial": 16,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.7768383657744914,
+      "seed": 10016,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-017",
+      "trial": 17,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 1.0248106895896754,
+      "seed": 10017,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-018",
+      "trial": 18,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.8778856683910855,
+      "seed": 10018,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-019",
+      "trial": 19,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.8886028182819696,
+      "seed": 10019,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-020",
+      "trial": 20,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.9955554401275091,
+      "seed": 10020,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-021",
+      "trial": 21,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.8510173441872658,
+      "seed": 10021,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-022",
+      "trial": 22,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.8016566823807383,
+      "seed": 10022,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-023",
+      "trial": 23,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.8602244468944267,
+      "seed": 10023,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-024",
+      "trial": 24,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.8635125765723771,
+      "seed": 10024,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-025",
+      "trial": 25,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.9567112811349927,
+      "seed": 10025,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-026",
+      "trial": 26,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.9055196366410182,
+      "seed": 10026,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-027",
+      "trial": 27,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.9053437392672524,
+      "seed": 10027,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-028",
+      "trial": 28,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.8054104322086866,
+      "seed": 10028,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-029",
+      "trial": 29,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.8821099986756396,
+      "seed": 10029,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-030",
+      "trial": 30,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.943224323808341,
+      "seed": 10030,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-031",
+      "trial": 31,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 1.0460405721727886,
+      "seed": 10031,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-032",
+      "trial": 32,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 1.0317518100944811,
+      "seed": 10032,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-033",
+      "trial": 33,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.855008135322171,
+      "seed": 10033,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-034",
+      "trial": 34,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.7953540899284995,
+      "seed": 10034,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-035",
+      "trial": 35,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.956384575469192,
+      "seed": 10035,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-036",
+      "trial": 36,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.9258570583452265,
+      "seed": 10036,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-037",
+      "trial": 37,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.9704298029711182,
+      "seed": 10037,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-038",
+      "trial": 38,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.9910332986397078,
+      "seed": 10038,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-039",
+      "trial": 39,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 1.0192736884653013,
+      "seed": 10039,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-040",
+      "trial": 40,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.9340310956607532,
+      "seed": 10040,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-041",
+      "trial": 41,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.7984120456776899,
+      "seed": 10041,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-042",
+      "trial": 42,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.9017504187217737,
+      "seed": 10042,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-043",
+      "trial": 43,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.804284398957317,
+      "seed": 10043,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-044",
+      "trial": 44,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.794084095247233,
+      "seed": 10044,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-045",
+      "trial": 45,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.8122111149357624,
+      "seed": 10045,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-046",
+      "trial": 46,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.9277617927497082,
+      "seed": 10046,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-047",
+      "trial": 47,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.8226126236258966,
+      "seed": 10047,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-048",
+      "trial": 48,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.9799916553178726,
+      "seed": 10048,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-049",
+      "trial": 49,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 1.038203315726031,
+      "seed": 10049,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-050",
+      "trial": 50,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.99423558363792,
+      "seed": 10050,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-051",
+      "trial": 51,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.992480526627633,
+      "seed": 10051,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-052",
+      "trial": 52,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.9921594843257885,
+      "seed": 10052,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-053",
+      "trial": 53,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 1.0004863589887527,
+      "seed": 10053,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-054",
+      "trial": 54,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.9732964667096341,
+      "seed": 10054,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-055",
+      "trial": 55,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.8767878181037031,
+      "seed": 10055,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-056",
+      "trial": 56,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 1.0263444261273453,
+      "seed": 10056,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-057",
+      "trial": 57,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.9272563220373945,
+      "seed": 10057,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-058",
+      "trial": 58,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.9758089040346886,
+      "seed": 10058,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-059",
+      "trial": 59,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.7824312741463346,
+      "seed": 10059,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-060",
+      "trial": 60,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.7701246005243676,
+      "seed": 10060,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-061",
+      "trial": 61,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.8074512133569515,
+      "seed": 10061,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-062",
+      "trial": 62,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 1.0427829349349131,
+      "seed": 10062,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "paired-063",
+      "trial": 63,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.837041158729765,
+      "seed": 10063,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.76,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-00-01",
+      "trial": 100,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.45,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-00-05",
+      "trial": 100,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.45,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-00-10",
+      "trial": 100,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.45,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-01-01",
+      "trial": 101,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.455,
+      "seed": 20101,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-01-05",
+      "trial": 101,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.455,
+      "seed": 20101,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-01-10",
+      "trial": 101,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.455,
+      "seed": 20101,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-02-01",
+      "trial": 102,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.46,
+      "seed": 20102,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-02-05",
+      "trial": 102,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.46,
+      "seed": 20102,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-02-10",
+      "trial": 102,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.46,
+      "seed": 20102,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-03-01",
+      "trial": 103,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.47,
+      "seed": 20103,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-03-05",
+      "trial": 103,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.47,
+      "seed": 20103,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-03-10",
+      "trial": 103,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.47,
+      "seed": 20103,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-04-01",
+      "trial": 104,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.48,
+      "seed": 20104,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-04-05",
+      "trial": 104,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.48,
+      "seed": 20104,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-04-10",
+      "trial": 104,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.48,
+      "seed": 20104,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-05-01",
+      "trial": 105,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.5,
+      "seed": 20105,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-05-05",
+      "trial": 105,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.5,
+      "seed": 20105,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-05-10",
+      "trial": 105,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.5,
+      "seed": 20105,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-06-01",
+      "trial": 106,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.55,
+      "seed": 20106,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-06-05",
+      "trial": 106,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.55,
+      "seed": 20106,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-06-10",
+      "trial": 106,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.55,
+      "seed": 20106,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-07-01",
+      "trial": 107,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.65,
+      "seed": 20107,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-07-05",
+      "trial": 107,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.65,
+      "seed": 20107,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-07-10",
+      "trial": 107,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.65,
+      "seed": 20107,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-08-01",
+      "trial": 108,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.85,
+      "seed": 20108,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-08-05",
+      "trial": 108,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.85,
+      "seed": 20108,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-08-10",
+      "trial": 108,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.85,
+      "seed": 20108,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-09-01",
+      "trial": 109,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 1.05,
+      "seed": 20109,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-09-05",
+      "trial": 109,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 1.05,
+      "seed": 20109,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-0-09-10",
+      "trial": 109,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 1.05,
+      "seed": 20109,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "boundary-1-00-01",
+      "trial": 110,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.45,
+      "seed": 20110,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-00-05",
+      "trial": 110,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.45,
+      "seed": 20110,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-00-10",
+      "trial": 110,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.45,
+      "seed": 20110,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-01-01",
+      "trial": 111,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.455,
+      "seed": 20111,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-01-05",
+      "trial": 111,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.455,
+      "seed": 20111,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-01-10",
+      "trial": 111,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.455,
+      "seed": 20111,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-02-01",
+      "trial": 112,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.46,
+      "seed": 20112,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-02-05",
+      "trial": 112,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.46,
+      "seed": 20112,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-02-10",
+      "trial": 112,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.46,
+      "seed": 20112,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-03-01",
+      "trial": 113,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.47,
+      "seed": 20113,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-03-05",
+      "trial": 113,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.47,
+      "seed": 20113,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-03-10",
+      "trial": 113,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.47,
+      "seed": 20113,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-04-01",
+      "trial": 114,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.48,
+      "seed": 20114,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-04-05",
+      "trial": 114,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.48,
+      "seed": 20114,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-04-10",
+      "trial": 114,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.48,
+      "seed": 20114,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-05-01",
+      "trial": 115,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.5,
+      "seed": 20115,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-05-05",
+      "trial": 115,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.5,
+      "seed": 20115,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-05-10",
+      "trial": 115,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.5,
+      "seed": 20115,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-06-01",
+      "trial": 116,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.55,
+      "seed": 20116,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-06-05",
+      "trial": 116,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.55,
+      "seed": 20116,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-06-10",
+      "trial": 116,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.55,
+      "seed": 20116,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-07-01",
+      "trial": 117,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.65,
+      "seed": 20117,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-07-05",
+      "trial": 117,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.65,
+      "seed": 20117,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-07-10",
+      "trial": 117,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.65,
+      "seed": 20117,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-08-01",
+      "trial": 118,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.85,
+      "seed": 20118,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-08-05",
+      "trial": 118,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.85,
+      "seed": 20118,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-08-10",
+      "trial": 118,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.85,
+      "seed": 20118,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-09-01",
+      "trial": 119,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 1.05,
+      "seed": 20119,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-09-05",
+      "trial": 119,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 1.05,
+      "seed": 20119,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-1-09-10",
+      "trial": 119,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 1.05,
+      "seed": 20119,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 528.3409213883193
+    },
+    {
+      "id": "boundary-2-00-01",
+      "trial": 120,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.45,
+      "seed": 20120,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-00-05",
+      "trial": 120,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.45,
+      "seed": 20120,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-00-10",
+      "trial": 120,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.45,
+      "seed": 20120,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-01-01",
+      "trial": 121,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.455,
+      "seed": 20121,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-01-05",
+      "trial": 121,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.455,
+      "seed": 20121,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-01-10",
+      "trial": 121,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.455,
+      "seed": 20121,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-02-01",
+      "trial": 122,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.46,
+      "seed": 20122,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-02-05",
+      "trial": 122,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.46,
+      "seed": 20122,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-02-10",
+      "trial": 122,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.46,
+      "seed": 20122,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-03-01",
+      "trial": 123,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.47,
+      "seed": 20123,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-03-05",
+      "trial": 123,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.47,
+      "seed": 20123,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-03-10",
+      "trial": 123,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.47,
+      "seed": 20123,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-04-01",
+      "trial": 124,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.48,
+      "seed": 20124,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-04-05",
+      "trial": 124,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.48,
+      "seed": 20124,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-04-10",
+      "trial": 124,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.48,
+      "seed": 20124,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-05-01",
+      "trial": 125,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.5,
+      "seed": 20125,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-05-05",
+      "trial": 125,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.5,
+      "seed": 20125,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-05-10",
+      "trial": 125,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.5,
+      "seed": 20125,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-06-01",
+      "trial": 126,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.55,
+      "seed": 20126,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-06-05",
+      "trial": 126,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.55,
+      "seed": 20126,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-06-10",
+      "trial": 126,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.55,
+      "seed": 20126,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-07-01",
+      "trial": 127,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.65,
+      "seed": 20127,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-07-05",
+      "trial": 127,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.65,
+      "seed": 20127,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-07-10",
+      "trial": 127,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.65,
+      "seed": 20127,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-08-01",
+      "trial": 128,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.85,
+      "seed": 20128,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-08-05",
+      "trial": 128,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.85,
+      "seed": 20128,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-08-10",
+      "trial": 128,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.85,
+      "seed": 20128,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-09-01",
+      "trial": 129,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 1.05,
+      "seed": 20129,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-09-05",
+      "trial": 129,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 1.05,
+      "seed": 20129,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-2-09-10",
+      "trial": 129,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 1.05,
+      "seed": 20129,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1056.6818427766386
+    },
+    {
+      "id": "boundary-3-00-01",
+      "trial": 130,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.45,
+      "seed": 20130,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-00-05",
+      "trial": 130,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.45,
+      "seed": 20130,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-00-10",
+      "trial": 130,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.45,
+      "seed": 20130,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-01-01",
+      "trial": 131,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.455,
+      "seed": 20131,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-01-05",
+      "trial": 131,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.455,
+      "seed": 20131,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-01-10",
+      "trial": 131,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.455,
+      "seed": 20131,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-02-01",
+      "trial": 132,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.46,
+      "seed": 20132,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-02-05",
+      "trial": 132,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.46,
+      "seed": 20132,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-02-10",
+      "trial": 132,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.46,
+      "seed": 20132,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-03-01",
+      "trial": 133,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.47,
+      "seed": 20133,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-03-05",
+      "trial": 133,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.47,
+      "seed": 20133,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-03-10",
+      "trial": 133,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.47,
+      "seed": 20133,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-04-01",
+      "trial": 134,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.48,
+      "seed": 20134,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-04-05",
+      "trial": 134,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.48,
+      "seed": 20134,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-04-10",
+      "trial": 134,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.48,
+      "seed": 20134,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-05-01",
+      "trial": 135,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.5,
+      "seed": 20135,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-05-05",
+      "trial": 135,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.5,
+      "seed": 20135,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-05-10",
+      "trial": 135,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.5,
+      "seed": 20135,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-06-01",
+      "trial": 136,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.55,
+      "seed": 20136,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-06-05",
+      "trial": 136,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.55,
+      "seed": 20136,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-06-10",
+      "trial": 136,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.55,
+      "seed": 20136,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-07-01",
+      "trial": 137,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.65,
+      "seed": 20137,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-07-05",
+      "trial": 137,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.65,
+      "seed": 20137,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-07-10",
+      "trial": 137,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.65,
+      "seed": 20137,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-08-01",
+      "trial": 138,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.85,
+      "seed": 20138,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-08-05",
+      "trial": 138,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.85,
+      "seed": 20138,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-08-10",
+      "trial": 138,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.85,
+      "seed": 20138,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-09-01",
+      "trial": 139,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 1.05,
+      "seed": 20139,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-09-05",
+      "trial": 139,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 1.05,
+      "seed": 20139,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    },
+    {
+      "id": "boundary-3-09-10",
+      "trial": 139,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 1.05,
+      "seed": 20139,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 1585.022764164958
+    }
+  ],
+  "protocol": "exploratory_current_mppi_risk_tolerance_probe",
+  "description": "64 paired original-distribution launches at 10%; 40 targeted low-friction/start-position cases at each of 1%, 5%, 10%. Fixed gamma=2. All simulation and audit outcomes retained. Boundary counts are not estimates of IID failure probability.",
+  "configuration": "Register temporary Scenario copies in each worker, differing only in name, title and epsilon from traction. No numerical source files or controller logic changed.",
+  "driver_sha256": "cae66cabb3101eda4a36d33270bb54bb843da8307b25bf26e22283773d192c81"
+}

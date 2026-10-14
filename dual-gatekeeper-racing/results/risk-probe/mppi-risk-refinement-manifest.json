@@ -1,0 +1,458 @@
+{
+  "implementation": "ef5c0050f493105beeec5201d96fbdcc4e73199512326a80a2bcf354641d3579",
+  "cases": [
+    {
+      "id": "near-boundary-00-01",
+      "trial": 0,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.4501,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-00-05",
+      "trial": 0,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.4501,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-00-10",
+      "trial": 0,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.4501,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-01-01",
+      "trial": 1,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.4505,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-01-05",
+      "trial": 1,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.4505,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-01-10",
+      "trial": 1,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.4505,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-02-01",
+      "trial": 2,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.451,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-02-05",
+      "trial": 2,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.451,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-02-10",
+      "trial": 2,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.451,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-03-01",
+      "trial": 3,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.4515,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-03-05",
+      "trial": 3,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.4515,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-03-10",
+      "trial": 3,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.4515,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-04-01",
+      "trial": 4,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.452,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-04-05",
+      "trial": 4,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.452,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-04-10",
+      "trial": 4,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.452,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-05-01",
+      "trial": 5,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.4525,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-05-05",
+      "trial": 5,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.4525,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-05-10",
+      "trial": 5,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.4525,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-06-01",
+      "trial": 6,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.453,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-06-05",
+      "trial": 6,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.453,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-06-10",
+      "trial": 6,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.453,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-07-01",
+      "trial": 7,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.4535,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-07-05",
+      "trial": 7,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.4535,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-07-10",
+      "trial": 7,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.4535,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-08-01",
+      "trial": 8,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.454,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-08-05",
+      "trial": 8,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.454,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-08-10",
+      "trial": 8,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.454,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-09-01",
+      "trial": 9,
+      "method": "proposed",
+      "scenario": "probe_1",
+      "true_mu": 0.455,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-09-05",
+      "trial": 9,
+      "method": "proposed",
+      "scenario": "probe_5",
+      "true_mu": 0.455,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    },
+    {
+      "id": "near-boundary-09-10",
+      "trial": 9,
+      "method": "proposed",
+      "scenario": "probe_10",
+      "true_mu": 0.455,
+      "seed": 20100,
+      "seconds": 8.0,
+      "initial_mu": [
+        0.45,
+        1.05
+      ],
+      "information_weight": 2.0,
+      "start": 0.0
+    }
+  ],
+  "protocol": "targeted_low_friction_failure_replication",
+  "description": "Post-discovery sensitivity analysis around mu=0.45, seed=20100, start=0. Not IID and not a failure-rate estimate. Only scenario epsilon and true friction vary; controller logic unchanged.",
+  "driver_sha256": "dbef5d3a9735582e1fecea0fe4d682f7aad0ce5a7453a14e2465516a7645f72c"
+}

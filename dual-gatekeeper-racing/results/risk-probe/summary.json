@@ -1,0 +1,197 @@
+{
+  "implementation": "ef5c0050f493105beeec5201d96fbdcc4e73199512326a80a2bcf354641d3579",
+  "controller_logic_changed": false,
+  "groups": [
+    {
+      "group": "Original distribution, 10%",
+      "epsilon": 0.1,
+      "runs": 64,
+      "violations": 0,
+      "unresolved": 0
+    },
+    {
+      "group": "Targeted boundary grid",
+      "epsilon": 0.01,
+      "runs": 40,
+      "violations": 0,
+      "unresolved": 0
+    },
+    {
+      "group": "Targeted boundary grid",
+      "epsilon": 0.05,
+      "runs": 40,
+      "violations": 1,
+      "unresolved": 0
+    },
+    {
+      "group": "Targeted boundary grid",
+      "epsilon": 0.1,
+      "runs": 40,
+      "violations": 1,
+      "unresolved": 0
+    },
+    {
+      "group": "Post-discovery nearby friction",
+      "epsilon": 0.01,
+      "runs": 10,
+      "violations": 0,
+      "unresolved": 0
+    },
+    {
+      "group": "Post-discovery nearby friction",
+      "epsilon": 0.05,
+      "runs": 10,
+      "violations": 6,
+      "unresolved": 0
+    },
+    {
+      "group": "Post-discovery nearby friction",
+      "epsilon": 0.1,
+      "runs": 10,
+      "violations": 10,
+      "unresolved": 0
+    }
+  ],
+  "examples": [
+    {
+      "epsilon": 0.01,
+      "decision_time": 0.3,
+      "true_mu": 0.45,
+      "seed": 20100,
+      "support": [
+        0.45,
+        0.5787751074498217
+      ],
+      "kind": "mission",
+      "duration": 1.2000000000000002,
+      "certificate_horizon": 4.7,
+      "sample_failures": 0,
+      "samples": 1000,
+      "failure_upper": 0.007129082026468943,
+      "holdout_failures": 0,
+      "holdout_samples": 10000,
+      "holdout_seed": 2026101302,
+      "termination": "timeout",
+      "holdout_ci95": [
+        0.0,
+        0.0003688199146187623
+      ],
+      "violation": null
+    },
+    {
+      "epsilon": 0.05,
+      "decision_time": 0.3,
+      "true_mu": 0.45,
+      "seed": 20100,
+      "support": [
+        0.45,
+        0.5787751074498217
+      ],
+      "kind": "informative",
+      "duration": 0.30000000000000004,
+      "certificate_horizon": 3.8000000000000003,
+      "sample_failures": 22,
+      "samples": 1000,
+      "failure_upper": 0.04081220938760935,
+      "holdout_failures": 230,
+      "holdout_samples": 10000,
+      "holdout_seed": 2026101302,
+      "termination": "constraint_violation",
+      "holdout_ci95": [
+        0.020151515288264737,
+        0.02613073533205205
+      ],
+      "violation": {
+        "time": 0.5,
+        "kind": "tire_force",
+        "margin": -0.0026393914040313323
+      }
+    },
+    {
+      "epsilon": 0.1,
+      "decision_time": 0.3,
+      "true_mu": 0.45,
+      "seed": 20100,
+      "support": [
+        0.45,
+        0.5787751074498217
+      ],
+      "kind": "informative",
+      "duration": 1.2000000000000002,
+      "certificate_horizon": 4.7,
+      "sample_failures": 66,
+      "samples": 1000,
+      "failure_upper": 0.09447207076270674,
+      "holdout_failures": 530,
+      "holdout_samples": 10000,
+      "holdout_seed": 2026101302,
+      "termination": "constraint_violation",
+      "holdout_ci95": [
+        0.04868973552408557,
+        0.05757286283086526
+      ],
+      "violation": {
+        "time": 0.5,
+        "kind": "tire_force",
+        "margin": -0.0026393914040313323
+      }
+    }
+  ],
+  "matched_informative_candidates": [
+    {
+      "duration": 0.3,
+      "identical_controls_and_references": true,
+      "full_batch_failures": 22,
+      "full_batch_upper": 0.04081220938760935,
+      "acceptance": [
+        {
+          "epsilon": 0.01,
+          "accepted": false,
+          "evaluated": 171,
+          "failures": 2
+        },
+        {
+          "epsilon": 0.05,
+          "accepted": true,
+          "evaluated": 1000,
+          "failures": 22
+        },
+        {
+          "epsilon": 0.1,
+          "accepted": true,
+          "evaluated": 1000,
+          "failures": 22
+        }
+      ]
+    },
+    {
+      "duration": 1.2,
+      "identical_controls_and_references": true,
+      "full_batch_failures": 66,
+      "full_batch_upper": 0.09447207076270674,
+      "acceptance": [
+        {
+          "epsilon": 0.01,
+          "accepted": false,
+          "evaluated": 25,
+          "failures": 2
+        },
+        {
+          "epsilon": 0.05,
+          "accepted": false,
+          "evaluated": 366,
+          "failures": 30
+        },
+        {
+          "epsilon": 0.1,
+          "accepted": true,
+          "evaluated": 1000,
+          "failures": 66
+        }
+      ]
+    }
+  ],
+  "verified_records": 214,
+  "audits_passed": 214,
+  "scope": "Exploratory boundary/refinement cases are not IID failure-rate estimates. Independent holdouts evaluate the fixed accepted prefix plus fallback, including terminal recovery; closed-loop executions can replan. A tire-force violation is not a simulated collision."
+}
