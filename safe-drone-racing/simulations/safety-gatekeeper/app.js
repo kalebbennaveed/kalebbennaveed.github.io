@@ -1,4 +1,4 @@
-import { updateKnowledge } from './knowledge.js?v=2';
+import { updateKnowledge } from './knowledge.js?v=3';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { createGate, createDrone } from './models.js?v=2';
@@ -59,12 +59,12 @@ function getEpoch(){
 function updatePaths(force=false){
   const found=getEpoch();if(!found)return;const {epoch,index}=found;
   if(!force&&epochIndex===index)return;const changed=epochIndex!==index;epochIndex=index;
-  if(changed){selectedCandidate=Math.min(selectedCandidate,Math.max(0,epoch.candidates.length-1));$('candidate').replaceChildren(...epoch.candidates.map((c,i)=>{const option=document.createElement('option');option.value=i;option.textContent=`${c.switch_seconds.toFixed(2)} s aggressive · ${c.verification.accepted?'passes experimental checks':'rejected'}`;return option;}));$('candidate').value=selectedCandidate;}
+  if(changed){selectedCandidate=Math.min(selectedCandidate,Math.max(0,epoch.candidates.length-1));$('candidate').replaceChildren(...epoch.candidates.map((c,i)=>{const option=document.createElement('option');option.value=i;option.textContent=`${c.switch_seconds.toFixed(2)} s nominal · ${c.verification.accepted?'passes experimental checks':'rejected'}`;return option;}));$('candidate').value=selectedCandidate;}
   if(!epoch.candidates.length){const option=document.createElement('option');option.textContent='No Gatekeeper candidate in this run';$('candidate').replaceChildren(option);}
   $('candidate').disabled=!epoch.candidates.length;
   while(paths.children.length)dispose(paths.children[0]);
   const candidate=epoch.candidates[selectedCandidate],com=epoch.commitment;
-  if($('show-nominal').checked||data.mode==='nominal')addLine(epoch.nominal,colors.nominal,{opacity:.7,width:.024});
+  if($('show-nominal').checked)addLine(epoch.nominal,colors.nominal,{opacity:.7,width:.024});
   if(candidate&&!($('show-rejected').checked&&!candidate.verification.accepted)){const split=Math.round(candidate.switch_seconds/data.dt);
     if($('show-candidate').checked)addLine(candidate.points.slice(0,split+1),colors.candidate,{dashed:true,opacity:.9});
     if($('show-backup').checked)addLine(candidate.points.slice(split),colors.backup,{dashed:true,opacity:com?.retained ? .45 : .75});
@@ -100,7 +100,9 @@ function updateRejection(epoch,candidate){
       detail=`First negative boundary margin: ${number(r.boundary_margin,' m',3)}, during +${number(r.interval_offsets[0])}–${number(r.interval_offsets[1],' s')}. The swept reachable set fails the clearance check.`;
       note+=' Red box: saved endpoint position bound. The larger swept box was not saved.';
     }else{
-      detail=`The endpoint at +${offset} (predicted time ${absolute}) fails the combined terminal position, velocity and tilt limits.`;
+      const failed=Object.entries(candidate.verification.terminal_checks||{}).filter(([,check])=>!check.passed);
+      detail=failed.length?`At +${offset}: ${failed.map(([name,check])=>`${name==='velocity'?'velocity error':name} including uncertainty ${number(check.value,'',3)} > ${number(check.limit,'',3)} ${check.unit}`).join('; ')}.`:
+        `The endpoint at +${offset} (predicted time ${absolute}) fails the combined terminal position, velocity and tilt limits.`;
       note='Red box: terminal position projection. The failure may involve velocity or tilt; red does not imply a position collision. The crosshair marks the endpoint.';
     }
   }else{
@@ -132,12 +134,18 @@ function updateInspector(epoch,candidate,com,index){
   const verification=candidate?.verification||com?.verification;
   $('margin-value').textContent=number(verification?.min_margin,' m');
   $('margin-value').style.color=verification?.min_margin<0?'#e99c92':'';
+  $('switch-value').previousElementSibling.textContent=data.mode==='unfiltered'?'NEURAL POLICY':com?'COMMITTED SWITCH':'CANDIDATE SWITCH';
+  if(data.mode==='unfiltered')$('switch-value').textContent=`v${epoch.policy_version}`;
   if(data.mode==='nominal'){
     $('decision-label').textContent='NOMINAL PERFORMANCE TEST';$('decision-title').textContent='Nominal MPPI trajectory';
     $('decision-detail').textContent='Optimized thrust and body-rate commands are executed on the nominal plant. Gatekeeper is not active in this diagnostic.';
+  }else if(data.mode==='unfiltered'){
+    $('decision-label').textContent='NEURAL CONTROLLER · NO GATEKEEPER';
+    $('decision-title').textContent=data.plant_mode==='base'?'Ground truth matches the base model.':'Ground truth has hidden drag and bias.';
+    $('decision-detail').textContent=`MPPI supplies the reference; the neural policy supplies the applied commands. Model v${epoch.model_version}, neural policy v${epoch.policy_version}. Dynamics learning and policy adaptation are enabled. No candidate is checked or rejected.`;
   }else if(!com){
-    $('decision-label').textContent='INITIALIZATION REJECTED';$('decision-title').textContent='No commitment. Flight is refused.';
-    $('decision-detail').textContent=`The initial backup failed verification: ${humanReason(verification?.reason)}. This is a static audit, not executed motion.`;
+    $('decision-label').textContent='NEURAL TRACKER · INITIAL BACKUP CHECK';$('decision-title').textContent='The backup candidate did not pass.';
+    $('decision-detail').textContent=`Zero nominal duration: the predicted trajectory follows the moving backup immediately at 2 m/s. ${humanReason(verification?.reason)}. Zero racing steps were executed; the red line is a prediction. Preliminary data collection is a separate simulation.`;
   }else if(com.retained){
     $('decision-label').textContent='PROPOSAL REJECTED';$('decision-title').textContent='The previous commitment stays active.';
     $('decision-detail').textContent=`${humanReason(verification?.reason)}. Commitment ${com.id} retains model v${com.model_version} and its original error envelope.`;
@@ -168,6 +176,9 @@ function updateUncertaintyGeometry(epoch,candidate,com){
     $('tube-detail').textContent=`${available} sampled position boxes, at true scale, through ${until.toFixed(2)} s. Maximum axis half-width ${number(maxRadius,' m')}. ${partial?'Verification stopped; the remaining candidate has no recorded bound.':'No bound is extrapolated beyond this horizon.'}`;
   }else if(data.mode==='nominal'){
     $('tube-detail').textContent='The nominal diagnostic has no reachable-tube verifier or model-error bound.';
+  }else if(data.mode==='unfiltered'){
+    $('tube-detail').textContent='Gatekeeper is disabled. The model-error bound is plotted, but no reachable tube is propagated and no plan is filtered.';
+    $('bounds-caption').textContent='No Gatekeeper checks in this run';
   }else if(data.mode==='strict'){
     $('tube-detail').textContent='This strict recording has interval radii but no interval centers. A position envelope cannot be reconstructed safely.';
   }else if(com&&name==='Committed'){
@@ -178,7 +189,7 @@ function updateUncertaintyGeometry(epoch,candidate,com){
   }
 }
 function updateUncertaintyValues(sample){
-  const hasError=data.mode==='experimental'&&data.samples.length>1;
+  const hasError=['experimental','unfiltered'].includes(data.mode)&&data.samples.length>1;
   $('error-bound-value').textContent=hasError?number(sample.local_error_bound):'—';
   $('error-value').textContent=hasError?number(sample.residual_error_diagnostic):'—';
   $('spread-value').textContent=hasError?number(sample.ensemble_disagreement):'—';
@@ -193,7 +204,7 @@ function drawUncertaintyChart(){
   canvas.width=Math.max(1,r.width*dpr);canvas.height=Math.max(1,r.height*dpr);
   const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);const w=r.width,h=r.height,bottom=h-17;
   const samples=data.samples,end=samples.at(-1)?.time||1;
-  if(data.mode!=='experimental'||samples.length<2){ctx.fillStyle='#8b829a';ctx.font='10px system-ui';ctx.fillText('No executed uncertainty series in this run.',2,35);return;}
+  if(!['experimental','unfiltered'].includes(data.mode)||samples.length<2){ctx.fillStyle='#8b829a';ctx.font='10px system-ui';ctx.fillText('No executed uncertainty series in this run.',2,35);return;}
   const maximum=Math.max(data.trust_threshold,...samples.map(s=>s.local_error_bound||0)) *1.08;
   // Gray bands are missing finite-horizon coverage, not zero uncertainty.
   for(let i=1;i<samples.length;i++)if(!samples[i].finite_tube_coverage){ctx.fillStyle='#88848f17';ctx.fillRect(samples[i-1].time/end*w,0,Math.max(1,(samples[i].time-samples[i-1].time)/end*w),bottom);}
@@ -223,7 +234,7 @@ function updateTime(){
     if(view==='follow'||view==='drone'){if(lastAnchor){const delta=drone.position.clone().sub(lastAnchor);camera.position.add(delta);controls.target.add(delta);}lastAnchor=drone.position.clone();}
     if(trail)dispose(trail);
     const past=data.samples.slice(0,sample.index+1).map(s=>new THREE.Vector3(...s.state.slice(0,3)));past.push(drone.position.clone());
-    const geometry=new THREE.BufferGeometry().setFromPoints(past),colored=$('color-uncertainty').checked&&data.mode==='experimental';
+    const geometry=new THREE.BufferGeometry().setFromPoints(past),colored=$('color-uncertainty').checked&&['experimental','unfiltered'].includes(data.mode);
     if(colored){const values=data.samples.slice(0,sample.index+1).map(s=>s.local_error_bound);values.push(sample.local_error_bound);geometry.setAttribute('color',new THREE.Float32BufferAttribute(values.flatMap(value=>errorColor(value,data.trust_threshold).toArray()),3));}
     trail=new THREE.Line(geometry,new THREE.LineBasicMaterial({color:colored?0xffffff:colors.trail,vertexColors:colored,transparent:true,opacity:colored ? .95 : .42,toneMapped:false}));trail.visible=$('show-trail').checked;scene.add(trail);
     missMarkers.children.forEach(marker=>marker.visible=marker.userData.time<=time+1e-7);
@@ -240,23 +251,30 @@ function drawChart(){
   ctx.font='8px system-ui';ctx.fillStyle='#68727e';ctx.fillText('0 s',0,h-1);ctx.textAlign='right';ctx.fillText(end.toFixed(1)+' s',w,h-1);
 }
 async function loadRun(filename){
-  const request=++loadRequest;setPlaying(false);const response=await fetch(`./data/${filename}?v=6`,{cache:'no-cache'});if(!response.ok)throw new Error(`Recording could not be loaded (${response.status}).`);const recording=await response.json();if(request!==loadRequest)return;data=recording;time=0;epochIndex=-1;selectedCandidate=0;
+  const request=++loadRequest;setPlaying(false);const response=await fetch(`./data/${filename}?v=7`,{cache:'no-cache'});if(!response.ok)throw new Error(`Recording could not be loaded (${response.status}).`);const recording=await response.json();if(request!==loadRequest)return;data=recording;time=0;epochIndex=-1;selectedCandidate=0;
   $('scene-error').hidden=true;if(trail){dispose(trail);trail=null;}
   while(missMarkers.children.length)dispose(missMarkers.children[0]);
   data.samples.filter(s=>s.state_bound_exceeded).forEach(s=>{const marker=new THREE.Mesh(new THREE.SphereGeometry(.065,12,10),new THREE.MeshBasicMaterial({color:0xf0796d,toneMapped:false}));marker.position.set(...s.state.slice(0,3));marker.userData.time=s.time;missMarkers.add(marker);});
   $('uncertainty-source').value=data.epochs[0]?.commitment?'committed':'candidate';
   $('uncertainty-mode').textContent=data.mode.toUpperCase();
-  $('color-uncertainty').disabled=data.mode!=='experimental'||data.samples.length<2;
+  $('color-uncertainty').disabled=!['experimental','unfiltered'].includes(data.mode)||data.samples.length<2;
   $('next-bound-miss').disabled=!data.samples.some(s=>s.state_bound_exceeded);
   $('error-scale-max').textContent=number(data.trust_threshold,' m/s²',1);
   while(course.children.length)dispose(course.children[0]);data.track.gates.forEach((g,i)=>course.add(createGate(g,i)));
   $('timeline').max=data.samples.at(-1)?.time||0;$('timeline').disabled=data.samples.length<2;$('play').disabled=data.samples.length<2;
   $('peak-value').textContent=number(data.metrics.max_speed,' m/s peak',1);
+  const hasGatekeeper=!['nominal','unfiltered'].includes(data.mode);
+  ['candidate','committed','backup'].forEach(name=>$(`show-${name}`).parentElement.hidden=!hasGatekeeper);
+  $('show-nominal').checked=!hasGatekeeper;
+  document.querySelector('.trajectory-help').hidden=!hasGatekeeper;
+  document.querySelector('.bounds-controls').hidden=!hasGatekeeper;
   $('assurance-text').textContent=data.mode==='nominal'?'Nominal-model diagnostic. No uncertain-dynamics safety claim. Planning runs offline; the browser replays the recording.':data.mode==='strict'?'Strict verification fails closed. The nonlinear enclosure and a robustly invariant backup must be established before flight can be authorized.':'Experimental simulation. The linearized tube and terminal error envelope have not established a formal nonlinear safety guarantee.';
+  if(data.mode==='unfiltered') $('assurance-text').textContent='Neural-controller performance run without Gatekeeper. Model-error bounds are diagnostic; they do not authorize or block commands.';
   if(data.mode==='experimental'&&data.metrics.duration){
     $('assurance-text').textContent+=` ${data.metrics.full_state_tube_violations} full-state enclosure misses in ${data.metrics.tube_covered_steps} checked steps; ${data.metrics.continuation_steps} steps beyond the finite check.`;
   }
-  $('recording-note').textContent=`Seed ${data.seed} · ${data.status.replaceAll('_',' ')} · ${number(data.metrics.median_solver_ms,' ms planning',0)}`;
+  document.querySelector('.rejection-panel').hidden=data.mode==='unfiltered';
+  $('recording-note').textContent=`Seed ${data.seed} · ${data.status.startsWith('initial_commitment_rejected')?'initial backup check failed · zero racing steps':data.status.replaceAll('_',' ')} · ${number(data.metrics.median_solver_ms,' ms planning',0)}`;
   updateTime();resetCamera();
 }
 function setPlaying(value){playing=value;$('play').textContent=playing?'Ⅱ':'▶';$('play').setAttribute('aria-label',playing?'Pause replay':'Play replay');}
@@ -277,4 +295,4 @@ $('color-uncertainty').onchange=updateTime;
 $('next-bound-miss').onclick=()=>{const misses=data.samples.filter(s=>s.state_bound_exceeded);const next=misses.find(s=>s.time>time+1e-6)||misses[0];if(next){time=next.time;setPlaying(false);updateTime();}};
 function showError(error){console.error(error);$('scene-error').hidden=false;$('scene-error').textContent=error.message;$('decision-label').textContent='REPLAY UNAVAILABLE';}
 function frame(now){requestAnimationFrame(frame);const delta=Math.min((now-lastFrame)/1000,.1);lastFrame=now;if(data&&playing){time+=delta*Number($('playback-speed').value);if(time>=data.samples.at(-1).time)setPlaying(false);updateTime();}if(playing)rotors.forEach((r,i)=>r.rotation.z+=(i%2?1:-1)*delta*60);controls?.update();if(renderer)renderer.render(scene,camera);}
-try{initScene();requestAnimationFrame(frame);const response=await fetch('./data/index.json?v=6',{cache:'no-cache'});if(!response.ok)throw new Error('No recordings found. Run the simulation and export the demo data first.');const runs=await response.json();$('run').replaceChildren(...runs.map(run=>{const option=document.createElement('option');option.value=run.file;option.textContent=run.label;return option;}));if(!runs.length)throw new Error('The recording index is empty.');await loadRun(runs[0].file);}catch(error){showError(error);}
+try{initScene();requestAnimationFrame(frame);const response=await fetch('./data/index.json?v=7',{cache:'no-cache'});if(!response.ok)throw new Error('No recordings found. Run the simulation and export the demo data first.');const runs=await response.json();$('run').replaceChildren(...runs.map(run=>{const option=document.createElement('option');option.value=run.file;option.textContent=run.label;return option;}));if(!runs.length)throw new Error('The recording index is empty.');await loadRun(runs[0].file);}catch(error){showError(error);}

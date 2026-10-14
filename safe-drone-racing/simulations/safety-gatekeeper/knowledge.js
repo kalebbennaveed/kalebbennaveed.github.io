@@ -45,7 +45,7 @@ function render(force=false){
   $('knowledge-scale-max').textContent=`${frame?.threshold??4.5}+ m/s²`;
   $('knowledge-status').textContent=isLive?(live?`LOCAL RUN · ${(live.status==='initial_commitment_rejected: terminal_recovery'?'initial trajectory rejected · terminal error set too large':live.status.replaceAll('_',' '))} · updated ${new Date(live.updated_unix*1000).toLocaleTimeString()}`:'No local run connected. Start the simulation with --live-output web_demo/data/live-knowledge.json.'):'RECORDED MODEL UPDATES · follows the playback time';
   $('knowledge-count').textContent=frame?`${frame.observations} measurements · ${frame.nearby_samples.length} near this slice`:'No measurements available';
-  $('knowledge-policy').textContent=isLive&&live?.policy?.available_version!=null?`Neural controller: version ${live.policy.available_version} available; ${live.policy.active_version??'none'} active.`:isLive?'Geometric tracking controller · local run.':recording?.controller==='neural'?(recording.samples.length<2?'Neural controller trained; initial candidate rejected. No flight was authorized.':'Neural tracking policy · adapted using the learned prediction model.'):'This recording uses the geometric tracking controller.';
+  $('knowledge-policy').textContent=isLive&&live?.policy?.available_version!=null?`Neural controller: version ${live.policy.available_version} available; ${live.policy.active_version??'none'} active.`:isLive?'Geometric tracking controller · local run.':recording?.controller==='neural'?(recording.samples.length<2?'Neural controller trained; backup-only initialization failed. Racing episode: zero steps; preliminary data collection is separate.':'Neural tracking policy · adapted using the learned prediction model.'):'This recording uses the geometric tracking controller.';
   if(frame){
     const x=frame.anchor_state,u=frame.anchor_control,fmt=a=>a.map(v=>Number(v).toFixed(2)).join(', ');
     $('knowledge-anchor').textContent=`Held fixed throughout this comparison: position [${fmt(x.slice(0,3))}] m; vertical velocity ${x[5].toFixed(2)} m/s; quaternion [${fmt(x.slice(6,10))}]; actual thrust ${x[10].toFixed(2)} m/s²; actual body rates [${fmt(x.slice(11,14))}] rad/s; commanded thrust ${u[0].toFixed(2)} m/s² and body rates [${fmt(u.slice(1))}] rad/s. White dots are measured samples whose other normalized features lie within ${frame.nearby_tolerance} of these values.`;
@@ -58,7 +58,7 @@ async function poll(){
     live=await response.json();render();
   }catch{live=null;render(true);}
 }
-export function updateKnowledge(data,time){recording=data;replayTime=time;render();}
+export function updateKnowledge(data,time){const changed=recording!==data;recording=data;replayTime=time;render(changed);}
 $('knowledge-source').onchange=()=>{clearInterval(timer);live=null;render(true);if($('knowledge-source').value==='live'){poll();timer=setInterval(poll,1500);}};
 $('knowledge-bound').onchange=()=>render(true);
 window.addEventListener('resize',()=>render(true));

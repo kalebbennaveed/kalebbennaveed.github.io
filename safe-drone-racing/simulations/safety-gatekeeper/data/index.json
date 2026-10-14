@@ -1,27 +1,17 @@
 [
   {
-    "file": "experimental-7.json",
-    "label": "Experimental \u00b7 seed 7",
-    "mode": "experimental"
+    "file": "unfiltered-base-7-neural.json",
+    "label": "Neural \u00b7 no Gatekeeper \u00b7 base dynamics",
+    "mode": "unfiltered"
+  },
+  {
+    "file": "unfiltered-mismatch-7-neural.json",
+    "label": "Neural \u00b7 no Gatekeeper \u00b7 hidden drag + bias",
+    "mode": "unfiltered"
   },
   {
     "file": "experimental-7-neural.json",
-    "label": "Experimental \u00b7 Neural tracker \u00b7 seed 7",
-    "mode": "experimental"
-  },
-  {
-    "file": "nominal-7.json",
-    "label": "Nominal \u00b7 seed 7",
-    "mode": "nominal"
-  },
-  {
-    "file": "strict-7.json",
-    "label": "Strict \u00b7 seed 7",
-    "mode": "strict"
-  },
-  {
-    "file": "experimental-17.json",
-    "label": "Experimental \u00b7 seed 17",
+    "label": "Neural \u00b7 Gatekeeper \u00b7 initial backup check",
     "mode": "experimental"
   }
 ]
