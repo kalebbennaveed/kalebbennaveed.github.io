@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Safely racing at the limits of handling</title>
-  <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="stylesheet" href="styles.css?v=7">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/controls/OrbitControls.js":"./vendor/OrbitControls.js"}}</script>
 </head>
 <body>
@@ -77,15 +77,16 @@
     <ol class="method-steps">
       <li><strong>MPPI generates the nominal trajectory.</strong><p>It tries command sequences, predicts their motion with the prediction model, and scores forward progress, course error and control effort. Its output is a two-second sequence of reference states and thrust/body-rate commands.</p></li>
       <li><strong>With Gatekeeper: simulate a candidate.</strong><p>Starting at the measured state, simulate the neural tracker following the nominal reference until a chosen switch time. Then simulate the backup controller, which follows the course centerline at 2 m/s. The prediction model produces every future state. The first candidate has <b>zero nominal duration</b>: backup starts immediately.</p></li>
-      <li><strong>Check the candidate, then keep an accepted reference.</strong><p>Propagate model error and measurement error along the candidate. Check the resulting position bounds against the course, then check terminal position, velocity and tilt. An accepted candidate becomes the committed reference. If a later candidate fails, the previous commitment continues moving along its backup reference.</p></li>
+      <li><strong>Check the candidate, then keep an accepted reference.</strong><p>Propagate model error and measurement error along the candidate, using Jacobians of the prediction model together with the neural feedback policy. Check the resulting position bounds against the course, then check terminal position, velocity and tilt. An accepted candidate becomes the committed reference. If a later candidate fails, the previous commitment continues moving along its backup reference.</p></li>
       <li><strong>The neural tracker generates applied commands.</strong><p>It receives the measured state, reference state/command and previous command. It outputs thrust and body rates, subject to magnitude and change-rate limits. It tracks the whole committed reference, including the backup portion. The geometric backup generates that reference; it does not replace the executing neural tracker.</p></li>
     </ol>
-    <p class="method-direct"><strong>Without Gatekeeper:</strong> MPPI reference → neural tracker → ground-truth simulator. No candidate, commitment or backup switch is used. These are the two moving runs compared below.</p>
+    <p class="method-direct"><strong>Startup:</strong> Base model + the declared bound on unknown drag and acceleration bias → simulate the moving backup immediately → verify → begin tracking. No preliminary data-collection flight is required. Dynamics learning and neural-controller adaptation then use measurements collected during flight.</p>
+    <p class="method-direct"><strong>Without Gatekeeper:</strong> MPPI reference → neural tracker → ground-truth simulator. No candidate, commitment or backup switch is used. These are the two unfiltered runs compared below.</p>
     <details><summary>Dynamics learning and controller learning</summary><p>The dynamics ensemble averages three networks to predict an acceleration correction from measured state changes and applied commands. The control-policy network learns how to track a reference. When the dynamics model changes, policy training simulates tracking with that model and updates the controller weights by backpropagation through time. No ATS is used. In a Gatekeeper run, a policy update enters execution only with an accepted candidate; in an unfiltered run, it enters after the training validation check.</p></details>
-    <p class="knowledge-note">The current Gatekeeper tube is a Jacobian approximation. Its nonlinear enclosure and the moving backup's invariant set have not been established. The current neural backup-only initialization fails its terminal check; it is shown separately from the two unfiltered flight recordings. The ground-truth simulator is a 14-state body-rate/actuator model, not a rotor-resolved high-fidelity simulator.</p>
+    <p class="knowledge-note">The current Gatekeeper tube is a Jacobian approximation. Its nonlinear enclosure and the moving backup's invariant set have not been established; completing a flight does not establish those guarantees. The physics prior is an explicit assumption about this simulation family, not a bound learned before data exist. The ground-truth simulator is a 14-state body-rate/actuator model, not a rotor-resolved high-fidelity simulator.</p>
   </section>
-  <section class="performance-panel" id="performance" aria-label="Neural controller without Gatekeeper">
-    <div class="knowledge-title"><div><span class="eyebrow">NEURAL CONTROLLER · NO GATEKEEPER</span><h2>What changes when the dynamics differ?</h2><p>The same neural policy checkpoint and MPPI settings, with online learning enabled in both runs.</p></div></div>
+  <section class="performance-panel" id="performance" aria-label="Neural controller with and without Gatekeeper">
+    <div class="knowledge-title"><div><span class="eyebrow">NEURAL CONTROLLER · 30-SECOND RUNS</span><h2>With and without Gatekeeper</h2><p>The same initial neural policy and MPPI settings. Compare matching dynamics, hidden drag/bias, and Gatekeeper's moving backup.</p></div></div>
     <div id="performance-cards" class="performance-cards"><p>Loading measured results…</p></div>
     <canvas id="comparison-chart" aria-label="Flight speed comparison over time"></canvas>
     <p class="knowledge-note" id="performance-protocol"></p>
@@ -102,7 +103,7 @@
     <details><summary>Fixed state and command values</summary><p id="knowledge-anchor"></p></details>
   </section>
   <footer><span>JAX MPPI <b>·</b> ONLINE RESIDUAL LEARNING <b>·</b> GATEKEEPER</span><span id="recording-note">Actual simulation recordings. No scripted flight animation.</span></footer>
-  <script type="module" src="app.js?v=7"></script>
-  <script type="module" src="performance.js?v=1"></script>
+  <script type="module" src="app.js?v=8"></script>
+  <script type="module" src="performance.js?v=2"></script>
 </body>
 </html>

@@ -34,7 +34,10 @@ function render(force=false){
   const frames=recording?.knowledge||[];
   let frame=isLive?live?.frame:frames.filter(f=>f.time<=replayTime+1e-6).at(-1);
   const baseline=frames[0];
-  const key=JSON.stringify([isLive,frame?.model_version,frame?.time,$('knowledge-bound').value,live?.updated_unix,recording?.seed,recording?.controller]);
+  const epoch=recording?.epochs?.filter(e=>e.time<=replayTime+1e-6).at(-1);
+  const available=epoch?.policy_version,active=recording?.mode==='unfiltered'?available:epoch?.commitment?.policy_version;
+  const trainedOn=recording?.policy_learning?.find(p=>p.accepted&&p.version===active)?.model_version;
+  const key=JSON.stringify([isLive,frame?.model_version,frame?.time,$('knowledge-bound').value,live?.updated_unix,recording?.seed,recording?.controller,available,active]);
   if(!force&&key===lastKey)return;lastKey=key;
   $('knowledge-hover').textContent='Move over a map to inspect a state.';
   draw($('knowledge-map'),frame);
@@ -44,8 +47,13 @@ function render(force=false){
   $('knowledge-baseline-title').textContent=baseline?`At start · model ${baseline.model_version}`:'At start';
   $('knowledge-scale-max').textContent=`${frame?.threshold??4.5}+ m/s²`;
   $('knowledge-status').textContent=isLive?(live?`LOCAL RUN · ${(live.status==='initial_commitment_rejected: terminal_recovery'?'initial trajectory rejected · terminal error set too large':live.status.replaceAll('_',' '))} · updated ${new Date(live.updated_unix*1000).toLocaleTimeString()}`:'No local run connected. Start the simulation with --live-output web_demo/data/live-knowledge.json.'):'RECORDED MODEL UPDATES · follows the playback time';
+  if(frame&&frame.observations===0&&$('knowledge-bound').value==='data')$('knowledge-status').textContent+=' · No measurements yet; choose the bound used by checks to see the declared physics prior.';
   $('knowledge-count').textContent=frame?`${frame.observations} measurements · ${frame.nearby_samples.length} near this slice`:'No measurements available';
-  $('knowledge-policy').textContent=isLive&&live?.policy?.available_version!=null?`Neural controller: version ${live.policy.available_version} available; ${live.policy.active_version??'none'} active.`:isLive?'Geometric tracking controller · local run.':recording?.controller==='neural'?(recording.samples.length<2?'Neural controller trained; backup-only initialization failed. Racing episode: zero steps; preliminary data collection is separate.':'Neural tracking policy · adapted using the learned prediction model.'):'This recording uses the geometric tracking controller.';
+  $('knowledge-policy').textContent=isLive&&live?.policy?.available_version!=null?`Neural controller: version ${live.policy.available_version} available; ${live.policy.active_version??'none'} active.`:isLive?(live?.policy?.controller==='geometric'?'Geometric tracking controller · local run.':live?.policy?.controller==='direct_mppi'?'Direct MPPI commands · local run.':'No controller status available.'):recording?.controller==='neural'?(recording.samples.length<2?'Neural controller trained; backup-only initialization failed. Racing episode: zero steps; preliminary data collection is separate.':'Neural tracking policy · adapted using the learned prediction model.'):'This recording uses the geometric tracking controller.';
+  if(!isLive&&recording?.controller==='neural'&&active!=null){
+    $('knowledge-policy').textContent=`Neural tracker v${active} ${recording.mode==='unfiltered'?'executes the MPPI reference':'tracks the accepted commitment'} · ${trainedOn==null?'pretrained on the base model':`adapted on prediction model v${trainedOn}`}.`;
+    if(available!==active&&available!=null)$('knowledge-policy').textContent+=` Candidate policy v${available} is available but has not been accepted for execution.`;
+  }
   if(frame){
     const x=frame.anchor_state,u=frame.anchor_control,fmt=a=>a.map(v=>Number(v).toFixed(2)).join(', ');
     $('knowledge-anchor').textContent=`Held fixed throughout this comparison: position [${fmt(x.slice(0,3))}] m; vertical velocity ${x[5].toFixed(2)} m/s; quaternion [${fmt(x.slice(6,10))}]; actual thrust ${x[10].toFixed(2)} m/s²; actual body rates [${fmt(x.slice(11,14))}] rad/s; commanded thrust ${u[0].toFixed(2)} m/s² and body rates [${fmt(u.slice(1))}] rad/s. White dots are measured samples whose other normalized features lie within ${frame.nearby_tolerance} of these values.`;

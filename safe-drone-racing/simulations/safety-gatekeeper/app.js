@@ -1,4 +1,4 @@
-import { updateKnowledge } from './knowledge.js?v=3';
+import { updateKnowledge } from './knowledge.js?v=4';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { createGate, createDrone } from './models.js?v=2';
@@ -7,7 +7,7 @@ import { addRejectionBox, rejectionColor } from './rejection.js';
 
 const $=id=>document.getElementById(id);
 const colors={candidate:0xedba74,committed:0x71e2db,backup:0x9691ef,trail:0xd2d8e0,nominal:0x7688a7};
-let data,time=0,playing=false,view='overview',epochIndex=-1,selectedCandidate=0,lastFrame=0,lastAnchor=null,loadRequest=0;
+let data,time=0,playing=false,view='overview',epochIndex=-1,selectedCandidate=0,manualCandidate=false,lastFrame=0,lastAnchor=null,loadRequest=0;
 let renderer,scene,camera,controls,course,paths,drone,rotors=[],trail,missMarkers;
 const clock=value=>`${String(Math.floor(value/60)).padStart(2,'0')}:${(value%60).toFixed(2).padStart(5,'0')}`;
 const number=(x,suffix='',digits=2)=>x==null||!Number.isFinite(x)?'—':x.toFixed(digits)+suffix;
@@ -59,7 +59,7 @@ function getEpoch(){
 function updatePaths(force=false){
   const found=getEpoch();if(!found)return;const {epoch,index}=found;
   if(!force&&epochIndex===index)return;const changed=epochIndex!==index;epochIndex=index;
-  if(changed){selectedCandidate=Math.min(selectedCandidate,Math.max(0,epoch.candidates.length-1));$('candidate').replaceChildren(...epoch.candidates.map((c,i)=>{const option=document.createElement('option');option.value=i;option.textContent=`${c.switch_seconds.toFixed(2)} s nominal · ${c.verification.accepted?'passes experimental checks':'rejected'}`;return option;}));$('candidate').value=selectedCandidate;}
+  if(changed){selectedCandidate=manualCandidate?Math.min(selectedCandidate,Math.max(0,epoch.candidates.length-1)):Math.max(0,epoch.candidates.findIndex(c=>c.verification.accepted));$('candidate').replaceChildren(...epoch.candidates.map((c,i)=>{const option=document.createElement('option');option.value=i;option.textContent=`${c.switch_seconds.toFixed(2)} s nominal · ${c.verification.accepted?'passes experimental checks':'rejected'}`;return option;}));$('candidate').value=selectedCandidate;}
   if(!epoch.candidates.length){const option=document.createElement('option');option.textContent='No Gatekeeper candidate in this run';$('candidate').replaceChildren(option);}
   $('candidate').disabled=!epoch.candidates.length;
   while(paths.children.length)dispose(paths.children[0]);
@@ -147,8 +147,8 @@ function updateInspector(epoch,candidate,com,index){
     $('decision-label').textContent='NEURAL TRACKER · INITIAL BACKUP CHECK';$('decision-title').textContent='The backup candidate did not pass.';
     $('decision-detail').textContent=`Zero nominal duration: the predicted trajectory follows the moving backup immediately at 2 m/s. ${humanReason(verification?.reason)}. Zero racing steps were executed; the red line is a prediction. Preliminary data collection is a separate simulation.`;
   }else if(com.retained){
-    $('decision-label').textContent='PROPOSAL REJECTED';$('decision-title').textContent='The previous commitment stays active.';
-    $('decision-detail').textContent=`${humanReason(verification?.reason)}. Commitment ${com.id} retains model v${com.model_version} and its original error envelope.`;
+    $('decision-label').textContent='NEURAL TRACKER · PROPOSAL REJECTED';$('decision-title').textContent='The previous commitment keeps moving.';
+    $('decision-detail').textContent=`${humanReason(verification?.reason)}. Neural policy v${com.policy_version} continues tracking commitment ${com.id}, using prediction model v${com.model_version} and its original error envelope.`;
     if(com.verification_end_time!=null&&time>=com.verification_end_time){
       $('decision-detail').textContent+=` It now follows the retained backup reference beyond its ${com.verification_end_time.toFixed(1)} s finite check; this continuation has no certified tube.`;
     }
@@ -156,9 +156,10 @@ function updateInspector(epoch,candidate,com,index){
     $('decision-label').textContent='LONGER CANDIDATE REJECTED';$('decision-title').textContent='A shorter candidate was committed.';
     $('decision-detail').textContent=`The inspected ${candidate.switch_seconds.toFixed(2)} s proposal failed: ${humanReason(verification.reason).toLowerCase()}. Active commitment ${com.id} switches to backup after ${com.switch_seconds.toFixed(2)} s.`;
   }else{
-    $('decision-label').textContent='EXPERIMENTAL COMMITMENT';$('decision-title').textContent='Candidate accepted for experimental tracking.';
-    $('decision-detail').textContent=`Commitment ${com.id}: ${com.switch_seconds.toFixed(2)} s of racing-reference tracking, then tracking the centerline at 2 m/s. These development checks are not a safety certificate.`;
+    $('decision-label').textContent='NEURAL TRACKER · GATEKEEPER';$('decision-title').textContent='Candidate accepted; the neural tracker follows it.';
+    $('decision-detail').textContent=`Neural policy v${com.policy_version} tracks commitment ${com.id}: ${com.switch_seconds.toFixed(2)} s of racing-reference tracking, then the moving backup reference at 2 m/s. The current checks use a Jacobian approximation.`;
   }
+  if(time<data.dt&&data.initialization?.verification.accepted)$('decision-detail').textContent+=' Startup first verified a backup-only candidate (0 s nominal). The first MPPI update then proposed the candidate shown here.';
 }
 function updateUncertaintyGeometry(epoch,candidate,com){
   const select=$('uncertainty-source');select.options[0].disabled=!com;select.options[1].disabled=!candidate;select.disabled=!com&&!candidate;
@@ -251,7 +252,7 @@ function drawChart(){
   ctx.font='8px system-ui';ctx.fillStyle='#68727e';ctx.fillText('0 s',0,h-1);ctx.textAlign='right';ctx.fillText(end.toFixed(1)+' s',w,h-1);
 }
 async function loadRun(filename){
-  const request=++loadRequest;setPlaying(false);const response=await fetch(`./data/${filename}?v=7`,{cache:'no-cache'});if(!response.ok)throw new Error(`Recording could not be loaded (${response.status}).`);const recording=await response.json();if(request!==loadRequest)return;data=recording;time=0;epochIndex=-1;selectedCandidate=0;
+  const request=++loadRequest;setPlaying(false);const response=await fetch(`./data/${filename}?v=8`,{cache:'no-cache'});if(!response.ok)throw new Error(`Recording could not be loaded (${response.status}).`);const recording=await response.json();if(request!==loadRequest)return;data=recording;time=0;epochIndex=-1;selectedCandidate=0;manualCandidate=false;
   $('scene-error').hidden=true;if(trail){dispose(trail);trail=null;}
   while(missMarkers.children.length)dispose(missMarkers.children[0]);
   data.samples.filter(s=>s.state_bound_exceeded).forEach(s=>{const marker=new THREE.Mesh(new THREE.SphereGeometry(.065,12,10),new THREE.MeshBasicMaterial({color:0xf0796d,toneMapped:false}));marker.position.set(...s.state.slice(0,3));marker.userData.time=s.time;missMarkers.add(marker);});
@@ -269,6 +270,7 @@ async function loadRun(filename){
   document.querySelector('.trajectory-help').hidden=!hasGatekeeper;
   document.querySelector('.bounds-controls').hidden=!hasGatekeeper;
   $('assurance-text').textContent=data.mode==='nominal'?'Nominal-model diagnostic. No uncertain-dynamics safety claim. Planning runs offline; the browser replays the recording.':data.mode==='strict'?'Strict verification fails closed. The nonlinear enclosure and a robustly invariant backup must be established before flight can be authorized.':'Experimental simulation. The linearized tube and terminal error envelope have not established a formal nonlinear safety guarantee.';
+  if(data.initialization?.verification.accepted)$('assurance-text').textContent+=' Started with an accepted zero-nominal backup candidate, using the base model and declared physics prior before collecting data.';
   if(data.mode==='unfiltered') $('assurance-text').textContent='Neural-controller performance run without Gatekeeper. Model-error bounds are diagnostic; they do not authorize or block commands.';
   if(data.mode==='experimental'&&data.metrics.duration){
     $('assurance-text').textContent+=` ${data.metrics.full_state_tube_violations} full-state enclosure misses in ${data.metrics.tube_covered_steps} checked steps; ${data.metrics.continuation_steps} steps beyond the finite check.`;
@@ -281,7 +283,7 @@ function setPlaying(value){playing=value;$('play').textContent=playing?'Ⅱ':'�
 $('play').onclick=()=>{if(time>=(data.samples.at(-1)?.time||0))time=0;setPlaying(!playing);updateTime();};
 $('restart').onclick=()=>{time=0;setPlaying(false);epochIndex=-1;updateTime();};
 $('timeline').oninput=e=>{time=Number(e.target.value);setPlaying(false);updateTime();};
-$('candidate').onchange=e=>{selectedCandidate=Number(e.target.value);updatePaths(true);};
+$('candidate').onchange=e=>{manualCandidate=true;selectedCandidate=Number(e.target.value);updatePaths(true);};
 $('next-decision').onclick=()=>{const next=data.epochs.find(e=>e.time>time+.0001);if(next){time=next.time;setPlaying(false);updateTime();}};
 $('reset-camera').onclick=resetCamera;
 document.querySelectorAll('[data-view]').forEach(button=>button.onclick=()=>{view=button.dataset.view;resetCamera();});
@@ -295,4 +297,4 @@ $('color-uncertainty').onchange=updateTime;
 $('next-bound-miss').onclick=()=>{const misses=data.samples.filter(s=>s.state_bound_exceeded);const next=misses.find(s=>s.time>time+1e-6)||misses[0];if(next){time=next.time;setPlaying(false);updateTime();}};
 function showError(error){console.error(error);$('scene-error').hidden=false;$('scene-error').textContent=error.message;$('decision-label').textContent='REPLAY UNAVAILABLE';}
 function frame(now){requestAnimationFrame(frame);const delta=Math.min((now-lastFrame)/1000,.1);lastFrame=now;if(data&&playing){time+=delta*Number($('playback-speed').value);if(time>=data.samples.at(-1).time)setPlaying(false);updateTime();}if(playing)rotors.forEach((r,i)=>r.rotation.z+=(i%2?1:-1)*delta*60);controls?.update();if(renderer)renderer.render(scene,camera);}
-try{initScene();requestAnimationFrame(frame);const response=await fetch('./data/index.json?v=7',{cache:'no-cache'});if(!response.ok)throw new Error('No recordings found. Run the simulation and export the demo data first.');const runs=await response.json();$('run').replaceChildren(...runs.map(run=>{const option=document.createElement('option');option.value=run.file;option.textContent=run.label;return option;}));if(!runs.length)throw new Error('The recording index is empty.');await loadRun(runs[0].file);}catch(error){showError(error);}
+try{initScene();requestAnimationFrame(frame);const response=await fetch('./data/index.json?v=8',{cache:'no-cache'});if(!response.ok)throw new Error('No recordings found. Run the simulation and export the demo data first.');const runs=await response.json();$('run').replaceChildren(...runs.map(run=>{const option=document.createElement('option');option.value=run.file;option.textContent=run.label;return option;}));if(!runs.length)throw new Error('The recording index is empty.');await loadRun(runs[0].file);}catch(error){showError(error);}

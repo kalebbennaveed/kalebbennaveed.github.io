@@ -28,3 +28,5 @@
 .method-panel details{line-height:1.7;font-size:14px;margin:20px 0}.method-panel summary{cursor:pointer;color:#b0c8ef}
 @media(max-width:850px){.model-definitions,.method-steps{grid-template-columns:1fr}.method-panel{margin:14px 12px 0;padding:20px}}
 .scene-legend label[hidden],.bounds-controls[hidden],.trajectory-help[hidden]{display:none}
+.performance-card.gatekeeper{border-top-color:#b9a2f1}.performance-card.gatekeeper h3{color:#b9a2f1}
+@media(min-width:801px) and (max-width:1200px){.performance-cards{flex-wrap:wrap}.performance-card{flex-basis:40%}}
