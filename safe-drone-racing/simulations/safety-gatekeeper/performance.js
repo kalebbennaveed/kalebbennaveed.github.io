@@ -1,4 +1,4 @@
-import { scenarioFor } from './scenarios.js?v=3';
+import { scenarioFor } from './scenarios.js?v=4';
 const $=id=>document.getElementById(id),fmt=(x,unit='',digits=2)=>x==null?'Not completed':`${x.toFixed(digits)}${unit}`;
 let comparison,comparisonRequest=0;
 function chart(){
@@ -22,7 +22,7 @@ async function loadComparison(environment){
  $('performance-cards').textContent='Loading this environment’s results…';$('force-search').hidden=true;
  $('comparison-chart').getContext('2d').clearRect(0,0,$('comparison-chart').width,$('comparison-chart').height);
  try{
-  const response=await fetch(`./data/${environment.directory}${environment.comparison}?v=5`,{cache:'no-cache'});if(!response.ok)throw Error('Comparison unavailable');
+  const response=await fetch(`./data/${environment.directory}${environment.comparison}?v=6`,{cache:'no-cache'});if(!response.ok)throw Error('Comparison unavailable');
   const result=await response.json();if(request!==comparisonRequest)return;comparison=result;
   $('performance-intro').textContent=`Three scenarios in ${environment.label}, with the same starting state, pretrained neural controller and planner settings. Each runs for up to ${comparison.duration_limit||Math.max(...comparison.runs.map(r=>r.metrics.duration))} seconds and stops if it violates the course constraints.`;
   $('performance-cards').replaceChildren(...comparison.runs.map(run=>{
@@ -33,8 +33,9 @@ async function loadComparison(environment){
       const term=document.createElement('dt'),detail=document.createElement('dd');term.textContent=label;detail.textContent=value;list.append(term,detail);
     }
     if(run.gatekeeper_enabled){const term=document.createElement('dt'),detail=document.createElement('dd');term.textContent='Steps outside recorded bounds';detail.textContent=`${run.metrics.full_state_tube_violations} state/control · ${run.metrics.tube_violations} position`;list.append(term,detail);}
-    card.append(list);const note=document.createElement('p');note.textContent=`${run.policy_versions.length===1?'The initially trained neural controller remained active.':`${run.policy_versions.length-1} controller updates were applied during flight.`} ${run.model_versions.length-1} dynamics-model updates were learned.`;card.append(note);
-    if(run.gatekeeper_enabled){const coverage=document.createElement('p');coverage.textContent=`Recorded state bounds cover ${(run.metrics.tube_covered_steps*run.dt).toFixed(1)} s. The backup continues beyond the checked horizons for ${(run.metrics.continuation_steps*run.dt).toFixed(1)} s. These checks use a local linear approximation and do not prove safety.`;card.append(coverage);}
+    card.append(list);const note=document.createElement('p');note.textContent=`${run.policy_versions.length===1?'The initially trained neural controller remained active.':`${run.policy_versions.length-1} controller ${run.policy_versions.length===2?'update was':'updates were'} applied during flight.`} ${run.model_versions.length-1} dynamics-model updates were learned.`;card.append(note);
+    if(run.gatekeeper_enabled){const coverage=document.createElement('p');coverage.textContent=`Recorded state bounds cover ${(run.metrics.tube_covered_steps*run.dt).toFixed(1)} s. The backup continues beyond the checked horizons for ${(run.metrics.continuation_steps*run.dt).toFixed(1)} s. These checks use a local linear approximation and do not prove safety.`;card.append(coverage);
+      if(run.metrics.continuation_terminal_violations){const limits=document.createElement('p');limits.textContent=`During that continuation, ${run.metrics.continuation_terminal_violations} recorded steps (${(run.metrics.continuation_terminal_violations*run.dt).toFixed(2)} s) exceeded at least one of the position, velocity or tilt limits used to check candidate endpoints.`;card.append(limits);}}
     return card;
   }));
   $('performance-protocol').textContent=comparison.protocol;

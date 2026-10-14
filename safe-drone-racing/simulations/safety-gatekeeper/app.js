@@ -1,4 +1,4 @@
-import { describeScenario } from './scenarios.js?v=3';
+import { describeScenario } from './scenarios.js?v=4';
 import { updateKnowledge } from './knowledge.js?v=5';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -37,7 +37,7 @@ function resetCamera(){
   if(view==='rejection'||view==='event')view='overview';
   const point=drone?.position.clone()||new THREE.Vector3(0,0,3);lastAnchor=null;
   if(view==='follow'||view==='drone'){controls.target.copy(point);camera.position.copy(point).add(new THREE.Vector3(...(view==='drone'?[-.50,-.60,.36]:[-2.7,-3.3,1.8])));lastAnchor=point.clone();}
-  else if(data?.track.layout==='stacked'){controls.target.set(2,0,2.5);camera.position.set(...(view==='top'?[2,-.01,31]:[-10,-24,30]));}
+  else if(data?.track.layout==='stacked'){controls.target.set(0,0,2.8);camera.position.set(...(view==='top'?[0,-.01,37]:[13,-31,23]));}
   else {controls.target.set(0,0,1.8);camera.position.set(...(view==='top'?[0,-.01,31]:[18,-24,23]));}
   fitCameraAspect();
   camera.lookAt(controls.target);controls.update();
@@ -258,7 +258,9 @@ function drawChart(){
   ctx.font='8px system-ui';ctx.fillStyle='#68727e';ctx.fillText('0 s',0,h-1);ctx.textAlign='right';ctx.fillText(end.toFixed(1)+' s',w,h-1);
 }
 async function loadRun(filename,directory=environment?.directory||''){
-  const request=++loadRequest;setPlaying(false);$('knowledge-time').disabled=true;$('knowledge-view').disabled=true;const response=await fetch(`./data/${directory}${filename}?v=11`,{cache:'no-cache'});if(!response.ok)throw new Error(`Recording could not be loaded (${response.status}).`);const recording=await response.json();if(request!==loadRequest)return;data=recording;time=0;epochIndex=-1;selectedCandidate=0;manualCandidate=false;
+  $('environment-content').setAttribute('aria-busy','true');$('environment-content').inert=true;
+  $('recording-loading').hidden=false;$('recording-loading').textContent=`Loading ${environment?.label||'the environment'} · ${$('run').selectedOptions[0]?.textContent||'selected scenario'}…`;
+  const request=++loadRequest;setPlaying(false);$('knowledge-time').disabled=true;$('knowledge-view').disabled=true;const response=await fetch(`./data/${directory}${filename}?v=12`,{cache:'no-cache'});if(!response.ok)throw new Error(`Recording could not be loaded (${response.status}).`);const recording=await response.json();if(request!==loadRequest)return;data=recording;time=0;epochIndex=-1;selectedCandidate=0;manualCandidate=false;
   $('scene-error').hidden=true;if(trail){dispose(trail);trail=null;}
   while(missMarkers.children.length)dispose(missMarkers.children[0]);
   data.samples.filter(s=>s.state_bound_exceeded).forEach(s=>{const marker=new THREE.Mesh(new THREE.SphereGeometry(.065,12,10),new THREE.MeshBasicMaterial({color:0xf0796d,toneMapped:false}));marker.position.set(...s.state.slice(0,3));marker.userData.time=s.time;missMarkers.add(marker);});
@@ -289,16 +291,19 @@ async function loadRun(filename,directory=environment?.directory||''){
   if(data.initialization?.verification.accepted)$('assurance-text').textContent+=' Startup accepted a moving-backup trajectory using assumed force limits before collecting measurements.';
   if(hasGatekeeper&&data.metrics.duration){
     $('assurance-text').textContent+=` Recorded state bounds cover ${(data.metrics.tube_covered_steps*data.dt).toFixed(1)} s of this flight; the backup continues for ${(data.metrics.continuation_steps*data.dt).toFixed(1)} s beyond the checked horizons.`;
+    if(data.metrics.continuation_terminal_violations)$('assurance-text').textContent+=` In that continuation, ${data.metrics.continuation_terminal_violations} recorded steps exceeded the position, velocity or tilt limits used at candidate endpoints.`;
   }
   document.querySelector('.rejection-panel').hidden=!hasGatekeeper;
   $('recording-note').textContent=`${environment?.label||''} · Scenario ${scenario.number} · ${data.samples.length<2?'No flight: the initial trajectory did not pass the checks':`${number(data.metrics.duration,' s',1)} recorded flight`} · Simulation replay`;
   updateTime();resetCamera();
+  $('environment-content').setAttribute('aria-busy','false');$('environment-content').inert=false;$('recording-loading').hidden=true;
 }
 async function loadEnvironment(next){
   const request=++environmentRequest;++loadRequest;setPlaying(false);$('run').disabled=true;
   $('environment-content').setAttribute('aria-busy','true');
+  $('environment-content').inert=true;$('recording-loading').hidden=false;$('recording-loading').textContent=`Loading ${next.label}…`;
   $('recording-note').textContent=`Loading ${next.label}…`;
-  const response=await fetch(`./data/${next.directory}${next.index}?v=11`,{cache:'no-cache'});
+  const response=await fetch(`./data/${next.directory}${next.index}?v=12`,{cache:'no-cache'});
   if(!response.ok)throw new Error(`${next.label} recordings could not be loaded (${response.status}).`);
   const runs=await response.json();if(request!==environmentRequest)return;
   if(!runs.length)throw new Error(`${next.label} has no recordings.`);
@@ -309,6 +314,7 @@ async function loadEnvironment(next){
   $('run').disabled=false;$('environment-description').textContent=next.description;
   $('environment-content').setAttribute('aria-labelledby',`${next.id}-tab`);$('environment-content').setAttribute('aria-busy','false');
   document.querySelectorAll('[data-environment]').forEach(button=>{const active=button.dataset.environment===next.id;button.setAttribute('aria-selected',String(active));button.tabIndex=active?0:-1;});
+  const url=new URL(location.href);url.searchParams.set('environment',next.id);history.replaceState(null,'',url);
   window.dispatchEvent(new CustomEvent('environment-change',{detail:next}));
 }
 function setPlaying(value){playing=value;$('play').textContent=playing?'Ⅱ':'▶';$('play').setAttribute('aria-label',playing?'Pause replay':'Play replay');}
@@ -337,11 +343,11 @@ $('focus-rejection').onclick=focusRejection;
 $('uncertainty-source').onchange=()=>updatePaths(true);
 $('color-uncertainty').onchange=updateTime;
 $('next-bound-miss').onclick=()=>{const misses=data.samples.filter(s=>s.state_bound_exceeded);const next=misses.find(s=>s.time>time+1e-6)||misses[0];if(next){time=next.time;setPlaying(false);updateTime();}};
-function showError(error){console.error(error);$('environment-content').setAttribute('aria-busy','false');$('scene-error').hidden=false;$('scene-error').textContent=error.message;$('decision-label').textContent='REPLAY UNAVAILABLE';}
+function showError(error){console.error(error);$('environment-content').setAttribute('aria-busy','false');$('environment-content').inert=false;$('recording-loading').hidden=true;$('scene-error').hidden=false;$('scene-error').textContent=error.message;$('decision-label').textContent='REPLAY UNAVAILABLE';}
 function frame(now){requestAnimationFrame(frame);const delta=Math.min((now-lastFrame)/1000,.1);lastFrame=now;if(data&&playing){time+=delta*Number($('playback-speed').value);if(time>=data.samples.at(-1).time)setPlaying(false);updateTime();}if(playing)rotors.forEach((r,i)=>r.rotation.z+=(i%2?1:-1)*delta*60);controls?.update();if(renderer)renderer.render(scene,camera);}
 try{
   initScene();requestAnimationFrame(frame);
-  const response=await fetch('./data/environments.json?v=11',{cache:'no-cache'});if(!response.ok)throw new Error('Environment recordings are unavailable.');
+  const response=await fetch('./data/environments.json?v=12',{cache:'no-cache'});if(!response.ok)throw new Error('Environment recordings are unavailable.');
   const environments=await response.json();
   $('environments').replaceChildren(...environments.map(item=>{
     const button=document.createElement('button');button.type='button';button.id=`${item.id}-tab`;button.dataset.environment=item.id;button.setAttribute('role','tab');button.setAttribute('aria-controls','environment-content');button.setAttribute('aria-selected','false');button.tabIndex=-1;
@@ -355,5 +361,6 @@ try{
     if(event.key==='Home')next=0;if(event.key==='End')next=buttons.length-1;
     if(next!=null){event.preventDefault();buttons[next].focus();buttons[next].click();}
   };
-  await loadEnvironment(environments[0]);
+  const requestedEnvironment=new URLSearchParams(location.search).get('environment');
+  await loadEnvironment(environments.find(item=>item.id===requestedEnvironment)||environments[0]);
 }catch(error){showError(error);}

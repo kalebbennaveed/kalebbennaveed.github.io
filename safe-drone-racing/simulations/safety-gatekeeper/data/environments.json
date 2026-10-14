@@ -11,8 +11,8 @@
   {
     "id": "environment-2",
     "label": "Environment 2",
-    "name": "Stacked gates and crossing loops",
-    "description": "Seven gates, a vertically stacked pair, a descending loop and routes that cross at different heights. Based on your reference layout.",
+    "name": "Stacked gates and crossing routes",
+    "description": "Seven spaced gates arranged from your reference: a stacked pair on the left, a broad turn on the right, front and back gates, and crossing routes at different heights.",
     "directory": "environment-2/",
     "index": "index.json",
     "comparison": "comparison.json"

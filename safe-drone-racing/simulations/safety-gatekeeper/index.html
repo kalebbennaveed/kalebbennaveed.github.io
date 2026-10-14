@@ -4,7 +4,7 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Safely racing at the limits of handling</title>
   <meta name="robots" content="noindex,nofollow">
-  <link rel="stylesheet" href="styles.css?v=11">
+  <link rel="stylesheet" href="styles.css?v=12">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/controls/OrbitControls.js":"./vendor/OrbitControls.js"}}</script>
 </head>
 <body>
@@ -18,6 +18,7 @@
     <div id="environments" role="tablist" aria-label="Choose environment"></div>
     <p id="environment-description"></p>
   </section>
+  <p id="recording-loading" role="status" hidden>Loading the selected recording…</p>
   <div id="environment-content" role="tabpanel" aria-labelledby="environment-1-tab">
   <section class="scenario-panel" aria-labelledby="scenario-title">
     <div class="scenario-intro"><span class="eyebrow" id="scenario-number">SCENARIO 1</span><h2 id="scenario-title">With Gatekeeper and unknown dynamics</h2><p id="scenario-description">Loading the scenario description…</p><details class="scenario-settings"><summary>Course and MPCC settings</summary><p id="scenario-course-note"></p></details></div>
@@ -117,7 +118,7 @@
   </section>
   </div>
   <footer><span>JAX MPPI <b>·</b> ONLINE RESIDUAL LEARNING <b>·</b> GATEKEEPER</span><span id="recording-note">Actual simulation recordings. No scripted flight animation.</span></footer>
-  <script type="module" src="app.js?v=11"></script>
-  <script type="module" src="performance.js?v=5"></script>
+  <script type="module" src="app.js?v=12"></script>
+  <script type="module" src="performance.js?v=6"></script>
 </body>
 </html>
