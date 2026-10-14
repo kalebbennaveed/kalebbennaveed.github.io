@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { createGate, createDrone } from './models.js';
+import { createGate, createDrone } from './models.js?v=2';
 import { addPositionBounds, errorColor } from './uncertainty.js';
 import { addRejectionBox, rejectionColor } from './rejection.js';
 
