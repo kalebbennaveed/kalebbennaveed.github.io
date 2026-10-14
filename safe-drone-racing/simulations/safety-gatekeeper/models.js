@@ -26,7 +26,7 @@ function gateTexture(kind){
   }
   const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=4;return texture;
 }
-export function createGate(g){
+export function createGate(g,index,showLabel=false){
   const group=new THREE.Group();group.position.set(...g.center);group.rotation.z=Math.atan2(g.lateral[1],g.lateral[0]);
   const w=g.width,h=g.height,bar=.20,depth=.10;
   for(const sign of [-1,1]){
@@ -39,6 +39,12 @@ export function createGate(g){
     const length=Math.max(.1,g.center[2]-h/2-bar);
     cylinder(group,.022,length,0xe2dfd4,[x,0,-h/2-bar-length/2]);
     part(group,[.22,.64,.055],0xcecec5,[x,0,-g.center[2]+.028]);
+  }
+  if(showLabel){
+    const canvas=document.createElement('canvas');canvas.width=256;canvas.height=64;
+    const ctx=canvas.getContext('2d');ctx.font='500 34px system-ui';ctx.fillStyle='#f0f3fa';ctx.shadowColor='#101217';ctx.shadowBlur=8;ctx.fillText(`Gate ${index+1}`,12,44);
+    const map=new THREE.CanvasTexture(canvas);map.colorSpace=THREE.SRGBColorSpace;
+    const label=new THREE.Sprite(new THREE.SpriteMaterial({map,transparent:true,depthTest:false,toneMapped:false}));label.scale.set(2.7,.9,1);label.center.set(0,.5);label.position.set(w/2+.2,0,h/2+.3);group.add(label);
   }
   return group;
 }

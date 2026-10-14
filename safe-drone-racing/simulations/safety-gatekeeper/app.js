@@ -1,8 +1,8 @@
-import { describeScenario } from './scenarios.js?v=1';
+import { describeScenario } from './scenarios.js?v=3';
 import { updateKnowledge } from './knowledge.js?v=5';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { createGate, createDrone } from './models.js?v=2';
+import { createGate, createDrone } from './models.js?v=3';
 import { addPositionBounds, errorColor } from './uncertainty.js';
 import { addRejectionBox, rejectionColor } from './rejection.js';
 
@@ -10,6 +10,7 @@ const $=id=>document.getElementById(id);
 const colors={candidate:0xedba74,committed:0x71e2db,backup:0x9691ef,trail:0xd2d8e0,nominal:0x7688a7};
 let data,time=0,playing=false,view='overview',epochIndex=-1,selectedCandidate=0,manualCandidate=false,lastFrame=0,lastAnchor=null,loadRequest=0;
 let renderer,scene,camera,controls,course,paths,drone,rotors=[],trail,missMarkers;
+let environment=null,environmentRequest=0,courseRoute=null;
 const clock=value=>`${String(Math.floor(value/60)).padStart(2,'0')}:${(value%60).toFixed(2).padStart(5,'0')}`;
 const number=(x,suffix='',digits=2)=>x==null||!Number.isFinite(x)?'—':x.toFixed(digits)+suffix;
 const dispose=object=>{object.traverse(child=>{if(child.isInstancedMesh)child.dispose();child.geometry?.dispose();const materials=Array.isArray(child.material)?child.material:[child.material];materials.forEach(m=>{m?.map?.dispose();m?.dispose();});});object.parent?.remove(object);};
@@ -33,9 +34,10 @@ function initScene(){
   new ResizeObserver(resize).observe($('scene').parentElement);resetCamera();resize();
 }
 function resetCamera(){
-  if(view==='rejection')view='overview';
+  if(view==='rejection'||view==='event')view='overview';
   const point=drone?.position.clone()||new THREE.Vector3(0,0,3);lastAnchor=null;
   if(view==='follow'||view==='drone'){controls.target.copy(point);camera.position.copy(point).add(new THREE.Vector3(...(view==='drone'?[-.50,-.60,.36]:[-2.7,-3.3,1.8])));lastAnchor=point.clone();}
+  else if(data?.track.layout==='stacked'){controls.target.set(2,0,2.5);camera.position.set(...(view==='top'?[2,-.01,31]:[-10,-24,30]));}
   else {controls.target.set(0,0,1.8);camera.position.set(...(view==='top'?[0,-.01,31]:[18,-24,23]));}
   fitCameraAspect();
   camera.lookAt(controls.target);controls.update();
@@ -44,7 +46,7 @@ function resetCamera(){
 function resize(){
   if(!renderer)return;const r=$('scene').getBoundingClientRect();renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;fitCameraAspect();drawChart();drawUncertaintyChart();
 }
-function fitCameraAspect(){camera.zoom=['overview','top','rejection'].includes(view)?Math.min(1,camera.aspect/1.2):1;camera.updateProjectionMatrix();}
+function fitCameraAspect(){camera.zoom=['overview','top','rejection'].includes(view)?Math.min(1,camera.aspect/1.2):1;if(data?.track.layout==='stacked'&&view==='overview')camera.zoom*=1.35;camera.updateProjectionMatrix();}
 function addLine(points,color,{dashed=false,opacity=1,width=.025}={}){
   if(!points||points.length<2)return null;
   const vectors=points.map(p=>new THREE.Vector3(...p));
@@ -240,6 +242,9 @@ function updateTime(){
     if(colored){const values=data.samples.slice(0,sample.index+1).map(s=>s.local_error_bound);values.push(sample.local_error_bound);geometry.setAttribute('color',new THREE.Float32BufferAttribute(values.flatMap(value=>errorColor(value,data.trust_threshold).toArray()),3));}
     trail=new THREE.Line(geometry,new THREE.LineBasicMaterial({color:colored?0xffffff:colors.trail,vertexColors:colored,transparent:true,opacity:colored ? .95 : .42,toneMapped:false}));trail.visible=$('show-trail').checked;scene.add(trail);
     missMarkers.children.forEach(marker=>marker.visible=marker.userData.time<=time+1e-7);
+    const contact=data.outcome?.kind==='gate_contact'&&time>=data.outcome.time-1e-7;
+    $('contact-badge').hidden=!contact;
+    if(contact)$('contact-badge').textContent=`Gate ${data.outcome.gate} contact · ${data.outcome.time.toFixed(2)} s · Red sphere = collision radius`;
     updateUncertaintyValues(sample);
   }
   updatePaths();drawChart();drawUncertaintyChart();updateKnowledge(data,time);
@@ -252,17 +257,26 @@ function drawChart(){
   ctx.beginPath();ctx.moveTo(time/end*w,4);ctx.lineTo(time/end*w,h-12);ctx.strokeStyle='#dfe4ed80';ctx.lineWidth=1;ctx.stroke();
   ctx.font='8px system-ui';ctx.fillStyle='#68727e';ctx.fillText('0 s',0,h-1);ctx.textAlign='right';ctx.fillText(end.toFixed(1)+' s',w,h-1);
 }
-async function loadRun(filename){
-  const request=++loadRequest;setPlaying(false);$('knowledge-time').disabled=true;$('knowledge-view').disabled=true;const response=await fetch(`./data/${filename}?v=9`,{cache:'no-cache'});if(!response.ok)throw new Error(`Recording could not be loaded (${response.status}).`);const recording=await response.json();if(request!==loadRequest)return;data=recording;time=0;epochIndex=-1;selectedCandidate=0;manualCandidate=false;
+async function loadRun(filename,directory=environment?.directory||''){
+  const request=++loadRequest;setPlaying(false);$('knowledge-time').disabled=true;$('knowledge-view').disabled=true;const response=await fetch(`./data/${directory}${filename}?v=11`,{cache:'no-cache'});if(!response.ok)throw new Error(`Recording could not be loaded (${response.status}).`);const recording=await response.json();if(request!==loadRequest)return;data=recording;time=0;epochIndex=-1;selectedCandidate=0;manualCandidate=false;
   $('scene-error').hidden=true;if(trail){dispose(trail);trail=null;}
   while(missMarkers.children.length)dispose(missMarkers.children[0]);
   data.samples.filter(s=>s.state_bound_exceeded).forEach(s=>{const marker=new THREE.Mesh(new THREE.SphereGeometry(.065,12,10),new THREE.MeshBasicMaterial({color:0xf0796d,toneMapped:false}));marker.position.set(...s.state.slice(0,3));marker.userData.time=s.time;missMarkers.add(marker);});
+  if(data.outcome?.kind==='gate_contact'){
+    const event=data.outcome,marker=new THREE.Group();marker.userData.time=event.time;
+    const sphere=new THREE.Mesh(new THREE.SphereGeometry(event.drone_radius,16,12),new THREE.MeshBasicMaterial({color:0xff4b55,wireframe:true,transparent:true,opacity:.65,depthTest:false,toneMapped:false}));sphere.position.set(...event.position);marker.add(sphere);
+    const point=new THREE.Mesh(new THREE.SphereGeometry(.06,16,12),new THREE.MeshBasicMaterial({color:0xff4b55,depthTest:false,toneMapped:false}));point.position.set(...event.contact_point);marker.add(point);
+    const approach=data.samples.filter(s=>s.time>=event.time-.8&&s.time<=event.time).map(s=>new THREE.Vector3(...s.state.slice(0,3)));
+    const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(approach),new THREE.LineBasicMaterial({color:0xff4b55,depthTest:false,toneMapped:false}));marker.add(line);missMarkers.add(marker);
+  }
   $('uncertainty-source').value=data.epochs[0]?.commitment?'committed':'candidate';
   $('uncertainty-mode').textContent=data.gatekeeper_enabled?'APPROXIMATE BOUNDS':'MODEL ERROR ONLY';
   $('color-uncertainty').disabled=!['experimental','unfiltered'].includes(data.mode)||data.samples.length<2;
   $('next-bound-miss').disabled=!data.samples.some(s=>s.state_bound_exceeded);
   $('error-scale-max').textContent=number(data.trust_threshold,' m/s²',1);
-  while(course.children.length)dispose(course.children[0]);data.track.gates.forEach((g,i)=>course.add(createGate(g,i)));
+  while(course.children.length)dispose(course.children[0]);data.track.gates.forEach((g,i)=>course.add(createGate(g,i,data.track.layout==='stacked')));
+  courseRoute=new THREE.Line(new THREE.BufferGeometry().setFromPoints(data.track.centerline.map(p=>new THREE.Vector3(...p))),new THREE.LineBasicMaterial({color:0xa0aebe,transparent:true,opacity:.6,toneMapped:false}));
+  course.add(courseRoute);courseRoute.visible=$('show-course').checked;
   $('timeline').max=data.samples.at(-1)?.time||0;$('timeline').disabled=data.samples.length<2;$('play').disabled=data.samples.length<2;
   $('peak-value').textContent=number(data.metrics.max_speed,' m/s peak',1);
   const hasGatekeeper=!['nominal','unfiltered'].includes(data.mode);
@@ -277,8 +291,25 @@ async function loadRun(filename){
     $('assurance-text').textContent+=` Recorded state bounds cover ${(data.metrics.tube_covered_steps*data.dt).toFixed(1)} s of this flight; the backup continues for ${(data.metrics.continuation_steps*data.dt).toFixed(1)} s beyond the checked horizons.`;
   }
   document.querySelector('.rejection-panel').hidden=!hasGatekeeper;
-  $('recording-note').textContent=`Scenario ${scenario.number} · ${data.samples.length<2?'No flight: the initial trajectory did not pass the checks':`${number(data.metrics.duration,' s',1)} recorded flight`} · Simulation replay`;
+  $('recording-note').textContent=`${environment?.label||''} · Scenario ${scenario.number} · ${data.samples.length<2?'No flight: the initial trajectory did not pass the checks':`${number(data.metrics.duration,' s',1)} recorded flight`} · Simulation replay`;
   updateTime();resetCamera();
+}
+async function loadEnvironment(next){
+  const request=++environmentRequest;++loadRequest;setPlaying(false);$('run').disabled=true;
+  $('environment-content').setAttribute('aria-busy','true');
+  $('recording-note').textContent=`Loading ${next.label}…`;
+  const response=await fetch(`./data/${next.directory}${next.index}?v=11`,{cache:'no-cache'});
+  if(!response.ok)throw new Error(`${next.label} recordings could not be loaded (${response.status}).`);
+  const runs=await response.json();if(request!==environmentRequest)return;
+  if(!runs.length)throw new Error(`${next.label} has no recordings.`);
+  environment=next;
+  $('run').replaceChildren(...runs.map(run=>{const option=document.createElement('option');option.value=run.file;option.textContent=run.label;return option;}));
+  $('show-course').checked=next.id==='environment-2';
+  await loadRun(runs[0].file,next.directory);if(request!==environmentRequest)return;
+  $('run').disabled=false;$('environment-description').textContent=next.description;
+  $('environment-content').setAttribute('aria-labelledby',`${next.id}-tab`);$('environment-content').setAttribute('aria-busy','false');
+  document.querySelectorAll('[data-environment]').forEach(button=>{const active=button.dataset.environment===next.id;button.setAttribute('aria-selected',String(active));button.tabIndex=active?0:-1;});
+  window.dispatchEvent(new CustomEvent('environment-change',{detail:next}));
 }
 function setPlaying(value){playing=value;$('play').textContent=playing?'Ⅱ':'▶';$('play').setAttribute('aria-label',playing?'Pause replay':'Play replay');}
 $('play').onclick=()=>{if(time>=(data.samples.at(-1)?.time||0))time=0;setPlaying(!playing);updateTime();};
@@ -291,12 +322,38 @@ document.querySelectorAll('[data-view]').forEach(button=>button.onclick=()=>{vie
 ['candidate','committed','backup','nominal','trail'].forEach(key=>$(`show-${key}`).onchange=()=>{updatePaths(true);if(trail)trail.visible=$('show-trail').checked;});
 window.addEventListener('knowledge-seek',event=>{if(!data)return;time=Math.max(0,Math.min(event.detail,data.samples.at(-1).time));setPlaying(false);updateTime();});
 $('run').onchange=e=>loadRun(e.target.value).catch(showError);
+$('show-course').onchange=()=>{if(courseRoute)courseRoute.visible=$('show-course').checked;};
+$('jump-outcome').onclick=()=>{
+  const event=data?.outcome;if(event?.kind!=='gate_contact')return;
+  time=event.time;setPlaying(false);updateTime();view='event';lastAnchor=null;
+  const gate=data.track.gates[event.gate-1],target=new THREE.Vector3(...event.position);
+  controls.target.copy(target);camera.position.copy(target).add(new THREE.Vector3(...gate.normal).multiplyScalar(-3.4)).add(new THREE.Vector3(...gate.lateral).multiplyScalar(-1.6)).add(new THREE.Vector3(0,0,1.4));camera.lookAt(target);controls.update();
+  document.querySelectorAll('[data-view]').forEach(b=>b.classList.remove('active'));
+  $('scene').scrollIntoView({behavior:'smooth',block:'center'});
+};
 $('show-uncertainty').onchange=()=>updatePaths(true);
 $('show-rejected').onchange=()=>updatePaths(true);
 $('focus-rejection').onclick=focusRejection;
 $('uncertainty-source').onchange=()=>updatePaths(true);
 $('color-uncertainty').onchange=updateTime;
 $('next-bound-miss').onclick=()=>{const misses=data.samples.filter(s=>s.state_bound_exceeded);const next=misses.find(s=>s.time>time+1e-6)||misses[0];if(next){time=next.time;setPlaying(false);updateTime();}};
-function showError(error){console.error(error);$('scene-error').hidden=false;$('scene-error').textContent=error.message;$('decision-label').textContent='REPLAY UNAVAILABLE';}
+function showError(error){console.error(error);$('environment-content').setAttribute('aria-busy','false');$('scene-error').hidden=false;$('scene-error').textContent=error.message;$('decision-label').textContent='REPLAY UNAVAILABLE';}
 function frame(now){requestAnimationFrame(frame);const delta=Math.min((now-lastFrame)/1000,.1);lastFrame=now;if(data&&playing){time+=delta*Number($('playback-speed').value);if(time>=data.samples.at(-1).time)setPlaying(false);updateTime();}if(playing)rotors.forEach((r,i)=>r.rotation.z+=(i%2?1:-1)*delta*60);controls?.update();if(renderer)renderer.render(scene,camera);}
-try{initScene();requestAnimationFrame(frame);const response=await fetch('./data/index.json?v=9',{cache:'no-cache'});if(!response.ok)throw new Error('No recordings found. Run the simulation and export the demo data first.');const runs=await response.json();$('run').replaceChildren(...runs.map(run=>{const option=document.createElement('option');option.value=run.file;option.textContent=run.label;return option;}));if(!runs.length)throw new Error('The recording index is empty.');await loadRun(runs[0].file);}catch(error){showError(error);}
+try{
+  initScene();requestAnimationFrame(frame);
+  const response=await fetch('./data/environments.json?v=11',{cache:'no-cache'});if(!response.ok)throw new Error('Environment recordings are unavailable.');
+  const environments=await response.json();
+  $('environments').replaceChildren(...environments.map(item=>{
+    const button=document.createElement('button');button.type='button';button.id=`${item.id}-tab`;button.dataset.environment=item.id;button.setAttribute('role','tab');button.setAttribute('aria-controls','environment-content');button.setAttribute('aria-selected','false');button.tabIndex=-1;
+    const title=document.createElement('strong'),name=document.createElement('span');title.textContent=item.label;name.textContent=item.name;button.append(title,name);
+    button.onclick=()=>loadEnvironment(item).catch(showError);return button;
+  }));
+  $('environments').onkeydown=event=>{
+    const buttons=[...$('environments').children],index=buttons.indexOf(document.activeElement);let next;
+    if(event.key==='ArrowRight')next=(index+1)%buttons.length;
+    if(event.key==='ArrowLeft')next=(index+buttons.length-1)%buttons.length;
+    if(event.key==='Home')next=0;if(event.key==='End')next=buttons.length-1;
+    if(next!=null){event.preventDefault();buttons[next].focus();buttons[next].click();}
+  };
+  await loadEnvironment(environments[0]);
+}catch(error){showError(error);}

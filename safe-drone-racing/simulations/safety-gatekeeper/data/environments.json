@@ -1,0 +1,20 @@
+[
+  {
+    "id": "environment-1",
+    "label": "Environment 1",
+    "name": "Chicane course",
+    "description": "Eight gates with changing turn curvature and height.",
+    "directory": "",
+    "index": "index.json",
+    "comparison": "comparison.json"
+  },
+  {
+    "id": "environment-2",
+    "label": "Environment 2",
+    "name": "Stacked gates and crossing loops",
+    "description": "Seven gates, a vertically stacked pair, a descending loop and routes that cross at different heights. Based on your reference layout.",
+    "directory": "environment-2/",
+    "index": "index.json",
+    "comparison": "comparison.json"
+  }
+]

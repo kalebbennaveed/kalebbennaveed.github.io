@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Safely racing at the limits of handling</title>
-  <link rel="stylesheet" href="styles.css?v=8">
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="styles.css?v=11">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/controls/OrbitControls.js":"./vendor/OrbitControls.js"}}</script>
 </head>
 <body>
@@ -13,9 +14,14 @@
     <div class="run-status"><span class="status-dot"></span> RECORDED SIMULATION</div>
     <label class="run-picker">SCENARIO <select id="run" aria-label="Choose scenario"><option>Loading recordings…</option></select></label>
   </header>
+  <section class="environment-picker" aria-label="Environments">
+    <div id="environments" role="tablist" aria-label="Choose environment"></div>
+    <p id="environment-description"></p>
+  </section>
+  <div id="environment-content" role="tabpanel" aria-labelledby="environment-1-tab">
   <section class="scenario-panel" aria-labelledby="scenario-title">
-    <div class="scenario-intro"><span class="eyebrow" id="scenario-number">SCENARIO 1</span><h2 id="scenario-title">With Gatekeeper and unknown dynamics</h2><p id="scenario-description">Loading the scenario description…</p></div>
-    <div class="scenario-context"><div class="scenario-tags"><span id="scenario-checks">Gatekeeper on</span><span>Neural controller</span><span id="scenario-dynamics">Extra air resistance and acceleration bias</span></div><p id="scenario-observe"></p><a href="#performance">Compare the three scenarios ↓</a><a href="#model-knowledge">Explore model uncertainty ↓</a></div>
+    <div class="scenario-intro"><span class="eyebrow" id="scenario-number">SCENARIO 1</span><h2 id="scenario-title">With Gatekeeper and unknown dynamics</h2><p id="scenario-description">Loading the scenario description…</p><details class="scenario-settings"><summary>Course and MPCC settings</summary><p id="scenario-course-note"></p></details></div>
+    <div class="scenario-context"><div class="scenario-tags"><span id="scenario-checks">Gatekeeper on</span><span id="scenario-course">Oval course</span><span>Neural controller</span><span id="scenario-dynamics">Extra air resistance and acceleration bias</span></div><p id="scenario-observe"></p><p id="scenario-outcome" aria-live="polite"></p><button id="jump-outcome" hidden>Show collision</button><a href="#performance">Compare the three scenarios ↓</a><a href="#model-knowledge">Explore model uncertainty ↓</a></div>
   </section>
   <main>
     <section class="scene-panel" aria-label="Interactive 3D drone racing replay">
@@ -24,6 +30,7 @@
       <div class="camera-bar" role="group" aria-label="Camera views"><button data-view="overview" class="active">Orbit</button><button data-view="follow">Follow</button><button data-view="drone">Drone</button><button data-view="top">Top</button><button id="reset-camera" aria-label="Reset camera">↺</button></div>
       <div class="scene-help">DRAG TO ORBIT <span>·</span> SCROLL TO ZOOM</div>
       <div class="speed-hud"><span id="speed-value">0.0</span><span class="speed-unit">m/s<small>FLIGHT SPEED</small></span></div>
+      <div id="contact-badge" hidden role="status"></div>
       <div class="uncertainty-badge" id="uncertainty-badge"><strong id="bounds-label">POSITION UNCERTAINTY</strong><span id="bounds-caption">Loading recorded bounds…</span></div>
       <div class="scene-legend">
         <label><input id="show-candidate" type="checkbox" checked><i class="candidate"></i>Candidate</label>
@@ -31,6 +38,7 @@
         <label><input id="show-backup" type="checkbox" checked><i class="backup"></i>Backup</label>
         <label><input id="show-trail" type="checkbox" checked><i class="trail"></i>Flown</label>
         <label><input id="show-nominal" type="checkbox"><i class="nominal"></i>MPPI plan</label>
+        <label><input id="show-course" type="checkbox"><i class="route"></i>Course route</label>
       </div>
       <div id="scene-error" hidden></div>
     </section>
@@ -90,10 +98,10 @@
     <p class="knowledge-note">Gatekeeper uses a local linear approximation (the Jacobian) to propagate uncertainty. A mathematical guarantee that these bounds contain every nonlinear motion, or that the moving backup remains safe indefinitely, has not been established. The force limit available at startup is an assumption about the possible drag and bias. It is not learned before measurements are collected. The ground-truth simulator is a 14-state body-rate/actuator model, not a rotor-resolved high-fidelity simulator.</p>
   </section>
   <section class="performance-panel" id="performance" aria-label="Neural controller with and without Gatekeeper">
-    <div class="knowledge-title"><div><span class="eyebrow">NEURAL CONTROLLER · 30-SECOND RUNS</span><h2>With and without Gatekeeper</h2><p>Three 30-second scenarios with the same starting state, pretrained neural controller and planner settings.</p></div></div>
+    <div class="knowledge-title"><div><span class="eyebrow" id="performance-environment">ENVIRONMENT 1 · MATCHED SCENARIOS</span><h2>With and without Gatekeeper</h2><p id="performance-intro">Three scenarios for the selected environment, with the same starting state, pretrained neural controller and planner settings.</p></div></div>
     <div id="performance-cards" class="performance-cards"><p>Loading measured results…</p></div>
     <canvas id="comparison-chart" aria-label="Flight speed comparison over time"></canvas>
-    <p class="knowledge-note" id="performance-protocol"></p>
+    <p class="knowledge-note" id="performance-protocol"></p><details id="force-search" hidden><summary>How this example was selected</summary><p id="force-search-description"></p><ul id="force-search-trials"></ul><p>The collision check uses the simulated drone’s 0.16 m radius and the gate-frame geometry. The drone is drawn larger to make it easier to see; the red sphere shows its collision radius.</p></details>
   </section>
   <section id="model-knowledge" class="knowledge-panel" aria-label="Dynamics knowledge in state space">
     <div class="knowledge-title"><div><span class="eyebrow">LEARNED DYNAMICS</span><h2>How does model uncertainty change during flight?</h2><p>Choose which state or command inputs to vary. Color shows the bound on acceleration prediction error at those inputs, in m/s².</p></div>
@@ -107,8 +115,9 @@
     <p class="knowledge-note">Each map changes only the two selected inputs. All remaining inputs use the same starting values in both maps. The colors are <strong>acceleration-error bounds</strong>, not position or velocity error. Gray means no finite bound is available from the selected source; it does not mean zero uncertainty. The measurements-only bound grows with distance from the collected data under an assumed smoothness limit. The other option also uses an assumed limit on unknown forces. Both depend on those assumptions. A smaller bound does not by itself establish safe flight.</p>
     <details><summary>Fixed state and command values</summary><p id="knowledge-anchor-note"></p><dl id="knowledge-anchor"></dl></details>
   </section>
+  </div>
   <footer><span>JAX MPPI <b>·</b> ONLINE RESIDUAL LEARNING <b>·</b> GATEKEEPER</span><span id="recording-note">Actual simulation recordings. No scripted flight animation.</span></footer>
-  <script type="module" src="app.js?v=9"></script>
-  <script type="module" src="performance.js?v=3"></script>
+  <script type="module" src="app.js?v=11"></script>
+  <script type="module" src="performance.js?v=5"></script>
 </body>
 </html>

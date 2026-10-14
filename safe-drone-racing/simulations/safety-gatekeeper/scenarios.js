@@ -20,7 +20,7 @@ const scenarios = {
     title: 'Without Gatekeeper, with unknown dynamics', gatekeeper: false,
     dynamics: 'Same extra forces as Scenario 1',
     description: 'The simulated drone has the same extra air resistance and acceleration bias as Scenario 1. MPPI plans the racing trajectory, and the neural controller follows it directly. Model learning and controller adaptation remain enabled, but Gatekeeper does not check or reject the trajectory.',
-    observe: 'Compare speed, tracking error and minimum clearance with Scenarios 1 and 2. Completing this recording without a collision does not guarantee that another flight will do so.',
+    observe: 'Compare this flight with Scenario 1 to see the effect of Gatekeeper under the same unknown forces, and with Scenario 2 to see the effect of those forces without Gatekeeper.',
     limitation: 'Gatekeeper is off. Model-error bounds are displayed for inspection, but they do not restrict the flight.'
   }
 };
@@ -36,5 +36,15 @@ export function describeScenario(record) {
   $('scenario-observe').textContent=scenario.observe;
   $('scenario-checks').textContent=`Gatekeeper ${scenario.gatekeeper?'on':'off'}`;
   $('scenario-dynamics').textContent=scenario.dynamics;
+  $('scenario-course').textContent=record.track.name||'Oval course';
+  const course=record.track.parameters;
+  $('scenario-course-note').textContent=course?.radial_modulation?`${course.gate_count} gates with ${course.gate_width.toFixed(1)} × ${course.gate_height.toFixed(1)} m openings. Alternating sharper and gentler turns, with gate centers between ${(course.height-course.elevation).toFixed(2)} and ${(course.height+course.elevation).toFixed(2)} m high. The same course is used in all three scenarios.`:'';
+  if(course?.radial_modulation&&record.planner_settings)$('scenario-course-note').textContent+=` Faster MPCC setting: progress weight ${record.planner_settings.progress}, contouring-error weight ${record.planner_settings.contour}. This rewards more progress and penalizes distance from the course centerline less than the previous setting. All three scenarios use these weights.`;
+  if(record.track.layout==='stacked')$('scenario-course-note').textContent=`Seven ${course.gate_width.toFixed(1)} × ${course.gate_height.toFixed(1)} m gates. Gates 4 and 5 share the same horizontal position, at ${(course.height+course.elevation).toFixed(2)} and ${(course.height-course.elevation).toFixed(2)} m high. A descending loop connects them; the other loop passes through the remaining five gates. The ground-truth simulator, planner and Gatekeeper use this same geometry. The dimensions are a reconstruction from the reference image. MPCC progress weight ${record.planner_settings.progress}; contouring-error weight ${record.planner_settings.contour}. All three scenarios use the same settings.`;
+  const outcome=record.outcome;
+  $('scenario-outcome').textContent=outcome?`${outcome.label} · ${outcome.time.toFixed(2)} s${outcome.kind==='completed'?` · ${record.metrics.gates_passed} gates passed`:''}`:'';
+  $('scenario-outcome').classList.toggle('contact',outcome?.kind==='gate_contact');
+  $('jump-outcome').hidden=outcome?.kind!=='gate_contact';
+  $('jump-outcome').textContent=outcome?.kind==='gate_contact'?`Show collision at ${outcome.time.toFixed(2)} s`:'Show collision';
   return scenario;
 }
