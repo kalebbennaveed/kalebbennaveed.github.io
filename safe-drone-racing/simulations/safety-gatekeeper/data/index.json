@@ -1,0 +1,22 @@
+[
+  {
+    "file": "experimental-7.json",
+    "label": "Experimental \u00b7 seed 7",
+    "mode": "experimental"
+  },
+  {
+    "file": "nominal-7.json",
+    "label": "Nominal \u00b7 seed 7",
+    "mode": "nominal"
+  },
+  {
+    "file": "strict-7.json",
+    "label": "Strict \u00b7 seed 7",
+    "mode": "strict"
+  },
+  {
+    "file": "experimental-17.json",
+    "label": "Experimental \u00b7 seed 17",
+    "mode": "experimental"
+  }
+]

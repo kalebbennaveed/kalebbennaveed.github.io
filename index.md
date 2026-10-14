@@ -50,6 +50,8 @@ title: "Kaleb Ben Naveed"
 
 ## Recent News
 
+- **13 October 2026** – Research update on safely racing at the limits of handling: [method, derivations and results](/safe-drone-racing/update-slides/) and an [interactive simulation replay](/safe-drone-racing/simulations/safety-gatekeeper/).
+
 - **26 August 2026** – Back at the University of Michigan after completing my summer internship. Stay tuned for some interesting work from the summer!.
 
 - **11 May 2026** – Joined Mitsubishi Electric Research Laboratories (MERL) in Cambridge, MA as a Research Intern.

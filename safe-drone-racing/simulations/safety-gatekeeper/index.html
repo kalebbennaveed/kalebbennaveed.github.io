@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Safely racing at the limits of handling</title>
+  <link rel="stylesheet" href="styles.css?v=3">
+  <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/controls/OrbitControls.js":"./vendor/OrbitControls.js"}}</script>
+</head>
+<body>
+  <header>
+    <a class="brand" href="./"><span class="brand-icon" aria-hidden="true">⊓</span><span>GATEKEEPER<small>DRONE RACING LAB</small></span></a>
+    <a class="slides-link" href="https://kalebbennaveed.github.io/safe-drone-racing/update-slides/">Research slides ↗</a>
+    <div class="run-status"><span class="status-dot"></span> RECORDED SIMULATION</div>
+    <label class="run-picker">EXPERIMENT <select id="run" aria-label="Choose recorded experiment"><option>Loading recordings…</option></select></label>
+  </header>
+  <main>
+    <section class="scene-panel" aria-label="Interactive 3D drone racing replay">
+      <canvas id="scene" aria-label="3D course showing the drone, candidates and committed trajectory"></canvas>
+      <div class="scene-heading"><span class="eyebrow">LEARNED-DYNAMICS RACING</span><h1>Safely racing at the<br>limits of handling.</h1><p>Trajectory planning with learned dynamics and safety verification.</p></div>
+      <div class="camera-bar" role="group" aria-label="Camera views"><button data-view="overview" class="active">Orbit</button><button data-view="follow">Follow</button><button data-view="drone">Drone</button><button data-view="top">Top</button><button id="reset-camera" aria-label="Reset camera">↺</button></div>
+      <div class="scene-help">DRAG TO ORBIT <span>·</span> SCROLL TO ZOOM</div>
+      <div class="speed-hud"><span id="speed-value">0.0</span><span class="speed-unit">m/s<small>FLIGHT SPEED</small></span></div>
+      <div class="uncertainty-badge" id="uncertainty-badge"><strong id="bounds-label">POSITION UNCERTAINTY</strong><span id="bounds-caption">Loading recorded bounds…</span></div>
+      <div class="scene-legend">
+        <label><input id="show-candidate" type="checkbox" checked><i class="candidate"></i>Candidate</label>
+        <label><input id="show-committed" type="checkbox" checked><i class="committed"></i>Committed</label>
+        <label><input id="show-backup" type="checkbox" checked><i class="backup"></i>Backup</label>
+        <label><input id="show-trail" type="checkbox" checked><i class="trail"></i>Executed</label>
+        <label><input id="show-nominal" type="checkbox"><i class="nominal"></i>Nominal MPPI</label>
+      </div>
+      <div id="scene-error" hidden></div>
+    </section>
+    <aside>
+      <div class="aside-top"><span class="eyebrow">DECISION INSPECTOR</span><span id="epoch-label">EPOCH 000</span></div>
+      <div class="decision"><span id="decision-label">Loading</span><h2 id="decision-title">Candidate verification</h2><p id="decision-detail"></p></div>
+      <section class="rejection-panel" aria-label="Rejected candidate inspector">
+        <label class="candidate-picker">INSPECT CANDIDATE SWITCH DURATION<select id="candidate" aria-label="Choose candidate switching duration"></select></label>
+        <div class="rejection-controls"><label><input type="checkbox" id="show-rejected" checked> Rejected trajectory + failure</label><button id="focus-rejection">Focus rejection</button></div>
+        <strong id="rejection-title">Loading rejection…</strong>
+        <p id="rejection-detail"></p>
+        <p id="rejection-geometry-note" class="rejection-note"></p>
+      </section>
+      <section class="uncertainty-panel" aria-label="Uncertainty inspector">
+        <div class="uncertainty-heading"><span>UNCERTAINTY</span><small id="uncertainty-mode">EXPERIMENTAL</small></div>
+        <div class="bounds-controls"><label><input type="checkbox" id="show-uncertainty" checked> Position bounds</label><select id="uncertainty-source" aria-label="Position bounds source"><option value="committed">Committed</option><option value="candidate">Candidate</option></select></div>
+        <p id="tube-detail">Translucent boxes show the recorded position envelope.</p>
+        <p class="error-unit-caption" id="error-model-caption">Planner model error · m/s²</p><div class="uncertainty-values"><div><small>MODEL BOUND</small><strong id="error-bound-value">—</strong></div><div><small>ERROR · OFFLINE</small><strong id="error-value">—</strong></div><div><small>ENSEMBLE SPREAD</small><strong id="spread-value">—</strong></div></div>
+        <label class="heatmap-control"><input type="checkbox" id="color-uncertainty" checked> Color flight history by model error bound</label>
+        <div class="error-scale"><i></i><span>0</span><span id="error-scale-max">4.5 m/s²</span></div>
+        <div class="error-chart-key"><span class="bound-key">Bound</span><span class="actual-key">Offline error</span><span class="spread-key">Spread ≠ bound</span></div>
+        <canvas id="uncertainty-chart" aria-label="Model error bound, offline error and ensemble spread over time"></canvas>
+        <div class="coverage-row"><span id="coverage-detail">Checking coverage…</span><button id="next-bound-miss">Next bound miss →</button></div>
+        <p id="bound-miss-detail" class="bound-miss-detail" hidden></p>
+        <p class="uncertainty-note">History colors describe recorded state–control samples, not a global map of empty space. Gray timeline bands have no finite committed tube. Red ticks mark state-bound misses.</p>
+      </section>
+      <details class="trajectory-help"><summary>Candidate vs. committed</summary><div class="trajectory-key"><div><span class="line-icon candidate"></span><strong>Candidate</strong><p>Proposed racing segment followed by a return to the centerline at 2 m/s.</p></div><div><span class="line-icon committed"></span><strong>Committed</strong><p>The accepted reference the drone is tracking. It stays active when a new proposal is rejected.</p></div></div></details>
+      <div class="stats"><div><small>PLANNER MODEL</small><strong id="model-value">—</strong></div><div><small>GATES PASSED</small><strong id="gates-value">—</strong></div><div><small>COMMITTED SWITCH</small><strong id="switch-value">—</strong></div><div><small>CANDIDATE MARGIN</small><strong id="margin-value">—</strong></div></div>
+      <div class="chart-heading"><span>SPEED THROUGH THE COURSE</span><span id="peak-value">—</span></div>
+      <canvas id="speed-chart" height="95" aria-label="Measured flight speed over time"></canvas>
+      <div class="assurance"><span class="assurance-icon">i</span><p id="assurance-text">Loading verification status.</p></div>
+    </aside>
+    <section class="playback" aria-label="Playback controls">
+      <button id="play" class="play-button" aria-label="Play replay">▶</button><button id="restart" class="restart-button" aria-label="Restart replay">↺</button>
+      <span id="clock">00:00.00 <em>/ 00:00.00</em></span>
+      <input id="timeline" type="range" min="0" max="1" step=".01" value="0" aria-label="Replay time">
+      <select id="playback-speed" aria-label="Playback speed"><option value=".5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select>
+      <button id="next-decision">Next decision →</button>
+    </section>
+  </main>
+  <footer><span>JAX MPPI <b>·</b> ONLINE RESIDUAL LEARNING <b>·</b> GATEKEEPER</span><span id="recording-note">Actual simulation recordings. No scripted flight animation.</span></footer>
+  <script type="module" src="app.js?v=3"></script>
+</body>
+</html>
