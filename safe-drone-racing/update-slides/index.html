@@ -1064,17 +1064,17 @@ display:block!important;
 }</style></aside>
 </section>
 <section id="outline" class="slide level2">
-<h2>The route through this talk</h2>
+<h2>Follow the implemented loop</h2>
 <ol type="1">
-<li>What makes a fast gate crossing difficult?</li>
-<li>How do we predict and plan the drone’s motion?</li>
-<li>What does the drone learn from measurements?</li>
-<li>How do prediction errors affect the decision to accept a plan?</li>
-<li>What is implemented, and what do the recorded flights show?</li>
+<li><strong>Ground-truth plant and measurements:</strong> what actually advances the simulated drone.</li>
+<li><strong>Prediction model:</strong> what the planner knows and what it learns from flight.</li>
+<li><strong>MPCC objective and MPPI search:</strong> how a racing proposal is chosen.</li>
+<li><strong>Candidate generation and verification:</strong> how recovery and uncertainty are checked.</li>
+<li><strong>Commitment and tracking:</strong> which plan actually produces the next command.</li>
+<li><strong>Recorded results:</strong> what worked and where the current checks fell short.</li>
 </ol>
 <div class="small">
-<p>The main explanation builds the notation as it is needed. The technical appendix derives the controller, numerical updates and detailed checks.</p>
-<p>Arrow keys: advance · <strong>M</strong>: menu · <strong>Esc</strong>: overview</p>
+<p>The architecture comes first; component explanations and derivations follow. Arrow keys: advance · <strong>M</strong>: menu · <strong>Esc</strong>: overview.</p>
 <p><a href="../simulations/safety-gatekeeper/">Flight replay</a> · <a href="https://kalebbennaveed.github.io/research.html">Research website</a></p>
 </div>
 </section>
@@ -1089,21 +1089,55 @@ display:block!important;
 <p>This figure shows the simulated course and one recorded flight. It is not a hardware experiment.</p>
 </div></div>
 </section>
+<section id="problem" class="slide level2">
+<h2>The decision at each planning update</h2>
+<p><strong>Known:</strong> the gate locations, permitted flight region and command limits.</p>
+<p><strong>Imperfect:</strong> the motion model and measurements of the drone’s current motion.</p>
+<p><strong>Decision:</strong> which new sequence of thrust and rotation commands is worth attempting?</p>
+<div class="statement">
+<p>Plan a fast flight, but replace the current accepted plan only when the proposed flight and its recovery have passed the required checks. If a proposal fails, the drone must still have a usable continuation.</p>
+</div>
+<p><strong>Recovery</strong> means a slower continuation intended to keep the drone flying safely when a fast proposal cannot be used. The intended guarantee is stronger than the present prototype: the experimental checks do not yet prove safety for every possible error.</p>
+</section>
+<section id="architecture" class="slide level2">
+<h2>The implemented architecture</h2>
+<p><img role="img" aria-label="Closed execution loop: commitment sends a reference and frozen model to the tracker, tracker sends limited commands to the ground-truth plant, measurements return to the tracker and planning and learning. Verification either replaces or retains commitment." data-src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjQ5MCIgdmlld0JveD0iMCAwIDEyMDAgNDkwIj48ZGVmcz48bWFya2VyIGlkPSJuIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIj48cGF0aCBkPSJNMCAwTDEwIDVMMCAxMFoiIGZpbGw9IiMwMDI3NGMiLz48L21hcmtlcj48bWFya2VyIGlkPSJ0IiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIj48cGF0aCBkPSJNMCAwTDEwIDVMMCAxMFoiIGZpbGw9IiMxNDdhODIiLz48L21hcmtlcj48bWFya2VyIGlkPSJyIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIj48cGF0aCBkPSJNMCAwTDEwIDVMMCAxMFoiIGZpbGw9IiNiNTM0NDUiLz48L21hcmtlcj48bWFya2VyIGlkPSJnIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIj48cGF0aCBkPSJNMCAwTDEwIDVMMCAxMFoiIGZpbGw9IiNjNDk2MDAiLz48L21hcmtlcj48L2RlZnM+PHN0eWxlPnRleHR7Zm9udC1mYW1pbHk6QXJpYWwsc2Fucy1zZXJpZjtmaWxsOiMwMDI3NGM7Zm9udC1zaXplOjI1cHh9Lm5vdGV7Zm9udC1zaXplOjIxcHg7ZmlsbDojNTI2NTdhfS50aXRsZXtmb250LXNpemU6MjdweDtmb250LXdlaWdodDpib2xkfTwvc3R5bGU+PHJlY3QgeD0iMjUiIHk9IjEyNSIgd2lkdGg9IjI2MCIgaGVpZ2h0PSIxNDAiIHJ4PSI5IiBmaWxsPSIjZmZmZmZmIiBzdHJva2U9IiMwMDI3NGMiIHN0cm9rZS13aWR0aD0iMyIvPjx0ZXh0IHg9IjQ1IiB5PSIxNjEiIGNsYXNzPSJ0aXRsZSIgdGV4dC1hbmNob3I9InN0YXJ0Ij5Db21taXRtZW50PC90ZXh0Pjx0ZXh0IHg9IjQ1IiB5PSIxOTUiIGNsYXNzPSJub3RlIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPkFjY2VwdGVkIHJlZmVyZW5jZTwvdGV4dD48dGV4dCB4PSI0NSIgeT0iMjI0IiBjbGFzcz0ibm90ZSIgdGV4dC1hbmNob3I9InN0YXJ0Ij5Gcm96ZW4gbW9kZWwgdmVyc2lvbjwvdGV4dD48cmVjdCB4PSI0MjUiIHk9IjEyNSIgd2lkdGg9IjI3NSIgaGVpZ2h0PSIxNDAiIHJ4PSI5IiBmaWxsPSIjZmZmZmZmIiBzdHJva2U9IiMwMDI3NGMiIHN0cm9rZS13aWR0aD0iMyIvPjx0ZXh0IHg9IjQ0NSIgeT0iMTYxIiBjbGFzcz0idGl0bGUiIHRleHQtYW5jaG9yPSJzdGFydCI+UmVmZXJlbmNlIHRyYWNrZXI8L3RleHQ+PHRleHQgeD0iNDQ1IiB5PSIxOTUiIGNsYXNzPSJub3RlIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPkZlZWRiYWNrIHRyYWNraW5nPC90ZXh0Pjx0ZXh0IHg9IjQ0NSIgeT0iMjI0IiBjbGFzcz0ibm90ZSIgdGV4dC1hbmNob3I9InN0YXJ0Ij5Db21tYW5kIGxpbWl0czwvdGV4dD48cmVjdCB4PSI4NjAiIHk9IjEyNSIgd2lkdGg9IjMxNSIgaGVpZ2h0PSIxNDAiIHJ4PSI5IiBmaWxsPSIjZmZmZmZmIiBzdHJva2U9IiMwMDI3NGMiIHN0cm9rZS13aWR0aD0iMyIvPjx0ZXh0IHg9Ijg4MCIgeT0iMTYxIiBjbGFzcz0idGl0bGUiIHRleHQtYW5jaG9yPSJzdGFydCI+R3JvdW5kLXRydXRoIHBsYW50PC90ZXh0Pjx0ZXh0IHg9Ijg4MCIgeT0iMTk1IiBjbGFzcz0ibm90ZSIgdGV4dC1hbmNob3I9InN0YXJ0Ij4xNC1zdGF0ZSBkeW5hbWljczwvdGV4dD48dGV4dCB4PSI4ODAiIHk9IjIyNCIgY2xhc3M9Im5vdGUiIHRleHQtYW5jaG9yPSJzdGFydCI+SGlkZGVuIGRyYWcgKyBiaWFzPC90ZXh0PjxwYXRoIGQ9Ik0yODUgMTg1IEw0MjUgMTg1IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDI3NGMiIHN0cm9rZS13aWR0aD0iMyIgbWFya2VyLWVuZD0idXJsKCNuKSIvPjx0ZXh0IHg9IjM1NSIgeT0iMTU4IiBjbGFzcz0ibm90ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+cmVmZXJlbmNlPC90ZXh0PjxwYXRoIGQ9Ik03MDAgMTg1IEw4NjAgMTg1IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDI3NGMiIHN0cm9rZS13aWR0aD0iMyIgbWFya2VyLWVuZD0idXJsKCNuKSIvPjx0ZXh0IHg9Ijc4MCIgeT0iMTU4IiBjbGFzcz0ibm90ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+YXBwbGllZCB1PC90ZXh0PjxyZWN0IHg9IjgzNSIgeT0iMzUwIiB3aWR0aD0iMzQwIiBoZWlnaHQ9IjExNSIgcng9IjkiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0iIzAwMjc0YyIgc3Ryb2tlLXdpZHRoPSIzIi8+PHRleHQgeD0iODU1IiB5PSIzODYiIGNsYXNzPSJ0aXRsZSIgdGV4dC1hbmNob3I9InN0YXJ0Ij5PYnNlcnZhdGlvbiBtb2RlbDwvdGV4dD48dGV4dCB4PSI4NTUiIHk9IjQyMCIgY2xhc3M9Im5vdGUiIHRleHQtYW5jaG9yPSJzdGFydCI+VHJ1ZSBzdGF0ZSDihpIgbWVhc3VyZWQgc3RhdGU8L3RleHQ+PHBhdGggZD0iTTEwMTUgMjY1IEwxMDE1IDM1MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDAyNzRjIiBzdHJva2Utd2lkdGg9IjMiIG1hcmtlci1lbmQ9InVybCgjbikiLz48dGV4dCB4PSIxMDM1IiB5PSIzMTIiIGNsYXNzPSJub3RlIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPnRydWUgeOKBujwvdGV4dD48cGF0aCBkPSJNODM1IDQxM0g1NjJWMjY1IiBmaWxsPSJub25lIiBzdHJva2U9IiMxNDdhODIiIHN0cm9rZS13aWR0aD0iMyIgbWFya2VyLWVuZD0idXJsKCN0KSIvPjx0ZXh0IHg9IjU3NSIgeT0iMzkwIiBjbGFzcz0ibm90ZSIgdGV4dC1hbmNob3I9InN0YXJ0Ij5tZWFzdXJlZCBzdGF0ZTwvdGV4dD48cGF0aCBkPSJNMTU1IDUwIEwxNTUgMTI1IiBmaWxsPSJub25lIiBzdHJva2U9IiMxNDdhODIiIHN0cm9rZS13aWR0aD0iMyIgbWFya2VyLWVuZD0idXJsKCN0KSIvPjx0ZXh0IHg9IjI1IiB5PSIzMCIgY2xhc3M9Im5vdGUiIHRleHQtYW5jaG9yPSJzdGFydCI+QWNjZXB0ZWQgY2FuZGlkYXRlIHJlcGxhY2VzIHJlZmVyZW5jZTwvdGV4dD48dGV4dCB4PSIyNSIgeT0iMzYwIiBjbGFzcz0ibm90ZSIgdGV4dC1hbmNob3I9InN0YXJ0Ij5QbGFubmluZyArIGxlYXJuaW5nIGFsc28gcmVjZWl2ZTwvdGV4dD48dGV4dCB4PSIyNSIgeT0iMzkwIiBjbGFzcz0ibm90ZSIgdGV4dC1hbmNob3I9InN0YXJ0Ij5tZWFzdXJlZCBzdGF0ZXMgYW5kIGFwcGxpZWQgY29tbWFuZHMuPC90ZXh0Pjx0ZXh0IHg9IjI1IiB5PSI0NDAiIGNsYXNzPSJub3RlIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPlJlamVjdGVkIHByb3Bvc2FsIOKGkiByZXRhaW4gY29tbWl0bWVudDwvdGV4dD48L3N2Zz4K" alt="Closed execution loop: commitment sends a reference and frozen model to the tracker, tracker sends limited commands to the ground-truth plant, measurements return to the tracker and planning and learning. Verification either replaces or retains commitment."></p>
+<div class="caption">
+<p><strong>Execution loop for the uncertain runs.</strong> A commitment stores the accepted reference and its model version. The ground-truth plant alone advances the simulated flight. The nominal diagnostic run instead applies MPPI commands directly.</p>
+</div>
+</section>
+<section id="how-a-new-reference-reaches-that-loop" class="slide level2">
+<h2>How a new reference reaches that loop</h2>
+<p><img role="img" aria-label="Measured transitions feed learning and an error envelope. MPPI uses the learned prediction model, candidate generation attaches recovery, verification checks candidates, and only accepted references replace the active commitment." data-src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjUxMCIgdmlld0JveD0iMCAwIDEyMDAgNTEwIj48ZGVmcz48bWFya2VyIGlkPSJuIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIj48cGF0aCBkPSJNMCAwTDEwIDVMMCAxMFoiIGZpbGw9IiMwMDI3NGMiLz48L21hcmtlcj48bWFya2VyIGlkPSJ0IiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIj48cGF0aCBkPSJNMCAwTDEwIDVMMCAxMFoiIGZpbGw9IiMxNDdhODIiLz48L21hcmtlcj48bWFya2VyIGlkPSJyIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIj48cGF0aCBkPSJNMCAwTDEwIDVMMCAxMFoiIGZpbGw9IiNiNTM0NDUiLz48L21hcmtlcj48bWFya2VyIGlkPSJnIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIj48cGF0aCBkPSJNMCAwTDEwIDVMMCAxMFoiIGZpbGw9IiNjNDk2MDAiLz48L21hcmtlcj48L2RlZnM+PHN0eWxlPnRleHR7Zm9udC1mYW1pbHk6QXJpYWwsc2Fucy1zZXJpZjtmaWxsOiMwMDI3NGM7Zm9udC1zaXplOjI1cHh9Lm5vdGV7Zm9udC1zaXplOjIxcHg7ZmlsbDojNTI2NTdhfS50aXRsZXtmb250LXNpemU6MjdweDtmb250LXdlaWdodDpib2xkfTwvc3R5bGU+PHJlY3QgeD0iMjAiIHk9IjQwIiB3aWR0aD0iMzA1IiBoZWlnaHQ9IjEyNSIgcng9IjkiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0iIzAwMjc0YyIgc3Ryb2tlLXdpZHRoPSIzIi8+PHRleHQgeD0iNDAiIHk9Ijc2IiBjbGFzcz0idGl0bGUiIHRleHQtYW5jaG9yPSJzdGFydCI+TWVhc3VyZWQgdHJhbnNpdGlvbnM8L3RleHQ+PHRleHQgeD0iNDAiIHk9IjExMCIgY2xhc3M9Im5vdGUiIHRleHQtYW5jaG9yPSJzdGFydCI+U3RhdGVzICsgYXBwbGllZCBjb21tYW5kPC90ZXh0PjxyZWN0IHg9IjQ0MCIgeT0iNDAiIHdpZHRoPSIzMjUiIGhlaWdodD0iMTI1IiByeD0iOSIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjMDAyNzRjIiBzdHJva2Utd2lkdGg9IjMiLz48dGV4dCB4PSI0NjAiIHk9Ijc2IiBjbGFzcz0idGl0bGUiIHRleHQtYW5jaG9yPSJzdGFydCI+TGVhcm5pbmcgKyBlcnJvciBib3VuZHM8L3RleHQ+PHRleHQgeD0iNDYwIiB5PSIxMTAiIGNsYXNzPSJub3RlIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPlByZWRpY3Rpb24gbW9kZWwgKyBlbnZlbG9wZTwvdGV4dD48cGF0aCBkPSJNMzI1IDEwMyBMNDQwIDEwMyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMTQ3YTgyIiBzdHJva2Utd2lkdGg9IjMiIG1hcmtlci1lbmQ9InVybCgjdCkiLz48cmVjdCB4PSIyMCIgeT0iMjYwIiB3aWR0aD0iMzA1IiBoZWlnaHQ9IjE0MCIgcng9IjkiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0iIzAwMjc0YyIgc3Ryb2tlLXdpZHRoPSIzIi8+PHRleHQgeD0iNDAiIHk9IjI5NiIgY2xhc3M9InRpdGxlIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPk1QUEkgcGxhbm5lcjwvdGV4dD48dGV4dCB4PSI0MCIgeT0iMzMwIiBjbGFzcz0ibm90ZSIgdGV4dC1hbmNob3I9InN0YXJ0Ij5MZWFybmVkIG1vdGlvbiBwcmVkaWN0aW9uPC90ZXh0Pjx0ZXh0IHg9IjQwIiB5PSIzNTkiIGNsYXNzPSJub3RlIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPlJhY2luZyBwcm9wb3NhbDwvdGV4dD48cmVjdCB4PSI0NDAiIHk9IjI2MCIgd2lkdGg9IjMyNSIgaGVpZ2h0PSIxNDAiIHJ4PSI5IiBmaWxsPSIjZmZmZmZmIiBzdHJva2U9IiMwMDI3NGMiIHN0cm9rZS13aWR0aD0iMyIvPjx0ZXh0IHg9IjQ2MCIgeT0iMjk2IiBjbGFzcz0idGl0bGUiIHRleHQtYW5jaG9yPSJzdGFydCI+Q2FuZGlkYXRlIGdlbmVyYXRpb248L3RleHQ+PHRleHQgeD0iNDYwIiB5PSIzMzAiIGNsYXNzPSJub3RlIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPlRyYWNrZXIgcm9sbG91dDwvdGV4dD48dGV4dCB4PSI0NjAiIHk9IjM1OSIgY2xhc3M9Im5vdGUiIHRleHQtYW5jaG9yPSJzdGFydCI+UmFjaW5nIHByZWZpeCDihpIgcmVjb3Zlcnk8L3RleHQ+PHJlY3QgeD0iODgwIiB5PSIyNjAiIHdpZHRoPSIzMDAiIGhlaWdodD0iMTQwIiByeD0iOSIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjMDAyNzRjIiBzdHJva2Utd2lkdGg9IjMiLz48dGV4dCB4PSI5MDAiIHk9IjI5NiIgY2xhc3M9InRpdGxlIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPlZlcmlmaWNhdGlvbjwvdGV4dD48dGV4dCB4PSI5MDAiIHk9IjMzMCIgY2xhc3M9Im5vdGUiIHRleHQtYW5jaG9yPSJzdGFydCI+VW5jZXJ0YWludHkgKyBnZW9tZXRyeTwvdGV4dD48dGV4dCB4PSI5MDAiIHk9IjM1OSIgY2xhc3M9Im5vdGUiIHRleHQtYW5jaG9yPSJzdGFydCI+UmVjb3ZlcnkgY29uZGl0aW9uczwvdGV4dD48cGF0aCBkPSJNMzI1IDMzMCBMNDQwIDMzMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDAyNzRjIiBzdHJva2Utd2lkdGg9IjMiIG1hcmtlci1lbmQ9InVybCgjbikiLz48cGF0aCBkPSJNNzY1IDMzMCBMODgwIDMzMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDAyNzRjIiBzdHJva2Utd2lkdGg9IjMiIG1hcmtlci1lbmQ9InVybCgjbikiLz48cGF0aCBkPSJNNTA1IDE2NVYyMTBIMTcyVjI2MCBNNjAwIDIxMFYyNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzE0N2E4MiIgc3Ryb2tlLXdpZHRoPSIzIiBtYXJrZXItZW5kPSJ1cmwoI3QpIi8+PHBhdGggZD0iTTc2NSAxMDVIMTAyNVYyNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzE0N2E4MiIgc3Ryb2tlLXdpZHRoPSIzIiBtYXJrZXItZW5kPSJ1cmwoI3QpIi8+PHRleHQgeD0iODcwIiB5PSI4NSIgY2xhc3M9Im5vdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPmVycm9yIGVudmVsb3BlPC90ZXh0Pjx0ZXh0IHg9IjQyNSIgeT0iMjM1IiBjbGFzcz0ibm90ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+bGVhcm5lZCBwcmVkaWN0aW9uIG1vZGVsPC90ZXh0PjxwYXRoIGQ9Ik0xMDMwIDQwMCBMMTAzMCA0NTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzE0N2E4MiIgc3Ryb2tlLXdpZHRoPSIzIiBtYXJrZXItZW5kPSJ1cmwoI3QpIi8+PHRleHQgeD0iMTAzMCIgeT0iNDgwIiBjbGFzcz0ibm90ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+QWNjZXB0IOKGkiBjb21taXRtZW50PC90ZXh0Pjx0ZXh0IHg9IjIwIiB5PSI0NDUiIGNsYXNzPSJub3RlIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPkNvdXJzZSBnZW9tZXRyeSBhbmQgbWVhc3VyZWQgc3RhdGUgYWxzbyBlbnRlciBwbGFubmluZyBhbmQgdmVyaWZpY2F0aW9uLjwvdGV4dD48dGV4dCB4PSIyMCIgeT0iNDgwIiBjbGFzcz0ibm90ZSIgdGV4dC1hbmNob3I9InN0YXJ0Ij5SZWplY3Qg4oaSIGtlZXAgZXhlY3V0aW5nIHRoZSBwcmV2aW91cyBjb21taXRtZW50LjwvdGV4dD48L3N2Zz4K" alt="Measured transitions feed learning and an error envelope. MPPI uses the learned prediction model, candidate generation attaches recovery, verification checks candidates, and only accepted references replace the active commitment."></p>
+<div class="caption">
+<p>The learned model predicts motion; the error envelope supplies an allowance for prediction error. Rejection leaves the previous commitment in place. True drag and bias are used only by the plant and offline diagnostics.</p>
+</div>
+</section>
+<section id="ground-truth" class="slide level2">
+<h2>What the ground-truth drone actually is</h2>
+<p><strong>Input:</strong> the applied collective-thrust and body-rate command <span class="math inline">u</span>. <strong>Output:</strong> the next true state <span class="math inline">x^+</span>; a separate observation function produces the measured state.</p>
+<p>The implemented plant integrates a <strong>14-state quadrotor model</strong>: position, velocity, quaternion orientation, actual thrust and actual body rates. It includes thrust/rate response delays, command limits, and a hidden acceleration</p>
+<p><span class="math display">r_{\mathrm{true}}(v)=-d\|v\|v+b.</span></p>
+<p>Here <span class="math inline">d</span> is the sampled drag coefficient and <span class="math inline">b</span> is a fixed acceleration bias. The planner does not receive either value.</p>
+<div class="meaning">
+<p>This is the simulation’s ground truth, but <strong>not a high-fidelity rotor-level model</strong>. Individual motor forces, rigid-body torque/inertia dynamics and detailed aerodynamics are not implemented. Calling it high fidelity would overstate the current code.</p>
+</div>
+</section>
+<section id="measurements-connect-the-plant-to-the-controller" class="slide level2">
+<h2>Measurements connect the plant to the controller</h2>
+<p><strong>Input:</strong> the true state after the applied command. <strong>Output:</strong> a perturbed state estimate supplied to planning, verification, tracking and learning.</p>
+<p>Position has bounded perturbations of ±0.002 m per coordinate; velocity has ±0.003 m/s. Orientation receives a normalized quaternion perturbation. Thrust and body rates are read ideally in this simulator.</p>
+<p>The learner receives <strong>measured transitions and the command actually applied</strong>. It does not receive the plant’s hidden residual acceleration.</p>
+<div class="meaning">
+<p>This is a synthetic observation model, not an implemented camera, motion-capture pipeline or state estimator. The uncertainty checks must account for the stated sensing assumptions.</p>
+</div>
+</section>
 <section id="a-drone-turns-by-tilting" class="slide level2">
 <h2>A drone turns by tilting</h2>
 <p><img role="img" aria-label="An upright drone has upward thrust; a tilted drone has both upward and sideways thrust. Gravity points downward in both cases." data-src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjQxMCIgdmlld0JveD0iMCAwIDEyMDAgNDEwIj48ZGVmcz48bWFya2VyIGlkPSJuIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIj48cGF0aCBkPSJNMCAwTDEwIDVMMCAxMFoiIGZpbGw9IiMwMDI3NGMiLz48L21hcmtlcj48bWFya2VyIGlkPSJ0IiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIj48cGF0aCBkPSJNMCAwTDEwIDVMMCAxMFoiIGZpbGw9IiMxNDdhODIiLz48L21hcmtlcj48bWFya2VyIGlkPSJyIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIj48cGF0aCBkPSJNMCAwTDEwIDVMMCAxMFoiIGZpbGw9IiNiNTM0NDUiLz48L21hcmtlcj48bWFya2VyIGlkPSJnIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIj48cGF0aCBkPSJNMCAwTDEwIDVMMCAxMFoiIGZpbGw9IiNjNDk2MDAiLz48L21hcmtlcj48L2RlZnM+PHN0eWxlPnRleHR7Zm9udC1mYW1pbHk6QXJpYWwsc2Fucy1zZXJpZjtmaWxsOiMwMDI3NGM7Zm9udC1zaXplOjI1cHh9Lm5vdGV7Zm9udC1zaXplOjIxcHg7ZmlsbDojNTI2NTdhfS50aXRsZXtmb250LXNpemU6MjdweDtmb250LXdlaWdodDpib2xkfTwvc3R5bGU+PHRleHQgeD0iMjgwIiB5PSIzOCIgY2xhc3M9InRpdGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5MZXZlbCBkcm9uZTwvdGV4dD48dGV4dCB4PSI4NTUiIHk9IjM4IiBjbGFzcz0idGl0bGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlRpbHRlZCBkcm9uZTwvdGV4dD48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgyODAgMjM1KSByb3RhdGUoMCkiPjxwYXRoIGQ9Ik0tODAgMEg4MCIgc3Ryb2tlPSIjMDAyNzRjIiBzdHJva2Utd2lkdGg9IjkiLz48cmVjdCB4PSItMzAiIHk9Ii0xMiIgd2lkdGg9IjYwIiBoZWlnaHQ9IjI0IiByeD0iNCIgZmlsbD0iIzAwMjc0YyIvPjxlbGxpcHNlIGN4PSItODAiIGN5PSItNiIgcng9IjQyIiByeT0iNSIgZmlsbD0iIzMwMzUzZCIvPjxlbGxpcHNlIGN4PSI4MCIgY3k9Ii02IiByeD0iNDIiIHJ5PSI1IiBmaWxsPSIjYjUzNDQ1Ii8+PC9nPjxwYXRoIGQ9Ik0yODAgMjIxIEwyODAgNzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzE0N2E4MiIgc3Ryb2tlLXdpZHRoPSI1IiBtYXJrZXItZW5kPSJ1cmwoI3QpIi8+PHRleHQgeD0iMzAwIiB5PSIxMTUiIGNsYXNzPSIiIHRleHQtYW5jaG9yPSJzdGFydCI+VGhydXN0PC90ZXh0PjxwYXRoIGQ9Ik0yODAgMjQ4IEwyODAgMzcwIiBmaWxsPSJub25lIiBzdHJva2U9IiNiNTM0NDUiIHN0cm9rZS13aWR0aD0iNCIgbWFya2VyLWVuZD0idXJsKCNyKSIvPjx0ZXh0IHg9IjMwMCIgeT0iMzUyIiBjbGFzcz0iIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPkdyYXZpdHk8L3RleHQ+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoODQwIDIzNSkgcm90YXRlKDI1KSI+PHBhdGggZD0iTS04MCAwSDgwIiBzdHJva2U9IiMwMDI3NGMiIHN0cm9rZS13aWR0aD0iOSIvPjxyZWN0IHg9Ii0zMCIgeT0iLTEyIiB3aWR0aD0iNjAiIGhlaWdodD0iMjQiIHJ4PSI0IiBmaWxsPSIjMDAyNzRjIi8+PGVsbGlwc2UgY3g9Ii04MCIgY3k9Ii02IiByeD0iNDIiIHJ5PSI1IiBmaWxsPSIjMzAzNTNkIi8+PGVsbGlwc2UgY3g9IjgwIiBjeT0iLTYiIHJ4PSI0MiIgcnk9IjUiIGZpbGw9IiNiNTM0NDUiLz48L2c+PHBhdGggZD0iTTg0NyAyMjAgTDkxNCA3OCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMTQ3YTgyIiBzdHJva2Utd2lkdGg9IjUiIG1hcmtlci1lbmQ9InVybCgjdCkiLz48dGV4dCB4PSI5NDAiIHk9IjExMCIgY2xhc3M9IiIgdGV4dC1hbmNob3I9InN0YXJ0Ij5UaHJ1c3Q8L3RleHQ+PHBhdGggZD0iTTg0MCAyNDggTDg0MCAzNzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2I1MzQ0NSIgc3Ryb2tlLXdpZHRoPSI0IiBtYXJrZXItZW5kPSJ1cmwoI3IpIi8+PHRleHQgeD0iODYwIiB5PSIzNTIiIGNsYXNzPSIiIHRleHQtYW5jaG9yPSJzdGFydCI+R3Jhdml0eTwvdGV4dD48cGF0aCBkPSJNODQ1IDIzMCBMOTI1IDIzMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjYzQ5NjAwIiBzdHJva2Utd2lkdGg9IjQiIG1hcmtlci1lbmQ9InVybCgjZykiLz48dGV4dCB4PSI5NDUiIHk9IjIzNyIgY2xhc3M9IiIgdGV4dC1hbmNob3I9InN0YXJ0Ij5TaWRld2F5cyBwYXJ0PC90ZXh0Pjwvc3ZnPgo=" alt="An upright drone has upward thrust; a tilted drone has both upward and sideways thrust. Gravity points downward in both cases."></p>
 <div class="caption">
 <p><strong>Thrust</strong> is the force generated by the propellers. <strong>Orientation</strong>, also called attitude, describes how the drone is tilted and which way it faces. Tilting redirects some thrust sideways, changing the direction of travel.</p>
 </div>
-</section>
-<section id="acceleration-means-a-change-in-velocity" class="slide level2">
-<h2>Acceleration means a change in velocity</h2>
-<p><strong>Velocity</strong> includes both speed and direction. <strong>Acceleration</strong> tells us how quickly that velocity changes.</p>
-<p>A drone can accelerate while keeping the same speed: when it turns, its velocity changes direction.</p>
-<div class="example">
-<p>At 6 m/s on a circular turn of radius 3 m, the drone needs 12 m/s² of acceleration toward the center of the turn.</p>
-</div>
-<p>A tighter turn or a higher speed requires a larger sideways acceleration. That requires an appropriate tilt and enough available thrust.</p>
 </section>
 <section id="why-doubling-speed-makes-a-turn-harder" class="slide level2">
 <h2>Why doubling speed makes a turn harder</h2>
@@ -1156,26 +1190,9 @@ display:block!important;
 <p>We need to ask where the drone <strong>could be</strong>, not only where the model predicts its center will be.</p>
 </div>
 </section>
-<section id="problem" class="slide level2">
-<h2>The problem we are trying to solve</h2>
-<p><strong>Known:</strong> the gate locations, permitted flight region and command limits.</p>
-<p><strong>Imperfect:</strong> the motion model and measurements of the drone’s current motion.</p>
-<p><strong>Decision:</strong> which new sequence of thrust and rotation commands is worth attempting?</p>
-<div class="statement">
-<p>Plan a fast flight, but replace the current accepted plan only when the proposed flight and its recovery have passed the required checks. If a proposal fails, the drone must still have a usable continuation.</p>
-</div>
-<p><strong>Recovery</strong> means a slower continuation intended to keep the drone flying safely when a fast proposal cannot be used. The intended guarantee is stronger than the present prototype: the experimental checks do not yet prove safety for every possible error.</p>
-</section>
-<section id="proposal-check-then-execution" class="slide level2">
-<h2>Proposal, check, then execution</h2>
-<p><img role="img" aria-label="The planner proposes a reference, candidate generation adds recovery, verification checks it, and the tracker follows the accepted reference. Learning and error bounds feed the checks." data-src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjQwIiBoZWlnaHQ9IjQ3MCIgdmlld0JveD0iMCAwIDEyNDAgNDcwIj48ZGVmcz48bWFya2VyIGlkPSJhcnJvdyIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI5IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNyIgbWFya2VySGVpZ2h0PSI3IiBvcmllbnQ9ImF1dG8tc3RhcnQtcmV2ZXJzZSI+PHBhdGggZD0iTTAgMEwxMCA1TDAgMTBaIiBmaWxsPSIjMDAyNzRjIi8+PC9tYXJrZXI+PC9kZWZzPjxzdHlsZT50ZXh0e2ZvbnQtZmFtaWx5OkFyaWFsLHNhbnMtc2VyaWY7ZmlsbDojMDAyNzRjfS5kZXRhaWx7ZmlsbDojNTI2NTdhO2ZvbnQtc2l6ZToyMHB4fS5sYWJlbHtmb250LXNpemU6MjVweDtmb250LXdlaWdodDo2MDB9LmZsb3d7ZmlsbDpub25lO3N0cm9rZTojMDAyNzRjO3N0cm9rZS13aWR0aDoyO21hcmtlci1lbmQ6dXJsKCNhcnJvdyl9PC9zdHlsZT48cmVjdCB4PSIxMiIgeT0iNDUiIHdpZHRoPSIyNjIiIGhlaWdodD0iMTEwIiByeD0iNiIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjYjVjMmQwIiBzdHJva2Utd2lkdGg9IjIiLz48dGV4dCBjbGFzcz0ibGFiZWwiIHg9IjE0MyIgeT0iODgiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk1QUEkgcGxhbm5lcjwvdGV4dD48dGV4dCBjbGFzcz0iZGV0YWlsIiB4PSIxNDMiIHk9IjEyMiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UmFjaW5nIHJlZmVyZW5jZTwvdGV4dD48cmVjdCB4PSIzMzAiIHk9IjQ1IiB3aWR0aD0iMjYyIiBoZWlnaHQ9IjExMCIgcng9IjYiIGZpbGw9IiNmZmYiIHN0cm9rZT0iI2I1YzJkMCIgc3Ryb2tlLXdpZHRoPSIyIi8+PHRleHQgY2xhc3M9ImxhYmVsIiB4PSI0NjEiIHk9Ijg4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5DYW5kaWRhdGUgcm9sbG91dDwvdGV4dD48dGV4dCBjbGFzcz0iZGV0YWlsIiB4PSI0NjEiIHk9IjEyMiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VHJhY2tpbmcgKyByZWNvdmVyeTwvdGV4dD48cmVjdCB4PSI2NDgiIHk9IjQ1IiB3aWR0aD0iMjYyIiBoZWlnaHQ9IjExMCIgcng9IjYiIGZpbGw9IiNmZmYiIHN0cm9rZT0iI2I1YzJkMCIgc3Ryb2tlLXdpZHRoPSIyIi8+PHRleHQgY2xhc3M9ImxhYmVsIiB4PSI3NzkiIHk9Ijg4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5WZXJpZmljYXRpb248L3RleHQ+PHRleHQgY2xhc3M9ImRldGFpbCIgeD0iNzc5IiB5PSIxMjIiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkVycm9yIHNldHMgKyB0cmFjazwvdGV4dD48cmVjdCB4PSI5NjYiIHk9IjQ1IiB3aWR0aD0iMjYyIiBoZWlnaHQ9IjExMCIgcng9IjYiIGZpbGw9IiNmZmYiIHN0cm9rZT0iI2I1YzJkMCIgc3Ryb2tlLXdpZHRoPSIyIi8+PHRleHQgY2xhc3M9ImxhYmVsIiB4PSIxMDk3IiB5PSI4OCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Q29tbWl0bWVudDwvdGV4dD48dGV4dCBjbGFzcz0iZGV0YWlsIiB4PSIxMDk3IiB5PSIxMjIiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkFjY2VwdGVkIHJlZmVyZW5jZTwvdGV4dD48cGF0aCBjbGFzcz0iZmxvdyIgZD0iTTI3NCAxMDAgSDMyNCIvPjxwYXRoIGNsYXNzPSJmbG93IiBkPSJNNTkyIDEwMCBINjQyIi8+PHBhdGggY2xhc3M9ImZsb3ciIGQ9Ik05MTAgMTAwIEg5NjAiLz48cmVjdCB4PSIzMzAiIHk9IjI2MCIgd2lkdGg9IjI2MiIgaGVpZ2h0PSIxMTAiIHJ4PSI2IiBmaWxsPSIjZmZmIiBzdHJva2U9IiNiNWMyZDAiIHN0cm9rZS13aWR0aD0iMiIvPjx0ZXh0IGNsYXNzPSJsYWJlbCIgeD0iNDYxIiB5PSIzMDMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkxlYXJuZWQgbW9kZWw8L3RleHQ+PHRleHQgY2xhc3M9ImRldGFpbCIgeD0iNDYxIiB5PSIzMzciIHRleHQtYW5jaG9yPSJtaWRkbGUiPk1lYXN1cmVkIGZsaWdodCBkYXRhPC90ZXh0PjxyZWN0IHg9IjY0OCIgeT0iMjYwIiB3aWR0aD0iMjYyIiBoZWlnaHQ9IjExMCIgcng9IjYiIGZpbGw9IiNmZmYiIHN0cm9rZT0iI2I1YzJkMCIgc3Ryb2tlLXdpZHRoPSIyIi8+PHRleHQgY2xhc3M9ImxhYmVsIiB4PSI3NzkiIHk9IjMwMyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RXJyb3IgZW52ZWxvcGU8L3RleHQ+PHRleHQgY2xhc3M9ImRldGFpbCIgeD0iNzc5IiB5PSIzMzciIHRleHQtYW5jaG9yPSJtaWRkbGUiPlN0YXRlICsgY29tbWFuZDwvdGV4dD48cmVjdCB4PSI5NjYiIHk9IjI2MCIgd2lkdGg9IjI2MiIgaGVpZ2h0PSIxMTAiIHJ4PSI2IiBmaWxsPSIjZmZmIiBzdHJva2U9IiNiNWMyZDAiIHN0cm9rZS13aWR0aD0iMiIvPjx0ZXh0IGNsYXNzPSJsYWJlbCIgeD0iMTA5NyIgeT0iMzAzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5UcmFja2VyICsgZHJvbmU8L3RleHQ+PHRleHQgY2xhc3M9ImRldGFpbCIgeD0iMTA5NyIgeT0iMzM3IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5BcHBsaWVkIGNvbW1hbmRzPC90ZXh0PjxwYXRoIGNsYXNzPSJmbG93IiBkPSJNMTA5NyAxNTUgVjI1NCIvPjxwYXRoIGNsYXNzPSJmbG93IiBkPSJNNzc5IDI2MCBWMTYxIi8+PHBhdGggY2xhc3M9ImZsb3ciIGQ9Ik00NjEgMjYwIFYxNjEiLz48cGF0aCBjbGFzcz0iZmxvdyIgZD0iTTU5MiAzMTUgSDY0MiIvPjxwYXRoIGNsYXNzPSJmbG93IiBkPSJNMzMwIDMxNSBIMTQzIFYxNjEiLz48cGF0aCBjbGFzcz0iZmxvdyIgZD0iTTEwOTcgMzcwIFY0MjAgSDQ2MSBWMzc2Ii8+PHRleHQgY2xhc3M9ImRldGFpbCIgeD0iNzc5IiB5PSI0NTUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlN0YXRlIGFuZCBhcHBsaWVkLWNvbW1hbmQgbWVhc3VyZW1lbnRzPC90ZXh0Pjx0ZXh0IHg9Ijc4NSIgeT0iMjQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHN0eWxlPSJmb250LXNpemU6MjBweDtmaWxsOiNhMTI4M2MiPlJlamVjdDogcmV0YWluIHRoZSBwcmV2aW91cyBjb21taXRtZW50PC90ZXh0Pjwvc3ZnPg==" alt="The planner proposes a reference, candidate generation adds recovery, verification checks it, and the tracker follows the accepted reference. Learning and error bounds feed the checks."></p>
-<div class="caption">
-<p>A <strong>reference</strong> describes the desired future motion and associated commands. A <strong>tracker</strong> adjusts commands using the measured state. A <strong>commitment</strong> is the accepted reference and the frozen model information used when checking it.</p>
-</div>
-</section>
 <section id="model" class="slide level2 section-slide" data-background-color="#00274c">
-<h2>Describe motion before predicting it</h2>
-<p>A model starts with what we know now and a command. It predicts how the drone moves next.</p>
+<h2>Inside the prediction model</h2>
+<p>Input: a state, a proposed command and a learned-model version. Output: the predicted next state. The following equations define that prediction and its relationship to the simulated plant.</p>
 </section>
 <section id="position-velocity-and-orientation" class="slide level2">
 <h2>Position, velocity and orientation</h2>
@@ -1287,168 +1304,18 @@ B\hat r_k=\begin{bmatrix}0_3\\\hat r_k\\0_4\\0\\0_3\end{bmatrix}.</span></p>
 <p>Thrust requests can change by at most <span class="math inline">110(0.05)=5.5</span> m/s² per step. A <strong>slew limit</strong> is this limit on how quickly a command may change.</p>
 </div>
 </section>
-<section id="translate-the-research-goal-into-constraints" class="slide level2">
-<h2>Translate the research goal into constraints</h2>
-<p>Let <span class="math inline">\pi</span> denote a feedback rule: it chooses a command from measurements and the active reference. Let <span class="math inline">T</span> be an evaluation duration.</p>
-<p>Let <span class="math inline">s(t)</span> measure accumulated progress around the course at time <span class="math inline">t</span>. For this implementation it is scaled course angle, defined in the planning section—not exact distance flown.</p>
-<p>The research goal is to choose <span class="math inline">\pi</span> to make <span class="math inline">s(T)-s(0)</span> large while respecting physical and geometric restrictions.</p>
-<div class="meaning">
-<p>This is the intended task. The actual planner uses a weighted finite-horizon objective, introduced next, rather than solving an exact minimum-lap-time problem.</p>
-</div>
-</section>
-<section id="state-and-command-constraints-in-symbols" class="slide level2">
-<h2>State and command constraints, in symbols</h2>
-<p>Let <span class="math inline">\mathcal S</span> be the set of states whose entire drone body lies inside the permitted flight region. Let <span class="math inline">\mathcal U</span> be the set of commands satisfying the magnitude limits.</p>
-<p>The intended constrained problem is</p>
-<p><span class="math display">\max_\pi\ s(T)-s(0)</span> <span class="math display">\text{subject to }x(t)\in\mathcal S,\quad u(t)\in\mathcal U,
-\quad |u_j-u_{j-1}|\leq\dot u_{\max}\Delta t.</span></p>
-<div class="meaning">
-<p><span class="math inline">\dot u_{\max}=(110,35,35,35)</span> is the vector of command change limits. The state restriction must hold throughout the flight, including between sample times and after a new proposal is rejected.</p>
-</div>
-</section>
-<section id="planning" class="slide level2 section-slide" data-background-color="#00274c">
-<h2>Choosing a racing plan</h2>
-<p>Predict several possible flights. Score their progress, route errors and commands. Propose a sequence with a low score.</p>
-</section>
-<section id="follow-a-route-without-a-fixed-timetable" class="slide level2">
-<h2>Follow a route without a fixed timetable</h2>
-<p>A timed reference says: “Be at this point at exactly this time.”</p>
-<p>A contouring objective says: “Stay near the shape of the route while making progress.” It permits slower movement through a difficult turn and faster movement elsewhere.</p>
-<p><strong>MPCC</strong> means model predictive contouring control. This code uses an <strong>MPCC-style objective</strong>: a score based on route errors and progress.</p>
-<div class="meaning">
-<p><strong>MPPI</strong>, model predictive path integral control, is the sampling algorithm used here to search for low-scoring commands. The objective and the search algorithm have different roles.</p>
-</div>
-</section>
-<section id="define-the-route-and-its-forward-direction" class="slide level2">
-<h2>Define the route and its forward direction</h2>
-<p>The route point at angle <span class="math inline">\phi</span> is</p>
-<p><span class="math display">p_c(\phi)=\begin{bmatrix}9\cos\phi\\6\sin\phi\\3+0.65\sin(2\phi)\end{bmatrix}\mathrm m.</span></p>
-<p>The subscript <span class="math inline">c</span> means centerline. The angle <span class="math inline">\phi</span> runs around the course. Its height varies as well as its horizontal position.</p>
-<p>The unit vector pointing along the route is</p>
-<p><span class="math display">t(\phi)=\frac{p_c&#39;(\phi)}{\|p_c&#39;(\phi)\|}.</span></p>
-<div class="meaning">
-<p><span class="math inline">t(\phi)</span> is the local forward direction along the 3-D centerline. Its vertical component accounts for the route climbing and descending.</p>
-</div>
-</section>
-<section id="choose-a-route-point-near-the-drone" class="slide level2">
-<h2>Choose a route point near the drone</h2>
-<p>For drone position <span class="math inline">p=(p_x,p_y,p_z)</span>, the code chooses</p>
-<p><span class="math display">\phi=\operatorname{atan2}(p_y/6,p_x/9).</span></p>
-<p><code>atan2</code> returns an angle using both horizontal coordinates, accounting for which quadrant contains the drone.</p>
-<p>We then compare <span class="math inline">p</span> with the selected route point <span class="math inline">p_c(\phi)</span>.</p>
-<div class="meaning">
-<p>This is an angle-based selection, not an exact closest-point calculation. Unlike a full MPCC formulation with a separately optimized progress variable, this implementation derives its route coordinate from predicted position.</p>
-</div>
-</section>
-<section id="separate-across-route-and-along-route-error" class="slide level2">
-<h2>Separate across-route and along-route error</h2>
-<p><img role="img" aria-label="A displacement from a selected route point is separated into an along-tangent lag component and a perpendicular contouring component." data-src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjQwIiBoZWlnaHQ9IjQ3MCIgdmlld0JveD0iMCAwIDEyNDAgNDcwIj48ZGVmcz48bWFya2VyIGlkPSJhcnJvdyIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI5IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNyIgbWFya2VySGVpZ2h0PSI3IiBvcmllbnQ9ImF1dG8tc3RhcnQtcmV2ZXJzZSI+PHBhdGggZD0iTTAgMEwxMCA1TDAgMTBaIiBmaWxsPSIjMDAyNzRjIi8+PC9tYXJrZXI+PC9kZWZzPjxzdHlsZT50ZXh0e2ZvbnQtZmFtaWx5OkFyaWFsLHNhbnMtc2VyaWY7ZmlsbDojMDAyNzRjfS5kZXRhaWx7ZmlsbDojNTI2NTdhO2ZvbnQtc2l6ZToyMHB4fS5sYWJlbHtmb250LXNpemU6MjVweDtmb250LXdlaWdodDo2MDB9LmZsb3d7ZmlsbDpub25lO3N0cm9rZTojMDAyNzRjO3N0cm9rZS13aWR0aDoyO21hcmtlci1lbmQ6dXJsKCNhcnJvdyl9PC9zdHlsZT48cGF0aCBkPSJNNzAgMzQ1IFE0MDAgMzMwIDY1MCAzMzUgVDExNzAgMjU1IiBzdHJva2U9IiNiNWMyZDAiIHN0cm9rZS13aWR0aD0iNCIgZmlsbD0ibm9uZSIvPjx0ZXh0IGNsYXNzPSJkZXRhaWwiIHg9IjgwIiB5PSI0MDAiPlJvdXRlIChsb2NhbCBza2V0Y2gpPC90ZXh0PjxwYXRoIGQ9Ik0xNDAgMzM1IEgxMDcwIiBzdHJva2U9IiM2NTcxODMiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWRhc2hhcnJheT0iOCA4Ii8+PHBhdGggY2xhc3M9ImZsb3ciIGQ9Ik0zNDAgMzM1IEg1NTAiLz48dGV4dCBjbGFzcz0ibGFiZWwiIHg9IjM4MCIgeT0iMzgwIj5Gb3J3YXJkIHRhbmdlbnQgdDwvdGV4dD48cGF0aCBjbGFzcz0iZmxvdyIgZD0iTTM0MCAzMzUgTDgwMCAxMDAiLz48dGV4dCBjbGFzcz0ibGFiZWwiIHg9IjQ3NSIgeT0iMTg4Ij5Ub3RhbCBlcnJvciBlPC90ZXh0PjxwYXRoIGQ9Ik0zNDAgMzM1IEg4MDAiIHN0cm9rZT0iI2QzYTMwMCIgc3Ryb2tlLXdpZHRoPSI2Ii8+PHRleHQgY2xhc3M9ImxhYmVsIiB4PSI1ODAiIHk9IjMwNSI+TGFnOiBl4oKXIHQ8L3RleHQ+PHBhdGggZD0iTTgwMCAzMzUgVjEwMCIgc3Ryb2tlPSIjMTQ4NThiIiBzdHJva2Utd2lkdGg9IjYiLz48dGV4dCBjbGFzcz0ibGFiZWwiIHg9Ijg0MCIgeT0iMjE1Ij5Db250b3VyaW5nOiBl6pyAPC90ZXh0PjxwYXRoIGQ9Ik03NzUgMzM1IFYzMTAgSDgwMCIgc3Ryb2tlPSIjNjU3MTgzIiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiLz48Y2lyY2xlIGN4PSIzNDAiIGN5PSIzMzUiIHI9IjgiIGZpbGw9IiMwMDI3NGMiLz48Y2lyY2xlIGN4PSI4MDAiIGN5PSIxMDAiIHI9IjEwIiBmaWxsPSIjMTQ4NThiIi8+PHRleHQgY2xhc3M9ImxhYmVsIiB4PSI4MTAiIHk9IjY1Ij5Ecm9uZSBwPC90ZXh0Pjx0ZXh0IGNsYXNzPSJsYWJlbCIgeD0iODAiIHk9IjI5MCI+UmVmZXJlbmNlIHDqnIA8L3RleHQ+PC9zdmc+" alt="A displacement from a selected route point is separated into an along-tangent lag component and a perpendicular contouring component."></p>
-<div class="caption">
-<p><strong>Lag error</strong> is the along-tangent component. <strong>Contouring error</strong> is the perpendicular component. In 3-D, perpendicular error can include being too high or too low. Lag here is geometric, not lateness relative to a schedule.</p>
-</div>
-</section>
-<section id="compute-those-two-errors" class="slide level2">
-<h2>Compute those two errors</h2>
-<p>First subtract the selected route point from the drone position:</p>
-<p><span class="math display">e=p-p_c(\phi).</span></p>
-<p>Project onto the unit tangent <span class="math inline">t</span> and remove that part:</p>
-<p><span class="math display">e_l=t^\top e,\qquad e_c=e-e_l t.</span></p>
-<p><span class="math inline">e_l</span> is a signed scalar lag error in metres. <span class="math inline">e_c</span> is a three-component contouring-error vector in metres.</p>
-<div class="meaning">
-<p>The dot product <span class="math inline">t^\top e</span> measures how much of <span class="math inline">e</span> points along <span class="math inline">t</span>. The remainder is perpendicular because <span class="math inline">t^\top e_c=t^\top e-e_l=0</span>.</p>
-</div>
-</section>
-<section id="example-an-eastward-route" class="slide level2">
-<h2>Example: an eastward route</h2>
-<p>Let the local tangent be <span class="math inline">t=(1,0,0)</span> and the displacement be <span class="math inline">e=(0.5,0.2,0.1)</span> m.</p>
-<p><span class="math display">e_l=0.5\ \mathrm m,\qquad e_c=(0,0.2,0.1)\ \mathrm m.</span></p>
-<p>The contouring-error magnitude is</p>
-<p><span class="math display">\|e_c\|=\sqrt{0.2^2+0.1^2}=0.224\ \mathrm m\quad\text{approximately}.</span></p>
-<div class="meaning">
-<p>The drone is 0.5 m ahead along the tangent, and 0.224 m away in perpendicular directions. Squared error costs penalize either sign, so being behind or on the opposite side also costs something.</p>
-</div>
-</section>
-<section id="reward-forward-progress" class="slide level2">
-<h2>Reward forward progress</h2>
-<p>Let <span class="math inline">\Delta\phi_j</span> be the change in course angle between consecutive predicted positions. The code assigns progress</p>
-<p><span class="math display">\Delta s_j=7.5\operatorname{atan2}(\sin\Delta\phi_j,\cos\Delta\phi_j).</span></p>
-<p>The wrapped angle avoids a false jump when crossing the <span class="math inline">-\pi/\pi</span> boundary. The scale 7.5 m is the average of the horizontal ellipse radii, 9 m and 6 m.</p>
-<div class="meaning">
-<p>Accumulating these increments gives the course-progress measure <span class="math inline">s</span>. It is not exact 3-D arc length. The objective subtracts <span class="math inline">70\Delta s_j</span>, so forward progress lowers the score.</p>
-</div>
-</section>
-<section id="why-progress-and-route-error-are-both-needed" class="slide level2">
-<h2>Why progress and route error are both needed</h2>
-<p><strong>Only route error:</strong> stopping on the centerline could achieve zero error. Nothing would reward racing.</p>
-<p><strong>Only progress:</strong> the planner could favor cutting turns or departing from the route.</p>
-<p>The code combines them at each predicted step:</p>
-<p><span class="math display">-70\Delta s_j+0.05(40\|e_{c,j}\|^2+10e_{l,j}^2).</span></p>
-<div class="example">
-<p>For the previous error example, one step’s route penalty is <span class="math inline">0.05[40(0.2^2+0.1^2)+10(0.5^2)]=0.225</span>. Doubling either error multiplies its own penalty by four.</p>
-</div>
-</section>
-<section id="discourage-demanding-and-abrupt-commands" class="slide level2">
-<h2>Discourage demanding and abrupt commands</h2>
-<p>Let <span class="math inline">u_h=(g,0,0,0)</span> be the hover command and <span class="math inline">D=\operatorname{diag}(20,7,7,7)</span> the command-scaling matrix.</p>
-<p>For <span class="math inline">N</span> future commands, the effort cost is</p>
-<p><span class="math display">J_{\rm effort}=0.015\sum_{i=0}^{N-1}\|D^{-1}(u_i-u_h)\|^2.</span></p>
-<p><span class="math inline">D^{-1}</span> divides the four command components by their scales. This cost discourages departures from hover; it is not a battery-energy calculation.</p>
-<div class="meaning">
-<p>The separate change cost <span class="math inline">J_{\rm change}=0.04\sum_{i=1}^{N-1}\|u_i-u_{i-1}\|^2</span> discourages abrupt commands. It uses raw command components, so its numerical weight depends on the chosen units.</p>
-</div>
-</section>
-<section id="penalize-violations-and-the-last-route-error" class="slide level2">
-<h2>Penalize violations and the last route error</h2>
-<p>Let <span class="math inline">P_{\rm geometry}</span> be a nonnegative score for leaving the corridor, violating height limits or crossing outside a gate opening. It is zero when the tested nominal geometry has no violation.</p>
-<p><span class="math display">J_{\rm geometry}=10^5P_{\rm geometry},\qquad
-J_{\rm end}=8\|e_{c,N}\|^2.</span></p>
-<p>The second term penalizes contouring error at the final predicted state, so the planner does not finish its prediction far from the route.</p>
-<div class="meaning">
-<p>A large geometry penalty discourages an unsafe predicted center path. It does not prove safety for the real path with model and sensing errors. The separate verification stage addresses that question.</p>
-</div>
-</section>
-<section id="assemble-the-implemented-objective" class="slide level2">
-<h2>Assemble the implemented objective</h2>
-<p>Let <span class="math inline">U=(u_0,\ldots,u_{N-1})</span> be the proposed command sequence, with <span class="math inline">N=40</span> and a two-second prediction horizon.</p>
-<p><span class="math display">\begin{aligned}
-J(U)={}&amp;-70\sum_{j=1}^{N}\Delta s_j
-+0.05\sum_{j=1}^{N}(40\|e_{c,j}\|^2+10e_{l,j}^2)\\
-&amp;+J_{\rm effort}+J_{\rm change}+J_{\rm geometry}+J_{\rm end}.
-\end{aligned}</span></p>
-<div class="meaning">
-<p>Lower is better. Commands are indexed <span class="math inline">i=0,\ldots,N-1</span>; the resulting future states are indexed <span class="math inline">j=1,\ldots,N</span>. The weights are tuning choices expressing tradeoffs, not a safety theorem.</p>
-</div>
-<div class="source">
-<p>Implemented in mppi.py: MPPI.cost. Geometry and progress are defined in track.py. The appendix expands the geometry penalty.</p>
-</div>
-</section>
-<section id="search-by-sampling-command-sequences" class="slide level2">
-<h2>Search by sampling command sequences</h2>
-<p>MPPI starts with a previous plan shifted forward, or a centerline-following initialization.</p>
-<ol type="1">
-<li>Generate 768 variations of that command sequence.</li>
-<li>Enforce magnitude and slew limits on each variation.</li>
-<li>Roll out the learned model and score each flight.</li>
-<li>Give lower-cost sequences more weight, then form a new sequence.</li>
-<li>Repeat five times and return the selected racing reference.</li>
-</ol>
-<div class="meaning">
-<p>The code also compares the weighted sequence with the best individual sample and keeps the lower-cost feasible result. Averaging two good but different maneuvers need not produce a good maneuver.</p>
-</div>
-</section>
-<section id="how-the-sample-weights-work" class="slide level2">
-<h2>How the sample weights work</h2>
-<p>Let <span class="math inline">J_m</span> be the cost of sample <span class="math inline">m</span>, and let <span class="math inline">J_{\min}</span> be the smallest sampled cost. With temperature <span class="math inline">\lambda=2</span>,</p>
-<p><span class="math display">w_m=\frac{\exp[-(J_m-J_{\min})/\lambda]}
-{\sum_{\ell=1}^{768}\exp[-(J_\ell-J_{\min})/\lambda]}.</span></p>
-<p>Higher-cost samples receive less weight; a larger temperature spreads weight more evenly. Subtracting <span class="math inline">J_{\min}</span> improves numerical stability without changing the weights.</p>
-<div class="example">
-<p>A sample whose cost is 2 higher receives <span class="math inline">e^{-1}\approx0.368</span> times the unnormalized weight of the best sample. The new proposal is <span class="math inline">\sum_m w_m U^{(m)}</span>, where <span class="math inline">U^{(m)}</span> is sample <span class="math inline">m</span>’s command sequence.</p>
-</div>
-</section>
 <section id="learning" class="slide level2 section-slide" data-background-color="#00274c">
 <h2>Learn what the basic model misses</h2>
 <p>Compare predicted motion with measured motion. Learn the missing acceleration, then ask how wrong that learned correction could still be.</p>
+</section>
+<section id="learning-inputs-and-outputs" class="slide level2">
+<h2>Learning: inputs and outputs</h2>
+<p><strong>Inputs:</strong> successive measured states and the applied command; an archive of earlier measured transitions.</p>
+<p><strong>Output 1 — prediction:</strong> an ensemble estimate of the acceleration missing from the analytical model. The planner and tracker use this correction.</p>
+<p><strong>Output 2 — error allowance:</strong> an envelope built from stored observations, noise assumptions and an assumed bound on how quickly model error changes. The verifier queries this envelope over uncertain states and commands.</p>
+<div class="meaning">
+<p>A better fit does not itself establish a valid error bound. Prediction quality and the validity of the safety allowance are separate questions.</p>
+</div>
 </section>
 <section id="measure-a-velocity-prediction-error" class="slide level2">
 <h2>Measure a velocity-prediction error</h2>
@@ -1579,9 +1446,181 @@ J(U)={}&amp;-70\sum_{j=1}^{N}\Delta s_j
 </div>
 <p>Freezing the information preserves the meaning of the earlier decision. It does not turn an approximate check into a proof.</p>
 </section>
+<section id="planning" class="slide level2 section-slide" data-background-color="#00274c">
+<h2>Choosing a racing plan</h2>
+<p>Predict several possible flights. Score their progress, route errors and commands. Propose a sequence with a low score.</p>
+</section>
+<section id="planner-inputs-computation-and-output" class="slide level2">
+<h2>Planner: inputs, computation and output</h2>
+<p><strong>Inputs:</strong> measured state, previously applied command, course geometry and the current learned prediction model.</p>
+<p><strong>Computation:</strong> MPPI samples command sequences, predicts their motion and scores them using the MPCC-style objective. The horizon is 2 s: 40 steps of 0.05 s.</p>
+<p><strong>Output:</strong> a proposed sequence of states and commands. This becomes the racing reference used to build candidates; it is not automatically sent to the plant.</p>
+<div class="meaning">
+<p>There are two decisions: the planner chooses a promising racing motion; the gatekeeper decides whether to replace the current commitment with a candidate derived from it.</p>
+</div>
+</section>
+<section id="follow-a-route-without-a-fixed-timetable" class="slide level2">
+<h2>Follow a route without a fixed timetable</h2>
+<p>A timed reference says: “Be at this point at exactly this time.”</p>
+<p>A contouring objective says: “Stay near the shape of the route while making progress.” It permits slower movement through a difficult turn and faster movement elsewhere.</p>
+<p><strong>MPCC</strong> means model predictive contouring control. This code uses an <strong>MPCC-style objective</strong>: a score based on route errors and progress.</p>
+<div class="meaning">
+<p><strong>MPPI</strong>, model predictive path integral control, is the sampling algorithm used here to search for low-scoring commands. The objective and the search algorithm have different roles.</p>
+</div>
+</section>
+<section id="what-should-a-racing-objective-prefer" class="slide level2">
+<h2>What should a racing objective prefer?</h2>
+<p><img role="img" aria-label="Three schematic predictions over the same horizon: staying still on the centerline, cutting inside a turn, and moving forward while staying near the route." data-src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjQ1NSIgdmlld0JveD0iMCAwIDEyMDAgNDU1Ij48ZGVmcz48bWFya2VyIGlkPSJuIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIj48cGF0aCBkPSJNMCAwTDEwIDVMMCAxMFoiIGZpbGw9IiMwMDI3NGMiLz48L21hcmtlcj48bWFya2VyIGlkPSJ0IiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIj48cGF0aCBkPSJNMCAwTDEwIDVMMCAxMFoiIGZpbGw9IiMxNDdhODIiLz48L21hcmtlcj48bWFya2VyIGlkPSJyIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIj48cGF0aCBkPSJNMCAwTDEwIDVMMCAxMFoiIGZpbGw9IiNiNTM0NDUiLz48L21hcmtlcj48bWFya2VyIGlkPSJnIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIj48cGF0aCBkPSJNMCAwTDEwIDVMMCAxMFoiIGZpbGw9IiNjNDk2MDAiLz48L21hcmtlcj48L2RlZnM+PHN0eWxlPnRleHR7Zm9udC1mYW1pbHk6QXJpYWwsc2Fucy1zZXJpZjtmaWxsOiMwMDI3NGM7Zm9udC1zaXplOjI1cHh9Lm5vdGV7Zm9udC1zaXplOjIxcHg7ZmlsbDojNTI2NTdhfS50aXRsZXtmb250LXNpemU6MjdweDtmb250LXdlaWdodDpib2xkfTwvc3R5bGU+PHRleHQgeD0iMzAiIHk9IjM1IiBjbGFzcz0idGl0bGUiIHRleHQtYW5jaG9yPSJzdGFydCI+U3RheSBvbiB0aGUgcm91dGU8L3RleHQ+PHBhdGggZD0iTTg1IDMxMCBRODUgMTE1IDMzMCAxMDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY4Nzg4YSIgc3Ryb2tlLXdpZHRoPSI0IiBzdHJva2UtZGFzaGFycmF5PSI4IDYiLz48cGF0aCBkPSJNODUgMzEwTDg1IDI4OCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMTQ3YTgyIiBzdHJva2Utd2lkdGg9IjYiIG1hcmtlci1lbmQ9InVybCgjdCkiLz48Y2lyY2xlIGN4PSI4NSIgY3k9IjMxMCIgcj0iOCIgZmlsbD0iIzAwMjc0YyIvPjx0ZXh0IHg9IjEwMyIgeT0iMzI4IiBjbGFzcz0ibm90ZSIgdGV4dC1hbmNob3I9InN0YXJ0Ij5zdGFydDwvdGV4dD48dGV4dCB4PSIzMCIgeT0iMzg1IiBjbGFzcz0ibm90ZSIgdGV4dC1hbmNob3I9InN0YXJ0Ij5MaXR0bGUgcHJvZ3Jlc3M8L3RleHQ+PHRleHQgeD0iNDMwIiB5PSIzNSIgY2xhc3M9InRpdGxlIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPkN1dCBpbnNpZGUgdGhlIHR1cm48L3RleHQ+PHBhdGggZD0iTTQ4NSAzMTAgUTQ4NSAxMTUgNzMwIDEwMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNjg3ODhhIiBzdHJva2Utd2lkdGg9IjQiIHN0cm9rZS1kYXNoYXJyYXk9IjggNiIvPjxwYXRoIGQ9Ik00ODUgMzEwTDcwMCAxMjIiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2I1MzQ0NSIgc3Ryb2tlLXdpZHRoPSI2IiBtYXJrZXItZW5kPSJ1cmwoI3IpIi8+PGNpcmNsZSBjeD0iNDg1IiBjeT0iMzEwIiByPSI4IiBmaWxsPSIjMDAyNzRjIi8+PHRleHQgeD0iNTAzIiB5PSIzMjgiIGNsYXNzPSJub3RlIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPnN0YXJ0PC90ZXh0Pjx0ZXh0IHg9IjQzMCIgeT0iMzg1IiBjbGFzcz0ibm90ZSIgdGV4dC1hbmNob3I9InN0YXJ0Ij5Qcm9ncmVzcywgYnV0IGxhcmdlIHJvdXRlIGVycm9yPC90ZXh0Pjx0ZXh0IHg9IjgzMCIgeT0iMzUiIGNsYXNzPSJ0aXRsZSIgdGV4dC1hbmNob3I9InN0YXJ0Ij5Gb2xsb3cgdGhlIGJlbmQ8L3RleHQ+PHBhdGggZD0iTTg4NSAzMTAgUTg4NSAxMTUgMTEzMCAxMDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY4Nzg4YSIgc3Ryb2tlLXdpZHRoPSI0IiBzdHJva2UtZGFzaGFycmF5PSI4IDYiLz48cGF0aCBkPSJNODg1IDMxMFE4OTAgMTYwIDEwNzAgMTE4IiBmaWxsPSJub25lIiBzdHJva2U9IiMxNDdhODIiIHN0cm9rZS13aWR0aD0iNiIgbWFya2VyLWVuZD0idXJsKCN0KSIvPjxjaXJjbGUgY3g9Ijg4NSIgY3k9IjMxMCIgcj0iOCIgZmlsbD0iIzAwMjc0YyIvPjx0ZXh0IHg9IjkwMyIgeT0iMzI4IiBjbGFzcz0ibm90ZSIgdGV4dC1hbmNob3I9InN0YXJ0Ij5zdGFydDwvdGV4dD48dGV4dCB4PSI4MzAiIHk9IjM4NSIgY2xhc3M9Im5vdGUiIHRleHQtYW5jaG9yPSJzdGFydCI+UHJvZ3Jlc3Mgd2l0aCBzbWFsbGVyIGVycm9yPC90ZXh0Pjx0ZXh0IHg9IjMwIiB5PSI0MzUiIGNsYXNzPSJub3RlIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPkRhc2hlZDogY2VudGVybGluZSAgICAgQ29sb3JlZDogaHlwb3RoZXRpY2FsIHByZWRpY3Rpb24gb3ZlciB0aGUgc2FtZSBob3Jpem9uPC90ZXh0Pjwvc3ZnPgo=" alt="Three schematic predictions over the same horizon: staying still on the centerline, cutting inside a turn, and moving forward while staying near the route."></p>
+<div class="caption">
+<p>All three start at the same location and use the same prediction horizon. Route error alone rewards standing still. Progress alone can reward cutting the turn. The combined score balances progress, route error and command demand; the separate verifier checks uncertainty and recovery.</p>
+</div>
+</section>
+<section id="contouring-error-how-far-the-flight-leaves-the-route" class="slide level2">
+<h2>Contouring error: how far the flight leaves the route</h2>
+<p><img role="img" aria-label="Curved centerline with a selected route point, its tangent, a predicted drone point, and the perpendicular contouring and along-tangent lag components of displacement." data-src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjQ0MCIgdmlld0JveD0iMCAwIDEyMDAgNDQwIj48ZGVmcz48bWFya2VyIGlkPSJuIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIj48cGF0aCBkPSJNMCAwTDEwIDVMMCAxMFoiIGZpbGw9IiMwMDI3NGMiLz48L21hcmtlcj48bWFya2VyIGlkPSJ0IiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIj48cGF0aCBkPSJNMCAwTDEwIDVMMCAxMFoiIGZpbGw9IiMxNDdhODIiLz48L21hcmtlcj48bWFya2VyIGlkPSJyIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIj48cGF0aCBkPSJNMCAwTDEwIDVMMCAxMFoiIGZpbGw9IiNiNTM0NDUiLz48L21hcmtlcj48bWFya2VyIGlkPSJnIiB2aWV3Qm94PSIwIDAgMTAgMTAiIHJlZlg9IjkiIHJlZlk9IjUiIG1hcmtlcldpZHRoPSI3IiBtYXJrZXJIZWlnaHQ9IjciIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIj48cGF0aCBkPSJNMCAwTDEwIDVMMCAxMFoiIGZpbGw9IiNjNDk2MDAiLz48L21hcmtlcj48L2RlZnM+PHN0eWxlPnRleHR7Zm9udC1mYW1pbHk6QXJpYWwsc2Fucy1zZXJpZjtmaWxsOiMwMDI3NGM7Zm9udC1zaXplOjI1cHh9Lm5vdGV7Zm9udC1zaXplOjIxcHg7ZmlsbDojNTI2NTdhfS50aXRsZXtmb250LXNpemU6MjdweDtmb250LXdlaWdodDpib2xkfTwvc3R5bGU+PHBhdGggZD0iTTgwIDM2NSBRNDAwIDcwIDEwODAgMjAwIiBmaWxsPSJub25lIiBzdHJva2U9IiM2ODc4OGEiIHN0cm9rZS13aWR0aD0iNCIgc3Ryb2tlLWRhc2hhcnJheT0iOSA2Ii8+PHBhdGggZD0iTTM0MCAxOTUgTDEwMDAgMTMwIiBmaWxsPSJub25lIiBzdHJva2U9IiM2ODc4OGEiIHN0cm9rZS13aWR0aD0iMiIvPjx0ZXh0IHg9IjgyMCIgeT0iMTEyIiBjbGFzcz0ibm90ZSIgdGV4dC1hbmNob3I9InN0YXJ0Ij5sb2NhbCB0YW5nZW50PC90ZXh0PjxjaXJjbGUgY3g9IjU3MCIgY3k9IjE3MiIgcj0iOCIgZmlsbD0iIzAwMjc0YyIvPjxjaXJjbGUgY3g9Ijc5MCIgY3k9IjMyMCIgcj0iMTAiIGZpbGw9IiMxNDdhODIiLz48cGF0aCBkPSJNNTcwIDE3MiBMODAzIDE0OSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjYzQ5NjAwIiBzdHJva2Utd2lkdGg9IjUiIG1hcmtlci1lbmQ9InVybCgjZykiLz48cGF0aCBkPSJNODAzIDE0OSBMNzkwIDMyMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjYjUzNDQ1IiBzdHJva2Utd2lkdGg9IjUiIG1hcmtlci1lbmQ9InVybCgjcikiLz48cGF0aCBkPSJNNTcwIDE3MiBMNzkwIDMyMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDAyNzRjIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1kYXNoYXJyYXk9IjUgNSIvPjx0ZXh0IHg9IjUxMCIgeT0iMTMwIiBjbGFzcz0ibm90ZSIgdGV4dC1hbmNob3I9ImVuZCI+c2VsZWN0ZWQgcm91dGUgcG9pbnQ8L3RleHQ+PHRleHQgeD0iODI1IiB5PSIzMjMiIGNsYXNzPSJ0aXRsZSIgdGV4dC1hbmNob3I9InN0YXJ0Ij5wcmVkaWN0ZWQgZHJvbmU8L3RleHQ+PHRleHQgeD0iNjEwIiB5PSIxMDUiIGNsYXNzPSJub3RlIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPmFsb25nLXJvdXRlIC8gbGFnPC90ZXh0Pjx0ZXh0IHg9IjgzMCIgeT0iMjQ1IiBjbGFzcz0ibm90ZSIgdGV4dC1hbmNob3I9InN0YXJ0Ij5hY3Jvc3Mtcm91dGUgLyBjb250b3VyaW5nPC90ZXh0Pjx0ZXh0IHg9IjU1IiB5PSI0MTAiIGNsYXNzPSJub3RlIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPlNjaGVtYXRpYyBsb2NhbCBnZW9tZXRyeTsgdGhlIGltcGxlbWVudGF0aW9uIHVzZXMgYSAzLUQgY2VudGVybGluZS48L3RleHQ+PC9zdmc+Cg==" alt="Curved centerline with a selected route point, its tangent, a predicted drone point, and the perpendicular contouring and along-tangent lag components of displacement."></p>
+<div class="caption">
+<p>At each predicted position, resolve its displacement from the selected route point into <strong>across-route</strong> and <strong>along-route</strong> parts. The contouring cost discourages leaving the route; lag error also penalizes mismatch with the selected point. Neither is a delay measured in seconds.</p>
+</div>
+</section>
+<section id="define-the-route-and-its-forward-direction" class="slide level2">
+<h2>Define the route and its forward direction</h2>
+<p>The route point at angle <span class="math inline">\phi</span> is</p>
+<p><span class="math display">p_c(\phi)=\begin{bmatrix}9\cos\phi\\6\sin\phi\\3+0.65\sin(2\phi)\end{bmatrix}\mathrm m.</span></p>
+<p>The subscript <span class="math inline">c</span> means centerline. The angle <span class="math inline">\phi</span> runs around the course. Its height varies as well as its horizontal position.</p>
+<p>The unit vector pointing along the route is</p>
+<p><span class="math display">t(\phi)=\frac{p_c&#39;(\phi)}{\|p_c&#39;(\phi)\|}.</span></p>
+<div class="meaning">
+<p><span class="math inline">t(\phi)</span> is the local forward direction along the 3-D centerline. Its vertical component accounts for the route climbing and descending.</p>
+</div>
+</section>
+<section id="choose-a-route-point-near-the-drone" class="slide level2">
+<h2>Choose a route point near the drone</h2>
+<p>For drone position <span class="math inline">p=(p_x,p_y,p_z)</span>, the code chooses</p>
+<p><span class="math display">\phi=\operatorname{atan2}(p_y/6,p_x/9).</span></p>
+<p><code>atan2</code> returns an angle using both horizontal coordinates, accounting for which quadrant contains the drone.</p>
+<p>We then compare <span class="math inline">p</span> with the selected route point <span class="math inline">p_c(\phi)</span>.</p>
+<div class="meaning">
+<p>This is an angle-based selection, not an exact closest-point calculation. Unlike a full MPCC formulation with a separately optimized progress variable, this implementation derives its route coordinate from predicted position.</p>
+</div>
+</section>
+<section id="separate-across-route-and-along-route-error" class="slide level2">
+<h2>Separate across-route and along-route error</h2>
+<p><img role="img" aria-label="A displacement from a selected route point is separated into an along-tangent lag component and a perpendicular contouring component." data-src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjQwIiBoZWlnaHQ9IjQ3MCIgdmlld0JveD0iMCAwIDEyNDAgNDcwIj48ZGVmcz48bWFya2VyIGlkPSJhcnJvdyIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI5IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNyIgbWFya2VySGVpZ2h0PSI3IiBvcmllbnQ9ImF1dG8tc3RhcnQtcmV2ZXJzZSI+PHBhdGggZD0iTTAgMEwxMCA1TDAgMTBaIiBmaWxsPSIjMDAyNzRjIi8+PC9tYXJrZXI+PC9kZWZzPjxzdHlsZT50ZXh0e2ZvbnQtZmFtaWx5OkFyaWFsLHNhbnMtc2VyaWY7ZmlsbDojMDAyNzRjfS5kZXRhaWx7ZmlsbDojNTI2NTdhO2ZvbnQtc2l6ZToyMHB4fS5sYWJlbHtmb250LXNpemU6MjVweDtmb250LXdlaWdodDo2MDB9LmZsb3d7ZmlsbDpub25lO3N0cm9rZTojMDAyNzRjO3N0cm9rZS13aWR0aDoyO21hcmtlci1lbmQ6dXJsKCNhcnJvdyl9PC9zdHlsZT48cGF0aCBkPSJNNzAgMzQ1IFE0MDAgMzMwIDY1MCAzMzUgVDExNzAgMjU1IiBzdHJva2U9IiNiNWMyZDAiIHN0cm9rZS13aWR0aD0iNCIgZmlsbD0ibm9uZSIvPjx0ZXh0IGNsYXNzPSJkZXRhaWwiIHg9IjgwIiB5PSI0MDAiPlJvdXRlIChsb2NhbCBza2V0Y2gpPC90ZXh0PjxwYXRoIGQ9Ik0xNDAgMzM1IEgxMDcwIiBzdHJva2U9IiM2NTcxODMiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWRhc2hhcnJheT0iOCA4Ii8+PHBhdGggY2xhc3M9ImZsb3ciIGQ9Ik0zNDAgMzM1IEg1NTAiLz48dGV4dCBjbGFzcz0ibGFiZWwiIHg9IjM4MCIgeT0iMzgwIj5Gb3J3YXJkIHRhbmdlbnQgdDwvdGV4dD48cGF0aCBjbGFzcz0iZmxvdyIgZD0iTTM0MCAzMzUgTDgwMCAxMDAiLz48dGV4dCBjbGFzcz0ibGFiZWwiIHg9IjQ3NSIgeT0iMTg4Ij5Ub3RhbCBlcnJvciBlPC90ZXh0PjxwYXRoIGQ9Ik0zNDAgMzM1IEg4MDAiIHN0cm9rZT0iI2QzYTMwMCIgc3Ryb2tlLXdpZHRoPSI2Ii8+PHRleHQgY2xhc3M9ImxhYmVsIiB4PSI1ODAiIHk9IjMwNSI+TGFnOiBl4oKXIHQ8L3RleHQ+PHBhdGggZD0iTTgwMCAzMzUgVjEwMCIgc3Ryb2tlPSIjMTQ4NThiIiBzdHJva2Utd2lkdGg9IjYiLz48dGV4dCBjbGFzcz0ibGFiZWwiIHg9Ijg0MCIgeT0iMjE1Ij5Db250b3VyaW5nOiBl6pyAPC90ZXh0PjxwYXRoIGQ9Ik03NzUgMzM1IFYzMTAgSDgwMCIgc3Ryb2tlPSIjNjU3MTgzIiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiLz48Y2lyY2xlIGN4PSIzNDAiIGN5PSIzMzUiIHI9IjgiIGZpbGw9IiMwMDI3NGMiLz48Y2lyY2xlIGN4PSI4MDAiIGN5PSIxMDAiIHI9IjEwIiBmaWxsPSIjMTQ4NThiIi8+PHRleHQgY2xhc3M9ImxhYmVsIiB4PSI4MTAiIHk9IjY1Ij5Ecm9uZSBwPC90ZXh0Pjx0ZXh0IGNsYXNzPSJsYWJlbCIgeD0iODAiIHk9IjI5MCI+UmVmZXJlbmNlIHDqnIA8L3RleHQ+PC9zdmc+" alt="A displacement from a selected route point is separated into an along-tangent lag component and a perpendicular contouring component."></p>
+<div class="caption">
+<p><strong>Lag error</strong> is the along-tangent component. <strong>Contouring error</strong> is the perpendicular component. In 3-D, perpendicular error can include being too high or too low. Lag here is geometric, not lateness relative to a schedule.</p>
+</div>
+</section>
+<section id="compute-those-two-errors" class="slide level2">
+<h2>Compute those two errors</h2>
+<p>First subtract the selected route point from the drone position:</p>
+<p><span class="math display">e=p-p_c(\phi).</span></p>
+<p>Project onto the unit tangent <span class="math inline">t</span> and remove that part:</p>
+<p><span class="math display">e_l=t^\top e,\qquad e_c=e-e_l t.</span></p>
+<p><span class="math inline">e_l</span> is a signed scalar lag error in metres. <span class="math inline">e_c</span> is a three-component contouring-error vector in metres.</p>
+<div class="meaning">
+<p>The dot product <span class="math inline">t^\top e</span> measures how much of <span class="math inline">e</span> points along <span class="math inline">t</span>. The remainder is perpendicular because <span class="math inline">t^\top e_c=t^\top e-e_l=0</span>.</p>
+</div>
+</section>
+<section id="example-an-eastward-route" class="slide level2">
+<h2>Example: an eastward route</h2>
+<p>Let the local tangent be <span class="math inline">t=(1,0,0)</span> and the displacement be <span class="math inline">e=(0.5,0.2,0.1)</span> m.</p>
+<p><span class="math display">e_l=0.5\ \mathrm m,\qquad e_c=(0,0.2,0.1)\ \mathrm m.</span></p>
+<p>The contouring-error magnitude is</p>
+<p><span class="math display">\|e_c\|=\sqrt{0.2^2+0.1^2}=0.224\ \mathrm m\quad\text{approximately}.</span></p>
+<div class="meaning">
+<p>The drone is 0.5 m ahead along the tangent, and 0.224 m away in perpendicular directions. Squared error costs penalize either sign, so being behind or on the opposite side also costs something.</p>
+</div>
+</section>
+<section id="reward-forward-progress" class="slide level2">
+<h2>Reward forward progress</h2>
+<p>Let <span class="math inline">\Delta\phi_j</span> be the change in course angle between consecutive predicted positions. The code assigns progress</p>
+<p><span class="math display">\Delta s_j=7.5\operatorname{atan2}(\sin\Delta\phi_j,\cos\Delta\phi_j).</span></p>
+<p>The wrapped angle avoids a false jump when crossing the <span class="math inline">-\pi/\pi</span> boundary. The scale 7.5 m is the average of the horizontal ellipse radii, 9 m and 6 m.</p>
+<div class="meaning">
+<p>Accumulating these increments gives the course-progress measure <span class="math inline">s</span>. It is not exact 3-D arc length. The objective subtracts <span class="math inline">70\Delta s_j</span>, so forward progress lowers the score.</p>
+</div>
+</section>
+<section id="why-progress-and-route-error-are-both-needed" class="slide level2">
+<h2>Why progress and route error are both needed</h2>
+<p><strong>Only route error:</strong> stopping on the centerline could achieve zero error. Nothing would reward racing.</p>
+<p><strong>Only progress:</strong> the planner could favor cutting turns or departing from the route.</p>
+<p>The code combines them at each predicted step:</p>
+<p><span class="math display">-70\Delta s_j+0.05(40\|e_{c,j}\|^2+10e_{l,j}^2).</span></p>
+<div class="example">
+<p>For the previous error example, one step’s route penalty is <span class="math inline">0.05[40(0.2^2+0.1^2)+10(0.5^2)]=0.225</span>. Doubling either error multiplies its own penalty by four.</p>
+</div>
+</section>
+<section id="discourage-demanding-and-abrupt-commands" class="slide level2">
+<h2>Discourage demanding and abrupt commands</h2>
+<p>Let <span class="math inline">u_h=(g,0,0,0)</span> be the hover command and <span class="math inline">D=\operatorname{diag}(20,7,7,7)</span> the command-scaling matrix.</p>
+<p>For <span class="math inline">N</span> future commands, the effort cost is</p>
+<p><span class="math display">J_{\rm effort}=0.015\sum_{i=0}^{N-1}\|D^{-1}(u_i-u_h)\|^2.</span></p>
+<p><span class="math inline">D^{-1}</span> divides the four command components by their scales. This cost discourages departures from hover; it is not a battery-energy calculation.</p>
+<div class="meaning">
+<p>The separate change cost <span class="math inline">J_{\rm change}=0.04\sum_{i=1}^{N-1}\|u_i-u_{i-1}\|^2</span> discourages abrupt commands. It uses raw command components, so its numerical weight depends on the chosen units.</p>
+</div>
+</section>
+<section id="penalize-violations-and-the-last-route-error" class="slide level2">
+<h2>Penalize violations and the last route error</h2>
+<p>Let <span class="math inline">P_{\rm geometry}</span> be a nonnegative score for leaving the corridor, violating height limits or crossing outside a gate opening. It is zero when the tested nominal geometry has no violation.</p>
+<p><span class="math display">J_{\rm geometry}=10^5P_{\rm geometry},\qquad
+J_{\rm end}=8\|e_{c,N}\|^2.</span></p>
+<p>The second term penalizes contouring error at the final predicted state, so the planner does not finish its prediction far from the route.</p>
+<div class="meaning">
+<p>A large geometry penalty discourages an unsafe predicted center path. It does not prove safety for the real path with model and sensing errors. The separate verification stage addresses that question.</p>
+</div>
+</section>
+<section id="assemble-the-implemented-objective" class="slide level2">
+<h2>Assemble the implemented objective</h2>
+<p>Let <span class="math inline">U=(u_0,\ldots,u_{N-1})</span> be the proposed command sequence, with <span class="math inline">N=40</span> and a two-second prediction horizon.</p>
+<p><span class="math display">\begin{aligned}
+J(U)={}&amp;-70\sum_{j=1}^{N}\Delta s_j
++0.05\sum_{j=1}^{N}(40\|e_{c,j}\|^2+10e_{l,j}^2)\\
+&amp;+J_{\rm effort}+J_{\rm change}+J_{\rm geometry}+J_{\rm end}.
+\end{aligned}</span></p>
+<div class="meaning">
+<p>Lower is better. Commands are indexed <span class="math inline">i=0,\ldots,N-1</span>; the resulting future states are indexed <span class="math inline">j=1,\ldots,N</span>. The weights are tuning choices expressing tradeoffs, not a safety theorem.</p>
+</div>
+<div class="source">
+<p>Implemented in mppi.py: MPPI.cost. Geometry and progress are defined in track.py. The appendix expands the geometry penalty.</p>
+</div>
+</section>
+<section id="search-by-sampling-command-sequences" class="slide level2">
+<h2>Search by sampling command sequences</h2>
+<p>MPPI starts with a previous plan shifted forward, or a centerline-following initialization.</p>
+<ol type="1">
+<li>Generate 768 variations of that command sequence.</li>
+<li>Enforce magnitude and slew limits on each variation.</li>
+<li>Roll out the learned model and score each flight.</li>
+<li>Give lower-cost sequences more weight, then form a new sequence.</li>
+<li>Repeat five times and return the selected racing reference.</li>
+</ol>
+<div class="meaning">
+<p>The code also compares the weighted sequence with the best individual sample and keeps the lower-cost feasible result. Averaging two good but different maneuvers need not produce a good maneuver.</p>
+</div>
+</section>
+<section id="how-the-sample-weights-work" class="slide level2">
+<h2>How the sample weights work</h2>
+<p>Let <span class="math inline">J_m</span> be the cost of sample <span class="math inline">m</span>, and let <span class="math inline">J_{\min}</span> be the smallest sampled cost. With temperature <span class="math inline">\lambda=2</span>,</p>
+<p><span class="math display">w_m=\frac{\exp[-(J_m-J_{\min})/\lambda]}
+{\sum_{\ell=1}^{768}\exp[-(J_\ell-J_{\min})/\lambda]}.</span></p>
+<p>Higher-cost samples receive less weight; a larger temperature spreads weight more evenly. Subtracting <span class="math inline">J_{\min}</span> improves numerical stability without changing the weights.</p>
+<div class="example">
+<p>A sample whose cost is 2 higher receives <span class="math inline">e^{-1}\approx0.368</span> times the unnormalized weight of the best sample. The new proposal is <span class="math inline">\sum_m w_m U^{(m)}</span>, where <span class="math inline">U^{(m)}</span> is sample <span class="math inline">m</span>’s command sequence.</p>
+</div>
+</section>
 <section id="safety" class="slide level2 section-slide" data-background-color="#00274c">
 <h2>Decide whether to use a proposal</h2>
 <p>A fast proposal is useful only if we can account for deviations and still provide a checked continuation.</p>
+</section>
+<section id="candidate-generation-and-verification-the-interface" class="slide level2">
+<h2>Candidate generation and verification: the interface</h2>
+<p><strong>Inputs:</strong> planner reference, measured state, previous command, frozen learned model and error envelope.</p>
+<p><strong>Candidate generation:</strong> simulate the tracker following a racing prefix, then a slower recovery continuation. Try several times for switching to recovery.</p>
+<p><strong>Verification output:</strong> accept a candidate with its recorded error sets, or reject it with a reason and location. Checks cover the error envelope, track/body clearance and the terminal recovery conditions.</p>
+<div class="meaning">
+<p>The experimental verifier uses local approximations. Passing its current checks is an experimental result, not a complete safety certificate.</p>
+</div>
 </section>
 <section id="build-a-candidate-with-a-recovery-portion" class="slide level2">
 <h2>Build a candidate with a recovery portion</h2>
@@ -1692,6 +1731,15 @@ J(U)={}&amp;-70\sum_{j=1}^{N}\Delta s_j
 <p>The drone could be centered and moving slowly but tilted incorrectly, or still responding to a previous large command. It might drift out afterward. A proof must include those dynamics and the evolution of the moving reference.</p>
 </div>
 <p>No such backup-invariance proof is supplied for the current system. Strict mode therefore does not authorize flight.</p>
+</section>
+<section id="commitment-and-tracker-from-reference-to-applied-command" class="slide level2">
+<h2>Commitment and tracker: from reference to applied command</h2>
+<p><strong>Commitment input:</strong> an accepted candidate plus the model and envelope used to check it. <strong>Commitment output:</strong> the time-indexed reference and frozen model used during execution.</p>
+<p><strong>Tracker inputs:</strong> measured state, reference state/command, frozen model and previous applied command. <strong>Tracker output:</strong> collective thrust and body-rate commands, after magnitude and rate-of-change limits.</p>
+<p>The tracker runs every 0.05 s; new proposals are considered every 0.10 s in simulated time. On rejection, execution continues with the previous commitment.</p>
+<div class="meaning">
+<p>These are scheduled simulation periods. Recorded computation is slower than real time; the timing results later in the talk make that limitation explicit.</p>
+</div>
 </section>
 <section id="accepting-and-rejecting-a-new-candidate" class="slide level2">
 <h2>Accepting and rejecting a new candidate</h2>
