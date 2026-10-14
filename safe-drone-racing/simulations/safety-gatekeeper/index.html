@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Safely racing at the limits of handling</title>
-  <link rel="stylesheet" href="styles.css?v=7">
+  <link rel="stylesheet" href="styles.css?v=8">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/controls/OrbitControls.js":"./vendor/OrbitControls.js"}}</script>
 </head>
 <body>
@@ -11,8 +11,12 @@
     <a class="brand" href="./"><span class="brand-icon" aria-hidden="true">⊓</span><span>GATEKEEPER<small>DRONE RACING LAB</small></span></a>
     <a class="slides-link" href="https://kalebbennaveed.github.io/safe-drone-racing/update-slides/">Research slides ↗</a>
     <div class="run-status"><span class="status-dot"></span> RECORDED SIMULATION</div>
-    <label class="run-picker">EXPERIMENT <select id="run" aria-label="Choose recorded experiment"><option>Loading recordings…</option></select></label>
+    <label class="run-picker">SCENARIO <select id="run" aria-label="Choose scenario"><option>Loading recordings…</option></select></label>
   </header>
+  <section class="scenario-panel" aria-labelledby="scenario-title">
+    <div class="scenario-intro"><span class="eyebrow" id="scenario-number">SCENARIO 1</span><h2 id="scenario-title">With Gatekeeper and unknown dynamics</h2><p id="scenario-description">Loading the scenario description…</p></div>
+    <div class="scenario-context"><div class="scenario-tags"><span id="scenario-checks">Gatekeeper on</span><span>Neural controller</span><span id="scenario-dynamics">Extra air resistance and acceleration bias</span></div><p id="scenario-observe"></p><a href="#performance">Compare the three scenarios ↓</a><a href="#model-knowledge">Explore model uncertainty ↓</a></div>
+  </section>
   <main>
     <section class="scene-panel" aria-label="Interactive 3D drone racing replay">
       <canvas id="scene" aria-label="3D course showing the drone, candidates and committed trajectory"></canvas>
@@ -23,38 +27,38 @@
       <div class="uncertainty-badge" id="uncertainty-badge"><strong id="bounds-label">POSITION UNCERTAINTY</strong><span id="bounds-caption">Loading recorded bounds…</span></div>
       <div class="scene-legend">
         <label><input id="show-candidate" type="checkbox" checked><i class="candidate"></i>Candidate</label>
-        <label><input id="show-committed" type="checkbox" checked><i class="committed"></i>Committed</label>
+        <label><input id="show-committed" type="checkbox" checked><i class="committed"></i>Accepted</label>
         <label><input id="show-backup" type="checkbox" checked><i class="backup"></i>Backup</label>
-        <label><input id="show-trail" type="checkbox" checked><i class="trail"></i>Executed</label>
-        <label><input id="show-nominal" type="checkbox"><i class="nominal"></i>Nominal MPPI</label>
+        <label><input id="show-trail" type="checkbox" checked><i class="trail"></i>Flown</label>
+        <label><input id="show-nominal" type="checkbox"><i class="nominal"></i>MPPI plan</label>
       </div>
       <div id="scene-error" hidden></div>
     </section>
     <aside>
-      <div class="aside-top"><span class="eyebrow">DECISION INSPECTOR</span><span id="epoch-label">EPOCH 000</span></div>
+      <div class="aside-top"><span class="eyebrow">DECISION INSPECTOR</span><span id="epoch-label">UPDATE 1</span></div>
       <div class="decision"><span id="decision-label">Loading</span><h2 id="decision-title">Candidate verification</h2><p id="decision-detail"></p></div>
       <section class="rejection-panel" aria-label="Rejected candidate inspector">
-        <label class="candidate-picker">INSPECT CANDIDATE SWITCH DURATION<select id="candidate" aria-label="Choose candidate switching duration"></select></label>
+        <label class="candidate-picker">TIME BEFORE SWITCHING TO BACKUP<select id="candidate" aria-label="Choose time before switching to backup"></select></label>
         <div class="rejection-controls"><label><input type="checkbox" id="show-rejected" checked> Rejected trajectory + failure</label><button id="focus-rejection">Focus rejection</button></div>
         <strong id="rejection-title">Loading rejection…</strong>
         <p id="rejection-detail"></p>
         <p id="rejection-geometry-note" class="rejection-note"></p>
       </section>
       <section class="uncertainty-panel" aria-label="Uncertainty inspector">
-        <div class="uncertainty-heading"><span>UNCERTAINTY</span><small id="uncertainty-mode">EXPERIMENTAL</small></div>
-        <div class="bounds-controls"><label><input type="checkbox" id="show-uncertainty" checked> Position bounds</label><select id="uncertainty-source" aria-label="Position bounds source"><option value="committed">Committed</option><option value="candidate">Candidate</option></select></div>
+        <div class="uncertainty-heading"><span>UNCERTAINTY</span><small id="uncertainty-mode">APPROXIMATE BOUNDS</small></div>
+        <div class="bounds-controls"><label><input type="checkbox" id="show-uncertainty" checked> Position bounds</label><select id="uncertainty-source" aria-label="Position uncertainty for"><option value="committed">Accepted</option><option value="candidate">Candidate</option></select></div>
         <p id="tube-detail">Translucent boxes show the recorded position envelope.</p>
-        <p class="error-unit-caption" id="error-model-caption">Planner model error · m/s²</p><div class="uncertainty-values"><div><small>MODEL BOUND</small><strong id="error-bound-value">—</strong></div><div><small>ERROR · OFFLINE</small><strong id="error-value">—</strong></div><div><small>ENSEMBLE SPREAD</small><strong id="spread-value">—</strong></div></div>
+        <p class="error-unit-caption" id="error-model-caption">Acceleration prediction error · m/s²</p><div class="uncertainty-values"><div><small>MODEL BOUND</small><strong id="error-bound-value">—</strong></div><div><small>MEASURED ERROR</small><strong id="error-value">—</strong></div><div><small>NETWORK SPREAD</small><strong id="spread-value">—</strong></div></div>
         <label class="heatmap-control"><input type="checkbox" id="color-uncertainty" checked> Color flight history by model error bound</label>
         <div class="error-scale"><i></i><span>0</span><span id="error-scale-max">4.5 m/s²</span></div>
-        <div class="error-chart-key"><span class="bound-key">Bound</span><span class="actual-key">Offline error</span><span class="spread-key">Spread ≠ bound</span></div>
-        <canvas id="uncertainty-chart" aria-label="Model error bound, offline error and ensemble spread over time"></canvas>
+        <div class="error-chart-key"><span class="bound-key">Bound</span><span class="actual-key">Measured error</span><span class="spread-key">Network spread</span></div>
+        <canvas id="uncertainty-chart" aria-label="Acceleration-error bound, measured simulator error and network disagreement over time"></canvas>
         <div class="coverage-row"><span id="coverage-detail">Checking coverage…</span><button id="next-bound-miss">Next bound miss →</button></div>
         <p id="bound-miss-detail" class="bound-miss-detail" hidden></p>
-        <p class="uncertainty-note">History colors describe recorded state–control samples, not a global map of empty space. Gray timeline bands have no finite committed tube. Red ticks mark state-bound misses.</p>
+        <p class="uncertainty-note">Flight-history colors show the acceleration-error bound at each recorded state and command. Gray chart bands mark steps without recorded position bounds. Red ticks mark steps that exceeded a recorded state bound. Network spread measures disagreement between the three dynamics networks; it is not an error bound.</p>
       </section>
-      <details class="trajectory-help"><summary>Candidate vs. committed</summary><div class="trajectory-key"><div><span class="line-icon candidate"></span><strong>Candidate</strong><p>Proposed racing segment followed by a return to the centerline at 2 m/s.</p></div><div><span class="line-icon committed"></span><strong>Committed</strong><p>The accepted reference the drone is tracking. It stays active when a new proposal is rejected.</p></div></div></details>
-      <div class="stats"><div><small>PLANNER MODEL</small><strong id="model-value">—</strong></div><div><small>GATES PASSED</small><strong id="gates-value">—</strong></div><div><small>COMMITTED SWITCH</small><strong id="switch-value">—</strong></div><div><small>CANDIDATE MARGIN</small><strong id="margin-value">—</strong></div></div>
+      <details class="trajectory-help"><summary>What the trajectory lines mean</summary><div class="trajectory-key"><div><span class="line-icon candidate"></span><strong>Candidate</strong><p>A proposed trajectory: follow the MPPI racing plan for the selected time, then follow the course centerline at 2 m/s. Gatekeeper checks this proposal before accepting it.</p></div><div><span class="line-icon committed"></span><strong>Accepted</strong><p>The trajectory currently followed by the neural controller. It stays active when a new proposal is rejected.</p></div></div></details>
+      <div class="stats"><div><small>MODEL UPDATES</small><strong id="model-value">—</strong></div><div><small>GATES PASSED</small><strong id="gates-value">—</strong></div><div><small>TIME TO BACKUP</small><strong id="switch-value">—</strong></div><div><small>PREDICTED CLEARANCE</small><strong id="margin-value">—</strong></div></div>
       <div class="chart-heading"><span>SPEED THROUGH THE COURSE</span><span id="peak-value">—</span></div>
       <canvas id="speed-chart" height="95" aria-label="Measured flight speed over time"></canvas>
       <div class="assurance"><span class="assurance-icon">i</span><p id="assurance-text">Loading verification status.</p></div>
@@ -72,38 +76,39 @@
     <div class="model-definitions">
       <p><strong>Base model</strong>Known equations for motion, orientation, thrust response and body-rate response.</p>
       <p><strong>Prediction model</strong>Base model + a neural network's learned acceleration correction. Used to predict future states.</p>
-      <p><strong>Ground-truth simulator</strong>The simulated drone that receives the applied commands. The mismatch run adds hidden drag and acceleration bias.</p>
+      <p><strong>Ground-truth simulator</strong>The simulated drone that receives the applied commands. Scenarios 1 and 3 add drag and acceleration bias that are absent from the base model.</p>
     </div>
     <ol class="method-steps">
-      <li><strong>MPPI generates the nominal trajectory.</strong><p>It tries command sequences, predicts their motion with the prediction model, and scores forward progress, course error and control effort. Its output is a two-second sequence of reference states and thrust/body-rate commands.</p></li>
-      <li><strong>With Gatekeeper: simulate a candidate.</strong><p>Starting at the measured state, simulate the neural tracker following the nominal reference until a chosen switch time. Then simulate the backup controller, which follows the course centerline at 2 m/s. The prediction model produces every future state. The first candidate has <b>zero nominal duration</b>: backup starts immediately.</p></li>
-      <li><strong>Check the candidate, then keep an accepted reference.</strong><p>Propagate model error and measurement error along the candidate, using Jacobians of the prediction model together with the neural feedback policy. Check the resulting position bounds against the course, then check terminal position, velocity and tilt. An accepted candidate becomes the committed reference. If a later candidate fails, the previous commitment continues moving along its backup reference.</p></li>
-      <li><strong>The neural tracker generates applied commands.</strong><p>It receives the measured state, reference state/command and previous command. It outputs thrust and body rates, subject to magnitude and change-rate limits. It tracks the whole committed reference, including the backup portion. The geometric backup generates that reference; it does not replace the executing neural tracker.</p></li>
+      <li><strong>MPPI generates the racing plan.</strong><p>It tries command sequences, predicts their motion with the prediction model, and scores forward progress, course error and control effort. Its output is a two-second sequence of reference states and thrust/body-rate commands.</p></li>
+      <li><strong>With Gatekeeper: simulate a candidate.</strong><p>Starting at the measured state, simulate the neural tracker following the MPPI racing plan until a chosen switch time. Then simulate the backup controller, which follows the course centerline at 2 m/s. The prediction model produces every future state. The first candidate has <b>no racing segment</b>: backup starts immediately.</p></li>
+      <li><strong>Check the candidate, then keep an accepted reference.</strong><p>Propagate model error and measurement error along the candidate, using Jacobians of the prediction model together with the neural feedback policy. Check the resulting position bounds against the course, then check position, velocity and tilt error at the end of the candidate. An accepted candidate becomes the trajectory to follow. If a later candidate fails, the previously accepted trajectory stays active, including its moving backup.</p></li>
+      <li><strong>The neural tracker generates applied commands.</strong><p>It receives the measured state, reference state/command and previous command. It outputs thrust and body rates, subject to magnitude and change-rate limits. It tracks the whole accepted reference, including the backup portion. The geometric backup generates that reference; it does not replace the executing neural tracker.</p></li>
     </ol>
     <p class="method-direct"><strong>Startup:</strong> Base model + the declared bound on unknown drag and acceleration bias → simulate the moving backup immediately → verify → begin tracking. No preliminary data-collection flight is required. Dynamics learning and neural-controller adaptation then use measurements collected during flight.</p>
-    <p class="method-direct"><strong>Without Gatekeeper:</strong> MPPI reference → neural tracker → ground-truth simulator. No candidate, commitment or backup switch is used. These are the two unfiltered runs compared below.</p>
-    <details><summary>Dynamics learning and controller learning</summary><p>The dynamics ensemble averages three networks to predict an acceleration correction from measured state changes and applied commands. The control-policy network learns how to track a reference. When the dynamics model changes, policy training simulates tracking with that model and updates the controller weights by backpropagation through time. No ATS is used. In a Gatekeeper run, a policy update enters execution only with an accepted candidate; in an unfiltered run, it enters after the training validation check.</p></details>
-    <p class="knowledge-note">The current Gatekeeper tube is a Jacobian approximation. Its nonlinear enclosure and the moving backup's invariant set have not been established; completing a flight does not establish those guarantees. The physics prior is an explicit assumption about this simulation family, not a bound learned before data exist. The ground-truth simulator is a 14-state body-rate/actuator model, not a rotor-resolved high-fidelity simulator.</p>
+    <p class="method-direct"><strong>Without Gatekeeper:</strong> MPPI reference → neural tracker → ground-truth simulator. No candidate check, acceptance decision or backup switch is used. These are Scenarios 2 and 3 below.</p>
+    <details><summary>Dynamics learning and controller learning</summary><p>The dynamics ensemble averages three networks to predict an acceleration correction from measured state changes and applied commands. The control-policy network learns how to track a reference. When the dynamics model changes, policy training simulates tracking with that model and updates the controller weights by backpropagation through time. No ATS is used. In a Gatekeeper run, a policy update enters execution only with an accepted candidate; without Gatekeeper, it enters after the training validation check.</p></details>
+    <p class="knowledge-note">Gatekeeper uses a local linear approximation (the Jacobian) to propagate uncertainty. A mathematical guarantee that these bounds contain every nonlinear motion, or that the moving backup remains safe indefinitely, has not been established. The force limit available at startup is an assumption about the possible drag and bias. It is not learned before measurements are collected. The ground-truth simulator is a 14-state body-rate/actuator model, not a rotor-resolved high-fidelity simulator.</p>
   </section>
   <section class="performance-panel" id="performance" aria-label="Neural controller with and without Gatekeeper">
-    <div class="knowledge-title"><div><span class="eyebrow">NEURAL CONTROLLER · 30-SECOND RUNS</span><h2>With and without Gatekeeper</h2><p>The same initial neural policy and MPPI settings. Compare matching dynamics, hidden drag/bias, and Gatekeeper's moving backup.</p></div></div>
+    <div class="knowledge-title"><div><span class="eyebrow">NEURAL CONTROLLER · 30-SECOND RUNS</span><h2>With and without Gatekeeper</h2><p>Three 30-second scenarios with the same starting state, pretrained neural controller and planner settings.</p></div></div>
     <div id="performance-cards" class="performance-cards"><p>Loading measured results…</p></div>
     <canvas id="comparison-chart" aria-label="Flight speed comparison over time"></canvas>
     <p class="knowledge-note" id="performance-protocol"></p>
   </section>
   <section id="model-knowledge" class="knowledge-panel" aria-label="Dynamics knowledge in state space">
-    <div class="knowledge-title"><div><span class="eyebrow">LEARNED DYNAMICS</span><h2>Where is the model accurate enough?</h2><p>Compare model-error allowances as learning continues, at the same states and commands.</p></div>
-    <div class="knowledge-selects"><label>DATA SOURCE<select id="knowledge-source"><option value="replay">Selected recording</option><option value="live">Live local run</option></select></label><label>ERROR BOUND<select id="knowledge-bound"><option value="data">From measurements + distance</option><option value="combined">Used by checks · includes physics prior</option></select></label></div></div>
-    <p class="knowledge-status" id="knowledge-status"></p>
-    <div class="knowledge-maps"><figure id="knowledge-baseline-panel"><figcaption id="knowledge-baseline-title">At start</figcaption><canvas id="knowledge-baseline" aria-label="Initial error bound in velocity space"></canvas></figure><figure><figcaption id="knowledge-current-title">Current model</figcaption><canvas id="knowledge-map" aria-label="Current error bound in velocity space"></canvas></figure></div>
-    <div class="knowledge-legend"><span>Smaller allowance</span><i></i><span>Larger allowance</span><strong>0 → <span id="knowledge-scale-max">4.5+ m/s²</span></strong><span>White dots: nearby measurements</span></div>
+    <div class="knowledge-title"><div><span class="eyebrow">LEARNED DYNAMICS</span><h2>How does model uncertainty change during flight?</h2><p>Choose which state or command inputs to vary. Color shows the bound on acceleration prediction error at those inputs, in m/s².</p></div>
+    <div class="knowledge-selects"><label>INPUTS TO VARY<select id="knowledge-view" disabled aria-label="Choose state or command inputs"><option value="position_xy">Position · x and y</option></select></label><label>DATA SOURCE<select id="knowledge-source" aria-label="Choose map data source"><option value="replay">Selected recording</option><option value="live">Live local run</option></select></label><label>ERROR BOUND<select id="knowledge-bound" aria-label="Choose error bound source"><option value="data">Measurements only</option><option value="combined">Measurements + assumed force limits</option></select></label></div></div>
+    <div class="knowledge-playback"><label for="knowledge-time">Flight time <strong id="knowledge-time-label">0.0 s</strong></label><input id="knowledge-time" disabled type="range" min="0" max="30" step=".05" value="0" aria-label="Model uncertainty flight time"></div>
+    <p class="knowledge-status" id="knowledge-status" aria-live="polite"></p><p class="knowledge-note" id="knowledge-view-note"></p>
+    <div class="knowledge-maps"><figure id="knowledge-baseline-panel"><figcaption id="knowledge-baseline-title">At start</figcaption><canvas id="knowledge-baseline" aria-label="Initial acceleration-error bound for the selected inputs"></canvas></figure><figure><figcaption id="knowledge-current-title">Current model</figcaption><canvas id="knowledge-map" aria-label="Current acceleration-error bound for the selected inputs"></canvas></figure></div>
+    <div class="knowledge-legend"><span>Smaller error bound</span><i></i><span>Larger error bound</span><strong>0 → <span id="knowledge-scale-max">4.5+ m/s²</span></strong><span>White dots: nearby measurements</span></div>
     <div class="knowledge-readout"><span id="knowledge-count"></span><span id="knowledge-hover">Move over a map to inspect a state.</span></div>
     <p id="knowledge-policy"></p>
-    <p class="knowledge-note">This is a two-dimensional slice of state–control space. Only horizontal velocity varies; the other quantities stay fixed. A smaller value means a tighter model-error allowance under the stated noise and smoothness assumptions. It does not certify a trajectory. Bounds can increase when the model changes.</p>
-    <details><summary>Fixed state and command values</summary><p id="knowledge-anchor"></p></details>
+    <p class="knowledge-note">Each map changes only the two selected inputs. All remaining inputs use the same starting values in both maps. The colors are <strong>acceleration-error bounds</strong>, not position or velocity error. Gray means no finite bound is available from the selected source; it does not mean zero uncertainty. The measurements-only bound grows with distance from the collected data under an assumed smoothness limit. The other option also uses an assumed limit on unknown forces. Both depend on those assumptions. A smaller bound does not by itself establish safe flight.</p>
+    <details><summary>Fixed state and command values</summary><p id="knowledge-anchor-note"></p><dl id="knowledge-anchor"></dl></details>
   </section>
   <footer><span>JAX MPPI <b>·</b> ONLINE RESIDUAL LEARNING <b>·</b> GATEKEEPER</span><span id="recording-note">Actual simulation recordings. No scripted flight animation.</span></footer>
-  <script type="module" src="app.js?v=8"></script>
-  <script type="module" src="performance.js?v=2"></script>
+  <script type="module" src="app.js?v=9"></script>
+  <script type="module" src="performance.js?v=3"></script>
 </body>
 </html>

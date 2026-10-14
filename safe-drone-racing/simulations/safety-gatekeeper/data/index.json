@@ -1,17 +1,17 @@
 [
   {
     "file": "experimental-7-neural.json",
-    "label": "Neural \u00b7 Gatekeeper \u00b7 moving backup",
+    "label": "Scenario 1 \u00b7 With Gatekeeper, unknown dynamics",
     "mode": "experimental"
   },
   {
     "file": "unfiltered-base-7-neural.json",
-    "label": "Neural \u00b7 no Gatekeeper \u00b7 base dynamics",
+    "label": "Scenario 2 \u00b7 Without Gatekeeper, matching dynamics",
     "mode": "unfiltered"
   },
   {
     "file": "unfiltered-mismatch-7-neural.json",
-    "label": "Neural \u00b7 no Gatekeeper \u00b7 hidden drag + bias",
+    "label": "Scenario 3 \u00b7 Without Gatekeeper, unknown dynamics",
     "mode": "unfiltered"
   }
 ]

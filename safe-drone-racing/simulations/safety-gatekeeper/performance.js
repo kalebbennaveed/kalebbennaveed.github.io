@@ -1,3 +1,4 @@
+import { scenarioFor } from './scenarios.js?v=1';
 const $=id=>document.getElementById(id),fmt=(x,unit='',digits=2)=>x==null?'Not completed':`${x.toFixed(digits)}${unit}`;
 let comparison;
 function chart(){
@@ -14,17 +15,17 @@ function chart(){
   for(const run of comparison.runs){ctx.beginPath();run.speed.forEach(([time,speed],i)=>{const x=l+time/end*pw,y=t+ph-speed/max*ph;if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);});ctx.strokeStyle=run.gatekeeper_enabled?'#b9a2f1':run.plant_mode==='base'?'#71d9d1':'#f09b78';ctx.lineWidth=1.6;ctx.stroke();}
 }
 try{
-  const response=await fetch('./data/comparison.json?v=2',{cache:'no-cache'});if(!response.ok)throw Error('Comparison unavailable');
+  const response=await fetch('./data/comparison.json?v=3',{cache:'no-cache'});if(!response.ok)throw Error('Comparison unavailable');
   comparison=await response.json();
   $('performance-cards').replaceChildren(...comparison.runs.map(run=>{
     const card=document.createElement('article');card.className=`performance-card ${run.gatekeeper_enabled?'gatekeeper':run.plant_mode}`;
-    const title=document.createElement('h3');title.textContent=run.gatekeeper_enabled?'Gatekeeper · hidden drag/bias':run.plant_mode==='base'?'No Gatekeeper · base dynamics':'No Gatekeeper · hidden drag/bias';card.append(title);
+    const title=document.createElement('h3');const scenario=scenarioFor(run);title.textContent=`Scenario ${scenario.number}`;card.append(title);const caption=document.createElement('p');caption.className='scenario-caption';caption.textContent=scenario.title;card.append(caption);
     const list=document.createElement('dl');
-    for(const [label,value] of [['Gates passed',`${run.metrics.gates_passed} · ${run.metrics.completed_laps} ${run.metrics.completed_laps===1?'lap':'laps'}`],['First lap',fmt(run.metrics.first_lap_seconds,' s')],['Mean speed',fmt(run.metrics.mean_speed,' m/s')],['Missed gates / collisions',`${run.metrics.missed_gates} / ${run.metrics.crashed?1:0}`],['Course contour error · RMS',fmt(run.metrics.contour_rmse_m,' m',3)],['Minimum clearance',fmt(run.metrics.min_clearance,' m',3)],['Run outcome',`${run.status.replaceAll('_',' ')} · ${fmt(run.metrics.duration,' s',1)}`]]){
+    for(const [label,value] of [['Gates passed',`${run.metrics.gates_passed} · ${run.metrics.completed_laps} ${run.metrics.completed_laps===1?'lap':'laps'}`],['First lap',fmt(run.metrics.first_lap_seconds,' s')],['Mean speed',fmt(run.metrics.mean_speed,' m/s')],['Missed gates / collisions',`${run.metrics.missed_gates} / ${run.metrics.crashed?1:0}`],['Distance from course centerline · RMS',fmt(run.metrics.contour_rmse_m,' m',3)],['Minimum clearance',fmt(run.metrics.min_clearance,' m',3)],['Run outcome',`${run.status==='duration_reached'?'Completed recording':run.metrics.crashed?'Collision recorded':'Recording ended'} · ${fmt(run.metrics.duration,' s',1)}`]]){
       const term=document.createElement('dt'),detail=document.createElement('dd');term.textContent=label;detail.textContent=value;list.append(term,detail);
     }
-    card.append(list);const note=document.createElement('p');note.textContent=`Applied neural policy versions: ${run.policy_versions.join(', ')}. ${run.model_versions.length} prediction-model versions available.`;card.append(note);
-    if(run.gatekeeper_enabled){const coverage=document.createElement('p');coverage.textContent=`Finite tube coverage: ${(run.metrics.tube_covered_steps*run.dt).toFixed(1)} s. Backup continuation beyond that check: ${(run.metrics.continuation_steps*run.dt).toFixed(1)} s. These approximate checks are not a safety proof.`;card.append(coverage);}
+    card.append(list);const note=document.createElement('p');note.textContent=`${run.policy_versions.length===1?'The initially trained neural controller remained active.':`${run.policy_versions.length-1} controller updates were applied during flight.`} ${run.model_versions.length-1} dynamics-model updates were learned.`;card.append(note);
+    if(run.gatekeeper_enabled){const coverage=document.createElement('p');coverage.textContent=`Recorded state bounds cover ${(run.metrics.tube_covered_steps*run.dt).toFixed(1)} s. The backup continues beyond the checked horizons for ${(run.metrics.continuation_steps*run.dt).toFixed(1)} s. These checks use a local linear approximation and do not prove safety.`;card.append(coverage);}
     return card;
   }));
   $('performance-protocol').textContent=comparison.protocol;
