@@ -166,3 +166,14 @@
 .reveal .notation-slide{font-size:29px;}
 .reveal .notation-slide .definition-grid{font-size:25px;line-height:1.35;}
 .reveal .notation-slide .key-line{font-size:27px;}
+
+#brand-logo{width:clamp(64px,12vw,190px);}
+#deck-footer{font-size:clamp(9px,.95vw,15px);padding-left:18px;}
+.snapshot .reveal .result-gif,.snapshot .reveal .mbd-overview,.snapshot .reveal .controls,.snapshot .reveal .walk-controls,.snapshot .reveal .mbd-controls,.snapshot .reveal .mbd-iteration-choice{display:none!important;}
+.snapshot .reveal .print-poster{display:block!important;width:1500px;max-width:100%;max-height:625px;object-fit:contain;margin:0;}
+.reveal .example-line{font-size:28px;line-height:1.4;margin:24px 0;}
+.reveal #learning-cost-in-mbd table{margin:16px 0;font-size:25px;}
+.reveal #learning-cost-in-mbd table th{font-size:25px;padding:12px 16px;}
+.reveal #learning-cost-in-mbd table td{padding:12px 16px;}
+.reveal #learning-cost-in-mbd .key-line{font-size:27px;margin-top:18px;}
+.reveal #signed-learning-value table{margin:20px 0;}

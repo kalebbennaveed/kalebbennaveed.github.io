@@ -280,7 +280,7 @@ Paper notation: Eq. (4) writes the disturbance-dependent dynamics as <span class
 <b>5</b><span><strong>MBD comparison</strong><br>The retained score estimator and the changed rollout objective.</span>
 </div>
 <div>
-<b>6</b><span><strong>Results</strong><br>Original and reversed A/B environments; one additional environment.</span>
+<b>6</b><span><strong>Results</strong><br>Original and reversed A/B environments.</span>
 </div>
 </div>
 </section>
@@ -1191,7 +1191,7 @@ The constraint value is part of the execution model. The objective is monitoring
 <h2>Wind-aware evaluation: average costs across possible fields</h2>
 <p>One possible physical field gives one predicted trajectory and one monitoring cost. Use <span class="latex-inline" data-latex="S"></span> coherent fields <span class="latex-inline" data-latex="d^{[1]},\ldots,d^{[S]}"></span> drawn from the current belief.</p>
 <p><span class="latex-display" data-latex="J_s(\theta)=\int_0^T q_d(q^{[s]}(\tau))\,d\tau,
-\qquad \widehat J_{\mathrm{WA}}(\theta)=\frac1S\sum_{s=1}^{S}J_s(\theta)."></span></p>
+\qquad \widehat J^{\mathrm{fixed}}(\theta)=\frac1S\sum_{s=1}^{S}J_s(\theta)."></span></p>
 <div class="definition-grid">
 <div>
 <span class="latex-inline" data-latex="s"></span> indexes a possible physical field.<br><span class="latex-inline" data-latex="q^{[s]}"></span> is the clarity predicted in that field.<br>Every evaluation starts from the same <span class="latex-inline" data-latex="x_t,q_t"></span>.
@@ -1268,8 +1268,187 @@ The observation is generated from the possible field used for this trajectory. T
 Keep the same policy parameters <span class="latex-inline" data-latex="\theta"></span>. The policy responds to new information; there is no nested MBD solve at each predicted update.
 </div>
 <div class="small-note">
-The anticipated-learning cost averages these complete monitoring costs over physical fields and observation noise. A detour to learn is preferred only if its later benefit outweighs its monitoring cost.
+The anticipated-learning cost includes the initial motion, sensing and later continuation. The following slides express its benefit through matched predictions.
 </div>
+</section>
+<section id="paired-predictions" class="slide level2" data-section="4 · Method — anticipated learning">
+<h2>Two matched predictions define the value of learning</h2>
+<p>Fix one policy parameter vector <span class="latex-inline" data-latex="\theta"></span>. Each draw <span class="latex-inline" data-latex="s"></span> contains a physical field and an observation-noise stream. Both predictions use that field and the same initial state and clarity.</p>
+<p><span class="latex-display" data-latex="J_s^{\mathrm{fixed}}=\int_0^T q_d(q_s^{\mathrm{fixed}}(\tau))\,d\tau,
+\qquad J_s^{\mathrm{learn}}=\int_0^T q_d(q_s^{\mathrm{learn}}(\tau))\,d\tau."></span></p>
+<div class="definition-grid">
+<div>
+<b>Fixed belief:</b> retain <span class="latex-inline" data-latex="\mathcal B_t^d"></span> throughout the prediction.
+</div>
+<div>
+<b>Anticipated learning:</b> assimilate observations when available and continue from the reached state and clarity.
+</div>
+</div>
+<p><span class="latex-display" data-latex="\Delta_s=J_s^{\mathrm{fixed}}-J_s^{\mathrm{learn}}."></span></p>
+<div class="two-points">
+<div>
+<span class="latex-inline" data-latex="\Delta_s>0"></span>: learning reduces monitoring cost.
+</div>
+<div>
+<span class="latex-inline" data-latex="\Delta_s<0"></span>: learning increases monitoring cost.
+</div>
+</div>
+<div class="key-line">
+Both costs cover the same full horizon, including the motion used to obtain information.
+</div>
+<aside class="notes">
+<p>S counts the sampled field and observation-noise pairs. s indexes one pair. Each field stays fixed within both predictions. Match the noise stream and schedule, while generating each measurement at its own prediction’s reached position. Controls respond to each branch’s own state and available belief. The paths may diverge after the first learning update. Neither branch restarts after an observation. This comparison holds theta fixed and differs from comparing two independently optimized methods. The following slides suppress theta arguments for readability.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="probability-and-magnitude" class="slide level2" data-section="4 · Method — anticipated learning">
+<h2>How often and how much does learning help?</h2>
+<p>Among the <span class="latex-inline" data-latex="S"></span> matched predictions, let <span class="latex-inline" data-latex="n_+"></span> count those with <span class="latex-inline" data-latex="\Delta_s>0"></span>.</p>
+<p><span class="latex-display" data-latex="\widehat p=\frac{n_+}{S},\qquad
+\widehat g=\frac{1}{n_+}\sum_{s:\,\Delta_s>0}\Delta_s."></span></p>
+<div class="definition-grid">
+<div>
+<span class="latex-inline" data-latex="\widehat p"></span>: estimated probability that learning helps.
+</div>
+<div>
+<span class="latex-inline" data-latex="\widehat g"></span>: mean cost reduction among the predictions where learning helps. Set it to zero if <span class="latex-inline" data-latex="n_+=0"></span>.
+</div>
+</div>
+<p><span class="latex-display" data-latex="\widehat V^+=\widehat p\,\widehat g
+=\frac1S\sum_{s=1}^{S}\max(\Delta_s,0)."></span></p>
+<div class="key-line">
+Probability times conditional improvement gives the expected positive benefit.
+</div>
+<div class="small-note">
+These quantities describe one policy. They do not yet account for outcomes where its learning-dependent execution performs worse.
+</div>
+<aside class="notes">
+<p>All quantities refer to the fixed policy theta from the preceding slide. The formula for g applies for n_+&gt;0. The zero convention avoids division by zero. V+ has the same units as monitoring cost. The scalar probability p here differs from the MBD density p_0. Separately optimized mission costs cannot estimate this same-policy probability or conditional gain.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="signed-learning-value" class="slide level2" data-section="4 · Method — anticipated learning">
+<h2>Signed learning value includes deterioration</h2>
+<p>The expected deterioration is</p>
+<p><span class="latex-display" data-latex="\widehat D=\frac1S\sum_{s=1}^{S}\max(-\Delta_s,0)."></span></p>
+<p>Subtract it from the positive benefit:</p>
+<p><span class="latex-display" data-latex="\boxed{\widehat V^{\mathrm{net}}=\widehat p\,\widehat g-\widehat D
+=\frac1S\sum_{s=1}^{S}\Delta_s}."></span></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Illustrative cost differences <span class="latex-inline" data-latex="\Delta_s"></span></th>
+<th style="text-align: right;"><span class="latex-inline" data-latex="+2"></span></th>
+<th style="text-align: right;"><span class="latex-inline" data-latex="+1"></span></th>
+<th style="text-align: right;"><span class="latex-inline" data-latex="-1"></span></th>
+<th style="text-align: right;"><span class="latex-inline" data-latex="0"></span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Interpretation</td>
+<td style="text-align: right;">Helps</td>
+<td style="text-align: right;">Helps</td>
+<td style="text-align: right;">Harms</td>
+<td style="text-align: right;">No change</td>
+</tr>
+</tbody>
+</table>
+<div class="example-line">
+Here <span class="latex-inline" data-latex="\widehat p=0.5"></span>, <span class="latex-inline" data-latex="\widehat g=1.5"></span>, <span class="latex-inline" data-latex="\widehat D=0.25"></span>, so <span class="latex-inline" data-latex="\widehat V^{\mathrm{net}}=0.50"></span>.
+</div>
+<div class="key-line">
+A policy receives credit for beneficial outcomes and a penalty for deterioration.
+</div>
+<aside class="notes">
+<p>These four numbers are an arithmetic illustration, not A/B results. Vnet measures a signed difference in monitoring cost and differs from the constraint-policy value V_a in the execution controller. Ignoring deterioration gives 0.75 rather than 0.50. Zero differences are neither helpful nor harmful. Every matched prediction remains in the estimate.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="learning-cost-in-mbd" class="slide level2" data-section="4 · Method — anticipated learning">
+<h2>Complete task cost with anticipated learning</h2>
+<p>Average the two matched full-horizon costs:</p>
+<p><span class="latex-display" data-latex="\widehat J^{\mathrm{fixed}}=\frac1S\sum_s J_s^{\mathrm{fixed}},
+\qquad \widehat J^{\mathrm{learn}}=\frac1S\sum_s J_s^{\mathrm{learn}}."></span></p>
+<p><span class="latex-display" data-latex="\boxed{\widehat J^{\mathrm{fixed}}-\widehat V^{\mathrm{net}}
+=\widehat J^{\mathrm{learn}}}."></span></p>
+<p><strong>MBD minimizes <span class="latex-inline" data-latex="\widehat J^{\mathrm{learn}}"></span>.</strong> This includes the information-gathering motion and its later payoff.</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 26%">
+<col style="width: 26%">
+<col style="width: 26%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Illustrative policy</th>
+<th style="text-align: right;"><span class="latex-inline" data-latex="\widehat J^{\mathrm{fixed}}"></span></th>
+<th style="text-align: right;"><span class="latex-inline" data-latex="\widehat V^{\mathrm{net}}"></span></th>
+<th style="text-align: right;"><span class="latex-inline" data-latex="\widehat J^{\mathrm{learn}}"></span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Direct route</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;"><strong>9</strong></td>
+</tr>
+<tr class="even">
+<td>Detour to learn</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">10</td>
+</tr>
+</tbody>
+</table>
+<div class="key-line">
+Choose the direct route here. The detour has a larger learning value but a higher complete task cost.
+</div>
+<div class="small-note">
+Do not subtract learning value again from <span class="latex-inline" data-latex="\widehat J^{\mathrm{learn}}"></span>. That would count the benefit twice.
+</div>
+<aside class="notes">
+<p>The table is illustrative. For matching sample sets, Jfixed - Vnet equals Jlearn exactly. This decomposes the chronological learning objective without introducing a second reward or tuning coefficient. MBD can evaluate Jlearn directly and compute Jfixed when attribution is needed. A detour wins only when its complete predicted monitoring cost is lower. The horizon must cover enough later execution to capture that payoff.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </section>
 <section id="mbd-now-optimizes-the-complete-monitoring-prediction" class="slide level2" data-section="4 · Method — optimization">
 <h2>MBD now optimizes the complete monitoring prediction</h2>
@@ -1280,10 +1459,10 @@ The anticipated-learning cost averages these complete monitoring costs over phys
 <p><span class="latex-display" data-latex="\bar\theta=\sum_k w_k\theta^{[k]}."></span></p>
 <div class="two-points">
 <div>
-<b>Wind-aware:</b> <span class="latex-inline" data-latex="\widehat J=\widehat J_{\mathrm{WA}}"></span> uses the fixed-belief execution prediction.
+<b>Wind-aware:</b> <span class="latex-inline" data-latex="\widehat J=\widehat J^{\mathrm{fixed}}"></span> uses the fixed-belief execution prediction.
 </div>
 <div>
-<b>Anticipated learning:</b> <span class="latex-inline" data-latex="\widehat J=\widehat J_{\mathrm{AL}}"></span> updates the belief during the prediction.
+<b>Anticipated learning:</b> <span class="latex-inline" data-latex="\widehat J=\widehat J^{\mathrm{learn}}"></span> includes chronological belief updates.
 </div>
 </div>
 <div class="key-line">
@@ -1354,7 +1533,7 @@ Weights act on nominal parameters. Executed trajectories supply the costs; they 
 <span class="latex-display" data-latex="u_{\mathrm{nom}}=\pi_\theta(x,\mathcal B^{d,+},\tau)\quad\text{with the same }\theta"></span>
 </div>
 <div class="walk-equation" hidden="">
-<span class="latex-display" data-latex="J_s(\theta)=\int_0^T q_d(q^{[s]}(\tau))\,d\tau"></span>
+<span class="latex-display" data-latex="J_s^{\mathrm{learn}}=\int_0^T q_d(q_s^{\mathrm{learn}}(\tau))\,d\tau,\qquad \Delta_s=J_s^{\mathrm{fixed}}-J_s^{\mathrm{learn}}"></span>
 </div>
 <div class="walk-controls" role="group" aria-label="Walkthrough playback">
 <button type="button" data-action="reset">
@@ -1491,7 +1670,7 @@ Schematic algorithm walkthrough. The weighted mean updates MBD parameters; the s
 <b>Evaluate each vector:</b> predict applied inputs, motion and clarity in possible wind fields. For anticipated learning, update the predicted belief when observations become available.
 </li>
 <li>
-<b>Refine:</b> average monitoring costs, compute parameter weights and apply the MBD score update. Repeat only while diffusion levels remain.
+<b>Refine:</b> average complete learning-updated monitoring costs, compute parameter weights and apply the MBD score update. Repeat only while diffusion levels remain.
 </li>
 <li>
 <b>Execute:</b> after the final level, select and check the lowest-cost evaluated vector; apply its policy for the next execution interval.
@@ -1560,7 +1739,7 @@ For <span class="latex-inline" data-latex="i=N,\ldots,1"></span>, sample policy 
 <b>Predict the applied inputs, motion and clarity under wind. Proposed also updates the belief.</b>
 </li>
 <li>
-Average cumulative clarity deficits across the fixed physical-field draws.
+Average complete learning-updated costs: <span class="latex-inline" data-latex="\widehat J^{\mathrm{learn}}=\widehat J^{\mathrm{fixed}}-\widehat V^{\mathrm{net}}"></span>.
 </li>
 <li>
 Weight valid, in-domain <b>nominal parameters</b> by <span class="latex-inline" data-latex="\exp(-\widehat J/\lambda)"></span>.
@@ -1733,7 +1912,7 @@ All three use the wind-informed controller during real execution. The archived w
 <b>120 s</b> missions · <b>10 s</b> planning horizon · <b>2 s</b> replanning
 </div>
 <div class="small-note">
-Matched initial state, clarity, task, survey and physical wind within each environment. Archived development runs; these predate the revised bounded MBD target.
+Matched initial state, clarity, task, survey and physical wind within each environment. Archived development runs; these predate the revised bounded MBD target. The signed-value equations decompose the chronological objective; no new mission is implied.
 </div>
 <aside class="notes">
 <p>The original and reversed fields are exact negatives at every archived grid cell. All compared methods within each environment share geometry, targets, initial x and q, and initial survey measurements. Reversal changes the measured wind values but preserves survey locations. Run identifier 8101 is recorded in the provenance manifest. One development replicate per displayed environment does not establish population performance. The displayed evidence predates subsequent optimizer refinements. The images’ internal labels say original and reversed wind; no new environment simulation was run for this slide revision.</p>
@@ -1919,31 +2098,6 @@ Descriptive comparisons from archived development runs. The wind-blind contrast 
           display:block!important;
       }</style></aside>
 </section>
-<section id="additional-environment-an-open-passage" class="slide level2 replay" data-section="Results">
-<h2>Additional environment: an open passage</h2>
-<div class="animation">
-<img class="result-gif" data-src="assets/open.gif" data-original-src="assets/open.gif" alt="Open-passage proposed and wind-aware monitoring and wind uncertainty, with fixed shared color scales"><img class="print-poster" src="assets/open_poster.png" alt="Open-passage monitoring and wind uncertainty at 60 seconds">
-</div>
-<div class="result-line">
-Proposed cost: <b>2.046</b> · Wind-aware: <b>1.996</b> · Proposed is <b>2.5% higher</b>.
-</div>
-<div class="caption">
-Two available archived methods. Learning anticipation does not improve every environment.
-</div>
-<aside class="notes">
-<p>This additional example deliberately shows a case where anticipation is worse. Only two archived methods are available for the matched comparison, so a third trajectory is not invented. Both use the wider passage geometry and fixed color scales consistent with the main results. A separate eight-replicate study did not establish equivalence; the mean proposed regret was +2.736% with 90% interval [-3.549,+9.022]. That study is not represented as a GIF population result here.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
 <section id="what-the-current-evidence-establishes" class="slide level2" data-section="Conclusion">
 <h2>What the current evidence establishes</h2>
 <div class="columns text-columns">
@@ -1959,7 +2113,7 @@ Wind-aware planning improves recorded monitoring over the historical wind-blind 
 Anticipated learning adds a smaller improvement in both primary environments.
 </li>
 <li>
-The additional open-passage environment shows that this extension can cost more.
+These two archived missions do not establish a general learning advantage.
 </li>
 </ul>
 </div><div class="column">
@@ -1982,7 +2136,7 @@ Reliability across larger search budgets and richer policy parameterizations.
 Method correctness, optimizer quality and experimental performance are separate questions.
 </div>
 <aside class="notes">
-<p>The deck does not claim global optimality, universal safety, real-time feasibility or an experimentally isolated value of information. The selected archived evidence remains limited. The first contribution is nevertheless clearly stated and tested descriptively: expected nominal informativeness can differ from executed monitoring performance under wind.</p>
+<p>The deck does not claim global optimality, universal safety, real-time feasibility or an experimentally isolated value of information. The selected archived evidence remains limited. Between-method differences are not the same-policy signed learning value defined in the method. The first contribution is nevertheless clearly stated and tested descriptively: expected nominal informativeness can differ from executed monitoring performance under wind.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -2464,6 +2618,7 @@ This is a separate implementation mode. The result animations show the realizati
     <img id="brand-logo" src="assets/robotics.png" alt="Michigan Robotics">
     <div id="deck-footer"><div><span class="section" id="current-section">Introduction</span>Disturbance-aware informative planning</div><div>Kaleb Ben Naveed</div></div>
     <script>
+    if(location.search.includes("snapshot"))document.documentElement.classList.add("snapshot");
     (function(){
      window.mathErrors=[];
      document.querySelectorAll('[data-latex]').forEach(el=>{try{katex.render(el.dataset.latex,el,{displayMode:el.classList.contains('latex-display'),throwOnError:true,strict:'warn',trust:false});}catch(e){window.mathErrors.push(String(e));el.textContent=el.dataset.latex;}});
@@ -2623,7 +2778,7 @@ This is a separate implementation mode. The result animations show the realizati
        const range=root.querySelector('input[type="range"]'),out=root.querySelector('output');
        const play=root.querySelector('[data-action="play"]');
        const select=root.querySelector('select');
-       const api={index:detail&&location.search.includes('print-pdf')?9:0,iteration:detail?Number(select.value):0,playing:false,timer:null};
+       const api={index:detail&&(location.search.includes('print-pdf')||location.search.includes('snapshot'))?9:0,iteration:detail?Number(select.value):0,playing:false,timer:null};
        const max=Number(range.max);
        function pause(){clearTimeout(api.timer);api.timer=null;api.playing=false;play.textContent='Play';play.setAttribute('aria-pressed','false');}
        function render(){
@@ -2803,12 +2958,12 @@ This is a separate implementation mode. The result animations show the realizati
        c.text(x+18,354,step===5?'Keep the same θ and field d.':'No nested MBD optimization.',18,navy,'start',700);
        if(step===5)c.line(274,190,542,190,purple,2,true);
       }else{
-       c.rect(x,55,w,318);c.text(x+18,92,'Whole-trajectory cost',23,navy,'start',700);
+       c.rect(x,55,w,318);c.text(x+18,92,'Full cost with learning',23,navy,'start',700);
        c.line(x+35,285,x+w-20,285,navy,2,true);c.line(x+35,285,x+35,130,navy,2,true);
        c.path(`M${x+35},168 Q${x+90},203 ${x+120},195 T${x+230},242 L${x+230},285 L${x+35},285 Z`,'none',0,false,'#d4e7f7');
        c.path(`M${x+35},168 Q${x+90},203 ${x+120},195 T${x+230},242`,blue,3);
        c.a.push(`<text x="${x+15}" y="121" font-family="Arial" font-size="18" fill="${navy}">q<tspan baseline-shift="sub" font-size="13">d</tspan></text>`);c.text(x+w-20,309,'T',18);c.text(x+35,309,'0',18);
-       c.text(x+18,346,'Area = cumulative deficit.',20,blue);
+       c.text(x+18,346,'Area = full monitoring cost.',20,blue);
       }
       return c.result();
      }
@@ -2873,11 +3028,11 @@ This is a separate implementation mode. The result animations show the realizati
        'At a scheduled sensing time, generate a noisy wind observation at the predicted reached position, using the same physical field as this trajectory.',
        'Assimilate that predicted observation with POAM. Carry forward the reached state and clarity; do not restart the robot trajectory.',
        'Keep θ fixed. The updated belief changes the nominal request and execution controller. The frozen-belief continuation is shown only for comparison.',
-       'Repeat motion propagation and scheduled belief updates to the horizon. Integrate clarity deficit over the entire trajectory, including the interval before learning.'
+       'Integrate the full learning-updated monitoring cost, including motion before learning. Its matched fixed-belief cost gives the signed learning-value diagnostic. MBD uses the learning-updated cost directly.'
       ],
       cycle:[
        'Repeat the preceding prediction for each sampled policy parameter vector and each possible field, including the scheduled noisy observations.',
-       'Average the complete monitoring costs for each policy. This happens before exponentiation in the MBD weight calculation.',
+       'Average the full learning-updated monitoring costs. This equals fixed-belief cost minus signed learning value. Do not subtract another learning reward.',
        'Apply feasibility checks, normalize the cost weights, and form a weighted mean of policy parameter vectors. The executed trajectories supply the costs.',
        'Use the same score estimator and denoising update as MBD. Only the model-based evaluation of the monitoring objective has changed.',
        'If reverse levels remain, draw new parameters from the updated noisy vector. Only after the final level can this planning call proceed to execution.',
@@ -2892,7 +3047,7 @@ This is a separate implementation mode. The result animations show the realizati
       window.walkPlayers=[];
       document.querySelectorAll('.walk-player').forEach(root=>{
        const kind=root.dataset.walk,max=comments[kind].length-1,range=root.querySelector('input'),play=root.querySelector('[data-action="play"]');
-       const api={root,kind,index:location.search.includes('print-pdf')?Number(root.dataset.printStep):0,playing:false,timer:null};
+       const api={root,kind,index:(location.search.includes('print-pdf')||location.search.includes('snapshot'))?Number(root.dataset.printStep):0,playing:false,timer:null};
        function pause(){clearTimeout(api.timer);api.timer=null;api.playing=false;play.textContent='Play';play.setAttribute('aria-pressed','false')}
        function render(){
         root.dataset.step=api.index;range.value=api.index;
