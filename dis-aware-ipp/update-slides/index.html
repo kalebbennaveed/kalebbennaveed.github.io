@@ -369,107 +369,134 @@ Wind changes the executed state <span class="latex-inline" data-latex="x"></span
           display:block!important;
       }</style></aside>
 </section>
-<section id="represent-the-wind-that-the-robot-currently-knows" class="slide level2" data-section="2 · Preliminaries">
+<section id="represent-the-wind-that-the-robot-currently-knows" class="slide level2 notation-slide" data-section="2 · Preliminaries">
 <h2>Represent the wind that the robot currently knows</h2>
-<p><span class="latex-display" data-latex="y_m^d=\bar d(r_m)+\varepsilon_m^d,
-\qquad \varepsilon_m^d\sim\mathcal N(0,R_d)"></span></p>
-<p><span class="latex-display" data-latex="\mathcal B_t^d=\{\mu_d(\cdot,t),\Sigma_d(\cdot,\cdot,t)\}"></span></p>
+<p>At physical time <span class="latex-inline" data-latex="t"></span>, the robot has noisy observations of the unknown physical wind field <span class="latex-inline" data-latex="\bar d"></span>:</p>
+<p><span class="latex-display" data-latex="y_m^d=\bar d(r_m)+\varepsilon_m^d,\qquad
+\varepsilon_m^d\sim\mathcal N(0,R_d)."></span></p>
 <div class="definition-grid">
 <div>
-<span class="latex-inline" data-latex="m"></span>: wind-measurement index.<br><span class="latex-inline" data-latex="y_m^d"></span>: noisy wind measurement at executed position <span class="latex-inline" data-latex="r_m"></span>.<br><span class="latex-inline" data-latex="R_d"></span>: wind-measurement noise covariance.
+<span class="latex-inline" data-latex="m"></span>: observation index; <span class="latex-inline" data-latex="r_m"></span>: its position.<br><span class="latex-inline" data-latex="y_m^d"></span>: observed wind vector.<br><span class="latex-inline" data-latex="\varepsilon_m^d"></span>: zero-mean measurement noise.
 </div>
 <div>
-<span class="latex-inline" data-latex="\mu_d(r,t)"></span>: predicted wind mean.<br><span class="latex-inline" data-latex="\Sigma_d(r,r',t)"></span>: spatial cross-covariance between positions <span class="latex-inline" data-latex="r"></span> and <span class="latex-inline" data-latex="r'"></span>.
+<span class="latex-inline" data-latex="\mathcal N(\mu,\Sigma)"></span>: Gaussian distribution with mean <span class="latex-inline" data-latex="\mu"></span> and covariance <span class="latex-inline" data-latex="\Sigma"></span>.<br><span class="latex-inline" data-latex="R_d"></span>: measurement-noise covariance.
 </div>
 </div>
-<img class="wide-figure short" src="assets/poam_evolution.svg" alt="Recorded POAM uncertainty at 0, 20 and 60 seconds with observed locations">
-<div class="caption">
-POAM: Probabilistic Online Attentive Mapping. Actual measurements update the spatial belief.
+<p>The <strong>wind belief</strong> <span class="latex-inline" data-latex="\mathcal B_t^d"></span> summarizes what those observations imply:</p>
+<p><span class="latex-display" data-latex="\mathcal B_t^d=\{\mu_d(\cdot,t),\Sigma_d(\cdot,\cdot,t)\}."></span></p>
+<div class="definition-grid">
+<div>
+<span class="latex-inline" data-latex="\mu_d(r,t)"></span>: predicted wind mean at position <span class="latex-inline" data-latex="r"></span>.<br><span class="latex-inline" data-latex="\Sigma_d(r,r',t)"></span>: covariance between wind at <span class="latex-inline" data-latex="r"></span> and <span class="latex-inline" data-latex="r'"></span>.
 </div>
-<aside class="notes">
-<p>The data set D_t^d contains measured positions and wind values up to t, as in Eqs. (5)–(10) of the supplied paper. Wind is not resampled independently at each integration step. The same spatial field is queried along a rollout. POAM is a sparse online GP; the predictive covariance retains its spatial residual. The displayed maps are archived proposed-run observations. Their marginal variance need not decrease monotonically because online fitting and inducing relocation can change the approximation. Source: Chen, Liu and Khardon, POAM, RSS 2024, https://www.roboticsproceedings.org/rss20/p019.html .</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
+<div>
+<span class="latex-inline" data-latex="r'"></span>: a second position; <span class="latex-inline" data-latex="\cdot"></span>: a position argument.<br>The label <span class="latex-inline" data-latex="d"></span> denotes wind; it is not a power.<br>Covariance expresses remaining uncertainty.
+</div>
+</div>
+<div class="key-line">
+POAM — Probabilistic Online Attentive Mapping — updates this spatial belief as observations arrive.
+</div>
+<div class="source">
+Chen, Liu and Khardon, POAM, RSS 2024. The next slides explain one scalar wind component; vector components are modeled separately here.
+</div>
 </section>
-<section id="poam-uses-spatial-correlation-to-connect-observations" class="slide level2" data-section="2 · Preliminaries">
+<section id="poam-uses-spatial-correlation-to-connect-observations" class="slide level2 notation-slide" data-section="2 · Preliminaries">
 <h2>POAM uses spatial correlation to connect observations</h2>
-<p>For one wind component, start with a Gaussian-process prior:</p>
+<p>For one scalar wind component, use a <strong>Gaussian process (GP)</strong>: any finite collection of wind values has a joint Gaussian distribution.</p>
 <p><span class="latex-display" data-latex="d(r)\sim\mathcal{GP}\!\left(0,k_\eta(r,r')\right)."></span></p>
-<p><span class="latex-inline" data-latex="k_\eta(r,r')"></span> is the prior covariance between locations <span class="latex-inline" data-latex="r,r'"></span>; <span class="latex-inline" data-latex="\eta"></span> denotes kernel parameters, separate from the policy parameters <span class="latex-inline" data-latex="\theta"></span>.</p>
-<p><strong>The attentive kernel combines several spatial length scales:</strong></p>
-<p><span class="latex-display" data-latex="k_\eta(r,r')=\sigma_f^2\,\big[\bar w(r)^{\mathsf T}\bar w(r')\big]
+<div class="definition-grid">
+<div>
+<span class="latex-inline" data-latex="d(r)"></span>: uncertain wind component at <span class="latex-inline" data-latex="r"></span>.<br><span class="latex-inline" data-latex="0"></span>: prior mean, before observations.<br><span class="latex-inline" data-latex="k_\eta(r,r')"></span>: prior covariance between positions.
+</div>
+<div>
+<span class="latex-inline" data-latex="\eta"></span>: kernel parameters.<br>The kernel controls how an observation at one position influences predictions elsewhere.
+</div>
+</div>
+<p>The <strong>attentive kernel</strong> combines spatial correlation lengths:</p>
+<p><span class="latex-display" data-latex="k_\eta(r,r')=\sigma_f^2\,[\bar w(r)^{\mathsf T}\bar w(r')]
 \sum_{b=1}^{B}\bar w_b(r)\bar w_b(r')\,
-\exp\!\left(-\frac{\|r-r'\|^2}{2\ell_b^2}\right)."></span></p>
+\exp\!\left(-\frac{\|r-r'\|_2^2}{2\ell_b^2}\right)."></span></p>
 <div class="definition-grid">
 <div>
-<span class="latex-inline" data-latex="B"></span>: number of length scales.<br><span class="latex-inline" data-latex="\ell_b>0"></span>: spatial length scale of component <span class="latex-inline" data-latex="b"></span>.<br><span class="latex-inline" data-latex="\sigma_f^2"></span>: prior variance scale.
+<span class="latex-inline" data-latex="B"></span>: number of kernel components; <span class="latex-inline" data-latex="b"></span>: component index.<br><span class="latex-inline" data-latex="\ell_b>0"></span>: correlation length of component <span class="latex-inline" data-latex="b"></span>.<br><span class="latex-inline" data-latex="\sigma_f^2"></span>: prior variance scale.
 </div>
 <div>
-<span class="latex-inline" data-latex="\bar w(r)=w_\eta(r)/\|w_\eta(r)\|_2"></span>:<br>normalized, nonnegative neural-network weights.<br>The weights vary with location.
+<span class="latex-inline" data-latex="\bar w_b(r)"></span>: normalized component weight at <span class="latex-inline" data-latex="r"></span>.<br><span class="latex-inline" data-latex="\mathsf T"></span>: transpose; <span class="latex-inline" data-latex="\|\cdot\|_2"></span>: Euclidean norm.<br>Larger <span class="latex-inline" data-latex="\ell_b"></span> links more distant positions.
 </div>
-</div>
-<div class="key-line">
-An observation influences other positions according to their spatial correlation. POAM can represent different correlation lengths in different regions.
 </div>
 <div class="source">
-Chen, Liu and Khardon, POAM, RSS 2024, Sec. III-B. Equations here describe one scalar wind component.
+Chen, Liu and Khardon, POAM, Sec. III-B. The following slide defines the location-dependent weights.
 </div>
 </section>
-<section id="poam-predicts-wind-through-a-sparse-gaussian-posterior" class="slide level2" data-section="2 · Preliminaries">
+<section id="what-the-attentive-weights-mean" class="slide level2 notation-slide" data-section="2 · Preliminaries">
+<h2>What the attentive weights mean</h2>
+<p>At each position, a neural network produces a nonnegative vector <span class="latex-inline" data-latex="w_\eta(r)\in\mathbb R^B"></span>. Normalize it to obtain</p>
+<p><span class="latex-display" data-latex="\bar w(r)=\frac{w_\eta(r)}{\|w_\eta(r)\|_2},\qquad
+\bar w_b(r)=\text{component }b\text{ of }\bar w(r)."></span></p>
+<div class="two-points">
+<div>
+<b>Which length scales apply here?</b><br>Large <span class="latex-inline" data-latex="\bar w_b(r)"></span> gives component <span class="latex-inline" data-latex="b"></span> more influence at position <span class="latex-inline" data-latex="r"></span>.
+</div>
+<div>
+<b>How similar are the two regions?</b><br><span class="latex-inline" data-latex="\bar w(r)^{\mathsf T}\bar w(r')"></span> reduces correlation when their weight vectors differ.
+</div>
+</div>
+<p><strong>Example with two components:</strong> one long correlation length describes smooth wind; a shorter one describes more rapid spatial variation. The weights can favor different components in different regions.</p>
+<div class="key-line">
+These are kernel weights over spatial length scales. Later, MBD uses different weights over sampled decisions.
+</div>
+<div class="source">
+<span class="latex-inline" data-latex="\mathbb R^B"></span>: vectors with <span class="latex-inline" data-latex="B"></span> real entries. <span class="latex-inline" data-latex="\eta"></span> includes the network and kernel parameters. The numerical visual uses specified illustrative weights.
+</div>
+</section>
+<section id="poam-predicts-wind-through-a-sparse-gaussian-posterior" class="slide level2 notation-slide" data-section="2 · Preliminaries">
 <h2>POAM predicts wind through a sparse Gaussian posterior</h2>
-<p>Choose <span class="latex-inline" data-latex="M"></span> representative positions <span class="latex-inline" data-latex="Z=(z_1,\ldots,z_M)"></span>, called <strong>inducing positions</strong>. Approximate the wind values <span class="latex-inline" data-latex="d_Z"></span> there by</p>
-<p><span class="latex-display" data-latex="d_Z\sim\mathcal N(m_Z,S_Z),\qquad K=k_\eta(Z,Z),\qquad \beta(r)=K^{-1}k_\eta(Z,r)."></span></p>
+<p>Choose <span class="latex-inline" data-latex="M"></span> representative <strong>inducing positions</strong> <span class="latex-inline" data-latex="Z=(z_1,\ldots,z_M)"></span>. They are model locations, not additional observations. Collect their wind values in <span class="latex-inline" data-latex="d_Z=[d(z_1),\ldots,d(z_M)]^{\mathsf T}"></span>.</p>
+<p><span class="latex-display" data-latex="d_Z\sim\mathcal N(m_Z,S_Z),\qquad K_{ZZ}=k_\eta(Z,Z),\qquad
+\beta(r)=K_{ZZ}^{-1}k_\eta(Z,r)."></span></p>
 <div class="definition-grid">
 <div>
-<span class="latex-inline" data-latex="m_Z\in\mathbb R^M"></span>: inducing-value mean.<br><span class="latex-inline" data-latex="S_Z\in\mathbb R^{M\times M}"></span>: inducing-value covariance.
+<span class="latex-inline" data-latex="m_Z"></span>: mean vector of the <span class="latex-inline" data-latex="M"></span> inducing values.<br><span class="latex-inline" data-latex="S_Z"></span>: their <span class="latex-inline" data-latex="M\times M"></span> posterior covariance.<br><span class="latex-inline" data-latex="K_{ZZ}"></span>: prior covariance matrix at <span class="latex-inline" data-latex="Z"></span>.
 </div>
 <div>
-<span class="latex-inline" data-latex="K"></span>: prior covariance at the inducing positions.<br><span class="latex-inline" data-latex="\beta(r)"></span>: interpolation coefficients for location <span class="latex-inline" data-latex="r"></span>.
+<span class="latex-inline" data-latex="k_\eta(Z,r)"></span>: vector of covariances from <span class="latex-inline" data-latex="Z"></span> to <span class="latex-inline" data-latex="r"></span>.<br><span class="latex-inline" data-latex="\beta(r)"></span>: interpolation-coefficient vector.<br><span class="latex-inline" data-latex="K_{ZZ}^{-1}"></span>: matrix inverse (computed by a solve).
 </div>
 </div>
-<p><strong>Predicted mean and spatial covariance:</strong></p>
-<p><span class="latex-display" data-latex="\mu_d(r)=\beta(r)^{\mathsf T}m_Z"></span> <span class="latex-display" data-latex="\Sigma_d(r,r')=\underbrace{k_\eta(r,r')-\beta(r)^{\mathsf T}K\,\beta(r')}_{\text{conditional residual}}+\beta(r)^{\mathsf T}S_Z\beta(r')."></span></p>
+<p><span class="latex-display" data-latex="\mu_d(r)=\beta(r)^{\mathsf T}m_Z"></span> <span class="latex-display" data-latex="\Sigma_d(r,r')=\underbrace{k_\eta(r,r')-\beta(r)^{\mathsf T}K_{ZZ}\beta(r')}_{\text{conditional residual}}+\beta(r)^{\mathsf T}S_Z\beta(r')."></span></p>
 <div class="key-line">
-Retain the residual: uncertainty away from inducing positions is not captured by <span class="latex-inline" data-latex="S_Z"></span> alone.
+The residual retains uncertainty that the finite inducing values cannot represent. Local wind standard deviation is <span class="latex-inline" data-latex="\sigma_d(r)=\sqrt{\Sigma_d(r,r)}"></span>.
 </div>
 <div class="source">
-POAM, Eq. (4), written using interpolation coefficients <span class="latex-inline" data-latex="\beta(r)"></span>. The coefficients interpolate from the inducing positions to any query location.
+POAM, Eq. (4). Time <span class="latex-inline" data-latex="t"></span> is suppressed on these slides: every posterior is the current one.
 </div>
 </section>
-<section id="how-a-new-observation-changes-the-poam-posterior" class="slide level2" data-section="2 · Preliminaries">
+<section id="how-a-new-observation-changes-the-poam-posterior" class="slide level2 notation-slide" data-section="2 · Preliminaries">
 <h2>How a new observation changes the POAM posterior</h2>
-<p>At <span class="latex-inline" data-latex="r_m"></span>, measure <span class="latex-inline" data-latex="y_m^d"></span> with scalar noise variance <span class="latex-inline" data-latex="\sigma_n^2>0"></span>. First hold the kernel and inducing positions fixed. Write <span class="latex-inline" data-latex="\beta_m=\beta(r_m)"></span>.</p>
-<p><span class="latex-display" data-latex="g_m=\frac{S_Z\beta_m}{\sigma_n^2+\beta_m^{\mathsf T}S_Z\beta_m}"></span></p>
-<p><span class="latex-display" data-latex="m_Z^+=m_Z+g_m\big(y_m^d-\beta_m^{\mathsf T}m_Z\big),\qquad
-S_Z^+=S_Z-g_m \beta_m^{\mathsf T}S_Z."></span></p>
+<p>At <span class="latex-inline" data-latex="r_m"></span>, observe <span class="latex-inline" data-latex="y_m^d"></span>. For this scalar component, the measurement-noise variance is <span class="latex-inline" data-latex="\sigma_n^2>0"></span> (the scalar counterpart of <span class="latex-inline" data-latex="R_d"></span>). Hold the kernel and inducing positions fixed.</p>
+<p><span class="latex-display" data-latex="\beta_m=\beta(r_m),\qquad
+g_m=\frac{S_Z\beta_m}{\sigma_n^2+\beta_m^{\mathsf T}S_Z\beta_m}."></span></p>
 <div class="definition-grid">
 <div>
-<b>Mean update:</b> <span class="latex-inline" data-latex="g_m"></span> is a gain vector. The difference <span class="latex-inline" data-latex="y_m^d-\beta_m^{\mathsf T}m_Z"></span> is the measurement innovation.
+<span class="latex-inline" data-latex="\beta_m"></span>: interpolation coefficients at the observation.<br><span class="latex-inline" data-latex="g_m"></span>: gain vector, determining how much each inducing mean responds.
 </div>
 <div>
-<b>Covariance update:</b> the observation reduces uncertainty in correlated inducing values. Substitute <span class="latex-inline" data-latex="m_Z^+,S_Z^+"></span> into the preceding prediction equations.
+<span class="latex-inline" data-latex="y_m^d-\beta_m^{\mathsf T}m_Z"></span>: <b>innovation</b>, the measured wind minus its predicted mean.<br>Superscript <span class="latex-inline" data-latex="+"></span> means after this observation.
 </div>
 </div>
-<div class="key-line">
-A zero innovation leaves the mean unchanged. A nonzero innovation can change future wind compensation and predicted motion.
+<p><span class="latex-display" data-latex="m_Z^+=m_Z+g_m\big(y_m^d-\beta_m^{\mathsf T}m_Z\big),\qquad
+S_Z^+=S_Z-g_m\beta_m^{\mathsf T}S_Z."></span></p>
+<div class="two-points">
+<div>
+<b>Mean</b><br>A nonzero innovation changes the wind estimate. A zero innovation leaves it unchanged.
 </div>
-<div class="small-note">
-These are the Gaussian-likelihood sparse variational updates for a fixed representation. Full online POAM can also relocate inducing positions and fit kernel parameters; it then transports accumulated statistics. Planning holds the kernel parameters fixed.
+<div>
+<b>Covariance</b><br>Uncertainty decreases in correlated inducing values. Recompute <span class="latex-inline" data-latex="\mu_d"></span> and <span class="latex-inline" data-latex="\Sigma_d"></span> from <span class="latex-inline" data-latex="m_Z^+,S_Z^+"></span>.
+</div>
 </div>
 <div class="source">
-Equivalent fixed-representation form of POAM Eqs. (7)–(8), (19)–(21). It is not exact conditioning of the full GP. Apply per wind component.
+Fixed-representation sparse variational Gaussian update; POAM Eqs. (7)–(8), (19)–(21). Full online POAM can also refit its kernel and relocate inducing positions.
 </div>
 <aside class="notes">
-<p>Let _m=K^{-1}k(Z,r_m). For fixed Z, kernel and observation variance, the Gaussian variational precision update is S_plus<sup>{-1}=S</sup>{-1}+_m _m<sup>T/sigma_n</sup>2 and S_plus<sup>{-1}m_plus=S</sup>{-1}m+_m y/sigma_n^2. The displayed rank-one form follows from Woodbury. This is equivalent to the additive unweighted statistics used in the implementation when its representation is fixed. It must not be confused with exact conditioning of the entire sparse predictive process: its conditional residual is retained in prediction but not added to sigma_n^2 in this variational update. Relocation requires statistic transport, and subsequent kernel learning changes the representation. Hypothetical updates hold kernel hyperparameters fixed; inducing relocation remains a separate configuration choice. In the implemented independent-component wind model, R_d=sigma_n^2 I. Primary source: https://www.roboticsproceedings.org/rss20/p019.pdf .</p>
+<p>This is the fixed-representation Gaussian-likelihood variational update, not exact conditioning of the entire predictive GP. The conditional residual remains in prediction and is not inserted into this variational gain denominator. With independent identically noisy wind components, R_d = sigma_n^2 I, where I is the identity. Kernel refitting and inducing relocation are separate changes of representation; pointwise variance monotonicity is only asserted with that representation fixed.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -516,7 +543,7 @@ Equivalent fixed-representation form of POAM Eqs. (7)–(8), (19)–(21). It is 
 
 </div>
 <div class="walk-equation">
-<span class="latex-display" data-latex="d_Z\sim\mathcal N(m_Z,S_Z),\qquad m_Z=0,\quad S_Z=K"></span>
+<span class="latex-display" data-latex="d_Z\sim\mathcal N(m_Z,S_Z),\qquad m_Z=0,\quad S_Z=K_{ZZ}"></span>
 </div>
 <div class="walk-equation" hidden="">
 <span class="latex-display" data-latex="y_m^d=d(r_m)+\varepsilon_m^d,\qquad \varepsilon_m^d\sim\mathcal N(0,\sigma_n^2)"></span>
@@ -552,7 +579,7 @@ Next step
 </div>
 </div>
 <div class="caption">
-Numerical teaching example in one spatial dimension. Kernel and inducing positions are fixed; the conditional residual is retained. Wind values use normalized units.
+<span class="latex-inline" data-latex="\mathcal B_n^d"></span>: belief after <span class="latex-inline" data-latex="n"></span> observations; <span class="latex-inline" data-latex="\sigma_d(r)"></span>: wind standard deviation. The numerical example fixes the kernel and inducing positions; wind uses normalized units.
 </div>
 <aside class="notes">
 <p>This is a computed sparse variational Gaussian update using the equations immediately preceding it. The 13 inducing positions cover [0,10]. The attentive kernel combines length scales 2.4 and 0.8 with specified, normalized logistic weights; the weights are illustrative, not learned from a real dataset. Observation noise standard deviation is 0.1. Three observed values are assimilated sequentially. Blue bands show pointwise mean plus/minus two predictive standard deviations. Purple circles are observations; diamonds denote inducing positions, which are not additional observations. The final state retains the conditional residual. With this fixed representation, covariance decreases with each observation; adaptive POAM can also move inducing positions or refit its kernel, so the pointwise monotonicity illustrated here is not a general claim for every online adaptation. All numerical arrays are saved in assets/poam_teaching_data.json. Starts paused; controls work independently of slide navigation.</p>
@@ -649,11 +676,11 @@ RPCBF = robust policy control barrier function. Knoedler et al., Eqs. (6), (10).
 <p>The task policy requests <span class="latex-inline" data-latex="u_{\mathrm{nom}}"></span>. The execution controller chooses the input <span class="latex-inline" data-latex="u"></span> closest to it while meeting a value-rate condition:</p>
 <p><span class="latex-display" data-latex="\min_{u\in\mathcal U}\ \frac12\|u-u_{\mathrm{nom}}\|^2
 \quad\text{subject to}\quad
-\nabla V_a(x)^{\mathsf T}f_d(x,u,d)+\alpha V_a(x)\leq0."></span></p>
+\nabla V_a(x)^{\mathsf T}f_d(x,u,d)+\kappa V_a(x)\leq0."></span></p>
 <p>The condition is imposed for every constraint <span class="latex-inline" data-latex="a"></span> and every disturbance <span class="latex-inline" data-latex="d"></span> included in the controller’s test.</p>
 <div class="definition-grid">
 <div>
-<span class="latex-inline" data-latex="\mathcal U"></span>: actuator input set.<br><span class="latex-inline" data-latex="\nabla V_a"></span>: sensitivity of the value to state.<br><span class="latex-inline" data-latex="\alpha>0"></span>: rate coefficient.
+<span class="latex-inline" data-latex="\mathcal U"></span>: actuator input set.<br><span class="latex-inline" data-latex="\nabla V_a"></span>: sensitivity of the value to state.<br><span class="latex-inline" data-latex="\kappa>0"></span>: controller value-rate coefficient.
 </div>
 <div>
 If <span class="latex-inline" data-latex="u_{\mathrm{nom}}"></span> satisfies the conditions, it is applied unchanged.<br>Otherwise, the controller selects a different input.
@@ -683,68 +710,115 @@ Minimize path length, subject to clearance from the obstacle. Each sampled value
 Teaching example only. The monitoring method will instead optimize a nominal policy parameter vector.
 </div>
 </section>
-<section id="mbd-prefer-lower-cost-decisions-then-smooth-the-density" class="slide level2" data-section="2 · Preliminaries">
+<section id="mbd-prefer-lower-cost-decisions-then-smooth-the-density" class="slide level2 notation-slide" data-section="2 · Preliminaries">
 <h2>MBD: prefer lower-cost decisions, then smooth the density</h2>
-<p>For a decision vector <span class="latex-inline" data-latex="y"></span> with model cost <span class="latex-inline" data-latex="J(y)"></span>, define</p>
+<p>Let <span class="latex-inline" data-latex="y"></span> denote a decision vector. In the path example, <span class="latex-inline" data-latex="y=a"></span> is a scalar path height. The model evaluates its cost <span class="latex-inline" data-latex="J(y)"></span>.</p>
 <p><span class="latex-display" data-latex="p_0(y)\propto\mathbf1_{\mathcal Y}(y)\exp\!\left(-\frac{J(y)}{\lambda}\right)."></span></p>
-<p><span class="latex-inline" data-latex="\mathcal Y"></span> is the feasible decision domain; <span class="latex-inline" data-latex="\lambda>0"></span> is temperature. The indicator <span class="latex-inline" data-latex="\mathbf1_{\mathcal Y}"></span> is one inside that domain and zero outside.</p>
-<p><strong>Add Gaussian noise to obtain smoother densities:</strong></p>
-<p><span class="latex-display" data-latex="y_i=\sqrt{\bar\alpha_i}\,y+\sqrt{1-\bar\alpha_i}\,\epsilon,
-\qquad \epsilon\sim\mathcal N(0,I)."></span></p>
 <div class="definition-grid">
 <div>
-<span class="latex-inline" data-latex="i"></span> is a diffusion level, not physical time.<br><span class="latex-inline" data-latex="\bar\alpha_i=\prod_{j=1}^{i}\alpha_j"></span>, with <span class="latex-inline" data-latex="0<\alpha_j<1"></span>.<br><span class="latex-inline" data-latex="I"></span>: identity matrix.
+<span class="latex-inline" data-latex="p_0"></span>: target probability density over decisions.<br><span class="latex-inline" data-latex="\mathcal Y"></span>: feasible decision domain.<br><span class="latex-inline" data-latex="\mathbf1_{\mathcal Y}(y)"></span>: 1 if <span class="latex-inline" data-latex="y\in\mathcal Y"></span>; 0 otherwise.
 </div>
 <div>
-MBD moves from a noisy vector toward lower-noise levels.<br>It estimates the required direction using model evaluations, without training a score network.
+<span class="latex-inline" data-latex="\lambda>0"></span>: temperature, in cost units.<br>Smaller <span class="latex-inline" data-latex="\lambda"></span> favors lower costs more strongly.<br><span class="latex-inline" data-latex="\propto"></span>: proportional; density is normalized to integrate to 1.
 </div>
 </div>
-<div class="source">
-Pan et al., <i>Model-Based Diffusion for Trajectory Optimization</i>, Eqs. (2), (3), (6)–(9). The target requires a finite, positive normalizing integral.
-</div>
-</section>
-<section id="one-mbd-iteration-sample-evaluate-and-weight" class="slide level2" data-section="2 · Preliminaries">
-<h2>One MBD iteration: sample, evaluate and weight</h2>
-<p><strong>1. Sample <span class="latex-inline" data-latex="K"></span> decision vectors around the current noisy vector <span class="latex-inline" data-latex="y_i"></span>: </strong></p>
-<p><span class="latex-display" data-latex="y^{[k]}\sim\mathcal N\!\left(\frac{y_i}{\sqrt{\bar\alpha_i}},\frac{1-\bar\alpha_i}{\bar\alpha_i}I\right),
-\qquad k=1,\ldots,K."></span></p>
-<p><strong>2. Evaluate each decision with the model, then form normalized weights:</strong></p>
-<p><span class="latex-display" data-latex="w_k=\frac{p_0(y^{[k]})}{\sum_{j=1}^{K}p_0(y^{[j]})},
-\qquad \bar y=\sum_{k=1}^{K}w_k y^{[k]}."></span></p>
 <div class="two-points">
 <div>
-<b>In the path-height example</b><br>Lower length gives greater weight. Paths violating clearance receive zero weight.
+<b>Example</b><br><span class="latex-inline" data-latex="J(a)"></span> is path length. <span class="latex-inline" data-latex="\mathcal Y"></span> contains heights in <span class="latex-inline" data-latex="[-2,2]"></span> whose paths satisfy the clearance requirement.
 </div>
 <div>
-<b>The result</b><br><span class="latex-inline" data-latex="\bar y"></span> is a weighted mean of decision vectors. It need not itself be feasible in a nonconvex environment.
+<b>Why introduce noise?</b><br>The target can have separated high-density regions. Gaussian smoothing produces a sequence of less concentrated densities.
 </div>
-</div>
-<div class="source">
-<span class="latex-inline" data-latex="[k]"></span> indexes samples; <span class="latex-inline" data-latex="\bar y"></span> is the weighted decision-vector mean. Pan et al., Eqs. (8), (9).
-</div>
-</section>
-<section id="use-the-weighted-mean-to-refine-the-noisy-vector" class="slide level2" data-section="2 · Preliminaries">
-<h2>Use the weighted mean to refine the noisy vector</h2>
-<p>The <strong>score</strong> is the direction of increasing log density at diffusion level <span class="latex-inline" data-latex="i"></span>. Its Monte Carlo estimate is</p>
-<p><span class="latex-display" data-latex="\widehat s_i=\frac{-y_i+\sqrt{\bar\alpha_i}\,\bar y}{1-\bar\alpha_i}."></span></p>
-<p>MBD uses this estimate in the next-level update:</p>
-<p><span class="latex-display" data-latex="y_{i-1}=\frac{y_i+(1-\bar\alpha_i)\widehat s_i}{\sqrt{\alpha_i}}."></span></p>
-<div class="numbered-text">
-<p>
-<b>Repeat:</b> sample → evaluate model costs → compute weights → refine.
-</p>
-<p>
-<b>Finish:</b> inspect evaluated decisions at the end of the reverse levels.
-</p>
 </div>
 <div class="key-line">
-The update occurs in decision space. The model supplies the cost; no derivative of the rollout cost is required.
+MBD estimates the direction toward higher density using model evaluations, without training a score network.
 </div>
 <div class="source">
-Pan et al., Monte Carlo score ascent (MCSA), Eq. (6), with the model-based score in Eq. (9). A finite sampling budget gives an approximation.
+Pan et al., MBD, Eq. (2). A valid target requires a finite, positive normalizing integral.
+</div>
+</section>
+<section id="mbd-noise-schedule-what-alpha-controls" class="slide level2 notation-slide" data-section="2 · Preliminaries">
+<h2>MBD noise schedule: what alpha controls</h2>
+<p>Forward noise defines the densities that MBD will traverse in reverse:</p>
+<p><span class="latex-display" data-latex="y_i=\sqrt{\bar\alpha_i}\,y+\sqrt{1-\bar\alpha_i}\,\epsilon,
+\qquad \epsilon\sim\mathcal N(0,I),\qquad
+\bar\alpha_i=\prod_{j=1}^{i}\alpha_j."></span></p>
+<div class="definition-grid">
+<div>
+<span class="latex-inline" data-latex="y"></span>: clean decision; <span class="latex-inline" data-latex="y_i"></span>: noisy decision at level <span class="latex-inline" data-latex="i"></span>.<br><span class="latex-inline" data-latex="i=1,\ldots,N"></span>: diffusion level; <span class="latex-inline" data-latex="N"></span>: total levels.<br><span class="latex-inline" data-latex="p_i"></span>: probability density of <span class="latex-inline" data-latex="y_i"></span>.
+</div>
+<div>
+<span class="latex-inline" data-latex="0<\alpha_i<1"></span>: signal-variance retention per forward step.<br><span class="latex-inline" data-latex="\bar\alpha_i"></span>: cumulative signal-variance retention.<br><span class="latex-inline" data-latex="\bar\alpha_0=1"></span>: the clean, zero-noise endpoint.
+</div>
+</div>
+<div class="definition-grid">
+<div>
+<span class="latex-inline" data-latex="\epsilon"></span>: standard Gaussian noise vector.<br><span class="latex-inline" data-latex="I"></span>: identity matrix of the decision dimension.<br><span class="latex-inline" data-latex="j"></span>: index in the product defining <span class="latex-inline" data-latex="\bar\alpha_i"></span>.
+</div>
+<div>
+<span class="latex-inline" data-latex="\sqrt{\bar\alpha_i}"></span> scales the clean decision.<br><span class="latex-inline" data-latex="\sqrt{1-\bar\alpha_i}"></span> scales the added noise.<br>Example: <span class="latex-inline" data-latex="\bar\alpha_i=0.25"></span> gives scales <span class="latex-inline" data-latex="0.5"></span> and <span class="latex-inline" data-latex="\sqrt{0.75}"></span>.
+</div>
+</div>
+<div class="key-line">
+Forward: <span class="latex-inline" data-latex="0\rightarrow N"></span>, more noise. MBD optimization: <span class="latex-inline" data-latex="N\rightarrow0"></span>, less noise. Diffusion level is not physical time.
+</div>
+<div class="source">
+Pan et al., Eqs. (3)–(4). The controller coefficient is denoted <span class="latex-inline" data-latex="\kappa"></span> here, separately from diffusion <span class="latex-inline" data-latex="\alpha_i"></span>.
+</div>
+</section>
+<section id="one-mbd-iteration-sample-evaluate-and-weight" class="slide level2 notation-slide" data-section="2 · Preliminaries">
+<h2>One MBD iteration: sample, evaluate and weight</h2>
+<p>At level <span class="latex-inline" data-latex="i"></span>, draw <span class="latex-inline" data-latex="K"></span> decision vectors around the current noisy vector <span class="latex-inline" data-latex="y_i"></span>:</p>
+<p><span class="latex-display" data-latex="y^{[k]}\sim\mathcal N\!\left(\frac{y_i}{\sqrt{\bar\alpha_i}},\frac{1-\bar\alpha_i}{\bar\alpha_i}I\right),
+\qquad k=1,\ldots,K."></span></p>
+<div class="definition-grid">
+<div>
+<span class="latex-inline" data-latex="K"></span>: number of sampled decisions per level.<br><span class="latex-inline" data-latex="[k]"></span>: sample index; <span class="latex-inline" data-latex="y^{[k]}"></span>: one sampled decision.<br>These samples are in clean decision coordinates.
+</div>
+<div>
+Proposal mean: <span class="latex-inline" data-latex="y_i/\sqrt{\bar\alpha_i}"></span>.<br>Proposal covariance: <span class="latex-inline" data-latex="[(1-\bar\alpha_i)/\bar\alpha_i]I"></span>.<br>In the scalar example, <span class="latex-inline" data-latex="y^{[k]}=a^{[k]}"></span>.
+</div>
+</div>
+<p>Evaluate each sampled decision with the model. Then normalize its target-density weight:</p>
+<p><span class="latex-display" data-latex="w_k=\frac{p_0(y^{[k]})}{\sum_{j=1}^{K}p_0(y^{[j]})},
+\qquad \bar y=\sum_{k=1}^{K}w_k y^{[k]}."></span></p>
+<div class="definition-grid">
+<div>
+<span class="latex-inline" data-latex="w_k"></span>: nonnegative cost weight, with <span class="latex-inline" data-latex="\sum_k w_k=1"></span>.<br><span class="latex-inline" data-latex="j"></span>: summation index over the same <span class="latex-inline" data-latex="K"></span> samples.
+</div>
+<div>
+<span class="latex-inline" data-latex="\bar y"></span>: cost-weighted decision mean.<br>Infeasible decisions have zero weight. The mean itself need not be feasible.
+</div>
+</div>
+<div class="source">
+Pan et al., Eqs. (8)–(9). <span class="latex-inline" data-latex="K"></span> counts decisions; POAM’s covariance matrix is <span class="latex-inline" data-latex="K_{ZZ}"></span>. If all weights vanish, recovery is required before normalization.
+</div>
+</section>
+<section id="use-the-weighted-mean-to-refine-the-noisy-vector" class="slide level2 notation-slide" data-section="2 · Preliminaries">
+<h2>Use the weighted mean to refine the noisy vector</h2>
+<p>The <strong>score</strong> <span class="latex-inline" data-latex="s_i(y_i)=\nabla_{y_i}\log p_i(y_i)"></span> points toward increasing log density. Here <span class="latex-inline" data-latex="\nabla_{y_i}"></span> means a gradient with respect to the noisy decision vector.</p>
+<p><span class="latex-display" data-latex="\widehat s_i=\frac{-y_i+\sqrt{\bar\alpha_i}\,\bar y}{1-\bar\alpha_i},\qquad
+y_{i-1}=\frac{y_i+(1-\bar\alpha_i)\widehat s_i}{\sqrt{\alpha_i}}."></span></p>
+<div class="definition-grid">
+<div>
+<span class="latex-inline" data-latex="\widehat s_i"></span>: score estimate from the <span class="latex-inline" data-latex="K"></span> model evaluations.<br>The hat denotes an estimate, not the exact score.<br><span class="latex-inline" data-latex="y_{i-1}"></span>: updated noisy decision at the next level.
+</div>
+<div>
+First add the score correction to <span class="latex-inline" data-latex="y_i"></span>.<br>Then divide by <span class="latex-inline" data-latex="\sqrt{\alpha_i}"></span> to change levels.<br>No derivative of the rollout cost is required.
+</div>
+</div>
+<p><strong>Substituting the score reveals exactly what this update does:</strong></p>
+<p><span class="latex-display" data-latex="y_i+(1-\bar\alpha_i)\widehat s_i=\sqrt{\bar\alpha_i}\,\bar y
+\quad\Longrightarrow\quad
+\boxed{y_{i-1}=\sqrt{\bar\alpha_{i-1}}\,\bar y}."></span></p>
+<div class="key-line">
+The next sampling mean is <span class="latex-inline" data-latex="y_{i-1}/\sqrt{\bar\alpha_{i-1}}=\bar y"></span>. Its covariance decreases to <span class="latex-inline" data-latex="[(1-\bar\alpha_{i-1})/\bar\alpha_{i-1}]I"></span>.
+</div>
+<div class="source">
+Pan et al., MCSA Eq. (6) and score Eq. (9). At <span class="latex-inline" data-latex="i=1"></span>, <span class="latex-inline" data-latex="y_0=\bar y"></span> and reverse iterations end. This deterministic update does not guarantee a feasible mean.
 </div>
 <aside class="notes">
-<p>The Gaussian proposal is written consistently with Eq. (8). The paper’s printed Algorithm 2 has an alpha-bar index discrepancy in line 3. The teaching example uses Eq. (8) throughout. If every weight is zero, an implementation must retain/recover a valid iterate; it cannot normalize a zero denominator. No global optimality or feasibility of the weighted mean is asserted.</p>
+<p>The equivalence follows by direct substitution and alpha_bar_i = alpha_i alpha_bar_(i-1). It applies to this MCSA update and its displayed score, not to every diffusion sampler. The paper’s printed Algorithm 2 has an alpha-bar index discrepancy in line 3; the Gaussian proposal here consistently uses Eq. (8). The model-free forward-noise equation describes a density construction, not physical robot motion.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -786,7 +860,7 @@ Next step
 Starts paused. Use Next step or the timeline to move through all eight iterations.<br>Blue: evaluated paths · Orange dashed: weighted parameter mean · Green: best evaluated feasible path.
 </div>
 <aside class="notes">
-<p>The original 24 animation frames are preserved exactly as decoded from mbd_toy.gif. The player starts paused, pauses on leaving the slide, and never advances the presentation itself. The underlying example uses eight reverse levels, 64 proposals per level, temperature 0.12, seed 19, a bounded height domain [-2,2] and center clearance at least 0.6 around a radius-0.5 obstacle. It is a numerical teaching example, not an additional monitoring experiment. All original numerical records remain in assets/mbd_toy_data.json. The following slide expands one iteration into eight algorithm steps.</p>
+<p>The original 24 animation frames are preserved exactly as decoded from mbd_toy.gif. The player starts paused, pauses on leaving the slide, and never advances the presentation itself. The underlying example uses eight reverse levels, 64 proposals per level, temperature 0.12, seed 19, a bounded height domain [-2,2] and center clearance at least 0.6 around a radius-0.5 obstacle. It is a numerical teaching example, not an additional monitoring experiment. All original numerical records remain in assets/mbd_toy_data.json. The following slide expands one iteration into eight algorithm steps, including four denoising frames.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -803,7 +877,7 @@ Starts paused. Use Next step or the timeline to move through all eight iteration
 <h2>One MBD iteration, step by step</h2>
 <div class="mbd-player mbd-detail" data-player="detail">
 <div class="mbd-iteration-choice">
-<label>Choose an iteration <select aria-label="MBD iteration"><option value="0">1 of 8 · diffusion level 8</option><option value="1">2 of 8 · diffusion level 7</option><option value="2">3 of 8 · diffusion level 6</option><option value="3">4 of 8 · diffusion level 5</option><option value="4">5 of 8 · diffusion level 4</option><option value="5">6 of 8 · diffusion level 3</option><option value="6">7 of 8 · diffusion level 2</option><option value="7" selected="">8 of 8 · diffusion level 1</option></select></label><span>Each iteration uses the same eight steps.</span>
+<label>Choose an iteration <select aria-label="MBD iteration"><option value="0">1 of 8 · diffusion level 8</option><option value="1">2 of 8 · diffusion level 7</option><option value="2">3 of 8 · diffusion level 6</option><option value="3">4 of 8 · diffusion level 5</option><option value="4">5 of 8 · diffusion level 4</option><option value="5">6 of 8 · diffusion level 3</option><option value="6" selected="">7 of 8 · diffusion level 2</option><option value="7">8 of 8 · diffusion level 1</option></select></label><button type="button" data-action="continue">Continue to next iteration</button>
 </div>
 <div class="mbd-detail-grid">
 <div>
@@ -833,7 +907,7 @@ Starts paused. Use Next step or the timeline to move through all eight iteration
 <span>7</span><b>Estimate the score</b>
 </li>
 <li class="algorithm-step" data-step="7">
-<span>8</span><b>Denoise to the next level</b>
+<span>8</span><b>Denoise: move → rescale → resample</b>
 </li>
 </ol>
 </div>
@@ -841,28 +915,37 @@ Starts paused. Use Next step or the timeline to move through all eight iteration
 
 </div>
 <div class="mbd-equation" data-step="0">
-<span class="latex-display" data-latex="y_i,\ \bar\alpha_i,\ \alpha_i"></span>
+<span class="latex-display" data-latex="y_i\text{: noisy optimizer value},\quad \bar\alpha_i\text{: cumulative retention},\quad\alpha_i\text{: one-step retention}"></span>
 </div>
 <div class="mbd-equation" data-step="1" hidden="">
 <span class="latex-display" data-latex="a^{[k]}\sim\mathcal N(y_i/\sqrt{\bar\alpha_i},(1-\bar\alpha_i)/\bar\alpha_i)"></span>
 </div>
 <div class="mbd-equation" data-step="2" hidden="">
-<span class="latex-display" data-latex="r(s;a^{[k]}),\quad s\in[0,1]"></span>
+<span class="latex-display" data-latex="r(s;a^{[k]}),\quad s\in[0,1]\text{ is path progress}"></span>
 </div>
 <div class="mbd-equation" data-step="3" hidden="">
-<span class="latex-display" data-latex="J_k=\text{path length};\quad\text{reject infeasible paths}"></span>
+<span class="latex-display" data-latex="J_k=J(a^{[k]})=\text{path length};\quad\mathbf1_{\mathcal Y}=0\text{ for infeasible heights}"></span>
 </div>
 <div class="mbd-equation" data-step="4" hidden="">
-<span class="latex-display" data-latex="w_k\propto\mathbf1_{\mathrm{feasible}}\exp(-J_k/\lambda)"></span>
+<span class="latex-display" data-latex="w_k\propto\mathbf1_{\mathcal Y}(a^{[k]})e^{-J_k/\lambda},\quad\lambda=0.12,\quad\sum_k w_k=1"></span>
 </div>
 <div class="mbd-equation" data-step="5" hidden="">
-<span class="latex-display" data-latex="\bar a=\sum_k w_k a^{[k]}"></span>
+<span class="latex-display" data-latex="\bar a=\sum_{k=1}^{K}w_k a^{[k]},\quad K=64\text{ sampled path heights}"></span>
 </div>
 <div class="mbd-equation" data-step="6" hidden="">
-<span class="latex-display" data-latex="\widehat s_i=(-y_i+\sqrt{\bar\alpha_i}\bar a)/(1-\bar\alpha_i)"></span>
+<span class="latex-display" data-latex="\widehat s_i=(-y_i+\sqrt{\bar\alpha_i}\bar a)/(1-\bar\alpha_i)\quad\text{(score estimate)}"></span>
 </div>
 <div class="mbd-equation" data-step="7" hidden="">
-<span class="latex-display" data-latex="y_{i-1}=(y_i+(1-\bar\alpha_i)\widehat s_i)/\sqrt{\alpha_i}"></span>
+<span class="latex-display" data-latex="y_i+(1-\bar\alpha_i)\widehat s_i=\sqrt{\bar\alpha_i}\,\bar a"></span>
+</div>
+<div class="mbd-equation" data-step="8" hidden="">
+<span class="latex-display" data-latex="y_{i-1}=\frac{y_i+(1-\bar\alpha_i)\widehat s_i}{\sqrt{\alpha_i}}=\sqrt{\bar\alpha_{i-1}}\,\bar a"></span>
+</div>
+<div class="mbd-equation" data-step="9" hidden="">
+<span class="latex-display" data-latex="\text{Next mean}=\bar a,\qquad\text{next standard deviation}=\sqrt{(1-\bar\alpha_{i-1})/\bar\alpha_{i-1}}"></span>
+</div>
+<div class="mbd-equation" data-step="10" hidden="">
+<span class="latex-display" data-latex="i>1:\ \text{draw new heights and evaluate again};\qquad i=1:\ \text{end reverse iterations}"></span>
 </div>
 <div class="mbd-controls" role="group" aria-label="Animation playback controls">
 <button type="button" data-action="reset">
@@ -877,16 +960,16 @@ Play
 <button type="button" data-action="next">
 Next step
 </button>
-<input type="range" min="0" max="7" value="0" step="1" aria-label="Algorithm step">
+<input type="range" min="0" max="10" value="0" step="1" aria-label="Algorithm animation frame">
 <output aria-live="polite">
 </output>
 </div>
 </div>
 <div class="caption">
-The highlighted line is the current algorithm step. Denoising updates a decision vector; it is not robot motion.
+Step 8 has four frames: score correction, rescaling, next sampling distribution, and new paths. Nothing here is physical robot motion.
 </div>
 <aside class="notes">
-<p>The selector defaults to iteration 8, the final iteration, where the proposals concentrate on a path around the obstacle. Any of the eight saved iterations can be inspected independently. Step 1 displays the current noisy vector; 2 draws Gaussian decision values; 3 constructs paths; 4 tests feasibility and evaluates path length; 5 normalizes cost weights; 6 forms the weighted mean; 7 computes the score; 8 computes the next lower-noise iterate. The model evaluations are deterministic values from the saved demonstration; playback does not fabricate or rerun optimization. At early levels the mean can be infeasible; the best evaluated feasible path remains a separate object. The final next-level step is selected for the static PDF export.</p>
+<p>The player opens at iteration 7, level 2, to show the substantial narrowing before the last level. All eight saved iterations are selectable. The final algorithm line spans frames 8–11: score correction, change of noise scale, the next proposal, and the actual next saved sample bank. The next iteration button starts its full cost evaluation; it is enabled only after the transition and never after the final level. Gray path clouds in the last frame are prior proposals; blue paths are fresh proposals, not morphed versions of the same samples. All data come from the original saved teaching example. The noisy coordinate and clean path-height coordinate are labeled separately. The final level explicitly has no next Gaussian or sample bank. PDF export uses the before/after proposal view at level 2.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -950,7 +1033,7 @@ h_a(x(\tau))\leq0\quad\text{for every constraint }a."></span></p>
 <p><span class="latex-inline" data-latex="h_a"></span> encodes an environment or state constraint. For example, outside a circular exclusion region, <span class="latex-inline" data-latex="h_a(x)=R_a^2-\|\Psi(x)-c_a\|^2"></span>, with center <span class="latex-inline" data-latex="c_a"></span> and radius <span class="latex-inline" data-latex="R_a"></span>.</p>
 <p><strong>The controller from the preliminaries determines the applied input:</strong></p>
 <p><span class="latex-display" data-latex="u=\underset{v\in\mathcal U}{\arg\min}\ \frac12\|v-u_{\mathrm{nom}}\|^2
-\quad\text{s.t.}\quad \nabla_x V_a^{\mathsf T}f_d(x,v,d)+\alpha V_a\leq0."></span></p>
+\quad\text{s.t.}\quad \nabla_x V_a^{\mathsf T}f_d(x,v,d)+\kappa V_a\leq0."></span></p>
 <p>The value <span class="latex-inline" data-latex="V_a"></span> and tested wind values <span class="latex-inline" data-latex="d"></span> depend on the available wind belief. The inequality is imposed for each constraint and tested wind value. Here <span class="latex-inline" data-latex="v"></span> is the trial input; <span class="latex-inline" data-latex="u"></span> is the selected input.</p>
 <div class="key-line">
 The planner evaluates the motion produced by this controller. It cannot choose the nominal route and assume that route is executed.
@@ -1069,7 +1152,7 @@ Illustrative traces. Finite sampled policy-value construction inspired by Knoedl
 <p><span class="latex-display" data-latex="u=\underset{v\in\mathcal U}{\arg\min}\ \frac12\|v-u_{\mathrm{nom}}\|^2"></span></p>
 <p>subject to, for every constraint <span class="latex-inline" data-latex="a"></span>,</p>
 <p><span class="latex-display" data-latex="\max_{\ell=1,\ldots,L}\nabla_x\widehat V_a^{\mathsf T}
- f_d(x,v,\widetilde d^{[\ell]}(\Psi(x)))+\alpha\widehat V_a\leq0."></span></p>
+ f_d(x,v,\widetilde d^{[\ell]}(\Psi(x)))+\kappa\widehat V_a\leq0."></span></p>
 <div class="definition-grid">
 <div>
 <span class="latex-inline" data-latex="v"></span> is the trial control input in this optimization; <span class="latex-inline" data-latex="u"></span> is its selected value.<br>The belief is held fixed when taking the state gradient <span class="latex-inline" data-latex="\nabla_x\widehat V_a"></span>.
@@ -2036,7 +2119,7 @@ Construction inspired by Knoedler et al.’s policy-value approach. It supplies 
 <p><span class="latex-display" data-latex="g_{v,a}^{\mathsf T}u\leq
 -g_{r,a}^{\mathsf T}v+\gamma g_{v,a}^{\mathsf T}v
 -\max_{\ell}g_{v,a}^{\mathsf T}\widetilde d^{[\ell]}(r)
--\alpha\widehat V_a."></span></p>
+-\kappa\widehat V_a."></span></p>
 <div class="definition-grid">
 <div>
 <b>Through the design-policy prediction:</b><br>The wind belief changes the sampled trajectories, their largest constraint values <span class="latex-inline" data-latex="\widehat V_a"></span>, and the gradients <span class="latex-inline" data-latex="g_{r,a},g_{v,a}"></span>.
@@ -2406,7 +2489,67 @@ This is a separate implementation mode. The result animations show the realizati
      const N='#00274c',B='#2474bf',O='#d77717',G='#008653',GRAY='#aab7c0';
      const fmt=x=>Number(x).toFixed(3);
      const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+     function denoising(h,step,iteration){
+      const d=window.mbdTeachingData,ab=d.alpha_bar[h.level-1],prev=h.level===1?1:d.alpha_bar[h.level-2];
+      const alpha=ab/prev,corrected=h.noisy+(1-ab)*h.score,nextStd=Math.sqrt((1-prev)/prev);
+      const next=d.history[iteration+1],v=[];
+      const txt=(x,y,s,size=18,c=N,anchor='start',weight=400)=>v.push(`<text x="${x}" y="${y}" font-family="Arial,Helvetica,sans-serif" font-size="${size}" fill="${c}" text-anchor="${anchor}" font-weight="${weight}">${esc(s)}</text>`);
+      const line=(x,y,xx,yy,c=N,w=2,extra='')=>v.push(`<line x1="${x}" y1="${y}" x2="${xx}" y2="${yy}" stroke="${c}" stroke-width="${w}" ${extra}/>`);
+      const dot=(x,y,c,r=6)=>v.push(`<circle cx="${x}" cy="${y}" r="${r}" fill="${c}"/>`);
+      v.push('<defs><clipPath id="denoise-path-clip"><rect x="18" y="78" width="390" height="265"/></clipPath><clipPath id="denoise-density-clip"><rect x="455" y="100" width="370" height="225"/></clipPath><marker id="denoise-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#d77717"/></marker></defs>');
+      const titles=['8a · Apply the score correction','8b · Rescale to the next level','8c · Recenter and narrow sampling','8d · Draw a new set of paths'];
+      txt(20,27,h.level===1&&step>=9?'Final level · no further sampling':titles[step-7],24,N,'start',700);
+      if(step<10){
+       txt(20,59,'Noisy optimizer coordinate y',19,N,'start',700);
+       const lo=Math.min(h.noisy,corrected,h.next_noisy)-.08,hi=Math.max(h.noisy,corrected,h.next_noisy)+.08;
+       const xx=a=>45+330*(a-lo)/(hi-lo);
+       const row=(y,val,label,c)=>{txt(24,y-26,label,19,c);line(40,y,386,y,'#c2ced7',2);dot(xx(val),y,c);};
+       row(128,h.noisy,`Start: yᵢ = ${fmt(h.noisy)}`,N);
+       row(221,corrected,`After score correction: ${fmt(corrected)}`,O);
+       dot(xx(h.noisy),221,GRAY,4);
+       line(xx(h.noisy),221,xx(corrected),221,O,3,'marker-end="url(#denoise-arrow)"');
+       txt(22,167,`Add ${(1-ab).toFixed(3)} × ${fmt(h.score)}`,17,O);
+       if(step>=8){
+        row(315,h.next_noisy,`Rescaled: yᵢ₋₁ = ${fmt(h.next_noisy)}`,G);
+        dot(xx(corrected),315,GRAY,4);
+        line(xx(corrected),315,xx(h.next_noisy),315,O,3,'marker-end="url(#denoise-arrow)"');
+        txt(22,261,`Divide by √αᵢ = ${fmt(Math.sqrt(alpha))}`,17,G);
+       }else txt(24,313,'Next: divide by √αᵢ to change level.',18,GRAY);
+       txt(213,361,'All three rows use the same y scale.',17,N,'middle');
+       txt(213,403,'This changes the optimizer, not the robot.',18,N,'middle');
+      }else{
+       txt(20,59,next?'New proposals, before cost evaluation':'Endpoint and best feasible path',19,N,'start',700);
+       const px=x=>212+x*65,py=y=>211-y*65;
+       for(const a of [-2,-1,0,1,2]){line(px(a),80,px(a),340,'#e9eef2',1);line(25,py(a),405,py(a),'#e9eef2',1);}
+       dot(212,211,GRAY,.5*65);v.push(`<circle cx="212" cy="211" r="39" fill="none" stroke="${N}" stroke-dasharray="4 4"/>`);
+       const path=(a,c,opacity,w,dash=false)=>{const p=Array.from({length:101},(_,j)=>{const s=j/100;return `${j?'L':'M'}${px(-2+4*s)},${py(4*a*s*(1-s))}`}).join(' ');v.push(`<path d="${p}" stroke="${c}" opacity="${opacity}" stroke-width="${w}" fill="none" ${dash?'stroke-dasharray="5 4"':''}/>`)};
+       v.push('<g clip-path="url(#denoise-path-clip)">');
+       h.samples.forEach(a=>path(a,GRAY,.21,1));
+       if(next)next.samples.forEach(a=>path(a,B,.32,1.7));
+       else path(h.best[0],G,1,3);
+       path(h.weighted_mean,O,1,3,true);v.push('</g>');dot(px(-2),py(0),N);dot(px(2),py(0),N);
+       txt(212,363,next?'Gray: previous paths · Blue: new paths':'Green: best evaluated feasible path',17,N,'middle');
+       txt(212,402,'Orange dashed: weighted mean path',18,O,'middle');
+      }
+      line(430,48,430,414,'#dce5ec',1);
+      txt(455,59,'Clean path-height coordinate a',19,N,'start',700);
+      txt(455,86,'Gaussian density · same vertical scale',17,N);
+      const xx=a=>640+a*82,base=319,peak=nextStd>0?nextStd:h.proposal_std;
+      [-2,-1,0,1,2].forEach(a=>{line(xx(a),108,xx(a),base,'#e9eef2',1);txt(xx(a),341,a,16,N,'middle')});
+      const curve=(mean,std,c,dashed)=>{const p=Array.from({length:301},(_,j)=>{const a=-2.25+4.5*j/300;return `${j?'L':'M'}${xx(a)},${base-185*peak/std*Math.exp(-.5*((a-mean)/std)**2)}`}).join(' ');v.push(`<path d="${p}" fill="none" stroke="${c}" stroke-width="3" ${dashed?'stroke-dasharray="7 5"':''}/>`);};
+      v.push('<g clip-path="url(#denoise-density-clip)">');curve(h.proposal_mean,h.proposal_std,GRAY,true);
+      if(step>=9&&nextStd>0)curve(h.weighted_mean,nextStd,B,false);
+      line(xx(h.weighted_mean),112,xx(h.weighted_mean),base,O,2,'stroke-dasharray="5 4"');
+      if(step===10&&next)next.samples.forEach((a,k)=>dot(xx(a),315-(k%3)*6,B,2.5));
+      if(step>=9&&nextStd===0)dot(xx(h.weighted_mean),base,O,7);
+      v.push('</g>');
+      txt(455,369,`Before: mean ${fmt(h.proposal_mean)} · std. ${fmt(h.proposal_std)}`,17,GRAY);
+      txt(455,394,step>=9?(next?`Next: mean ${fmt(h.weighted_mean)} · std. ${fmt(nextStd)}`:`Endpoint a = ${fmt(h.weighted_mean)}; no next Gaussian`):`Orange line: weighted mean ā = ${fmt(h.weighted_mean)}`,17,step>=9?B:O);
+      txt(455,419,'View: −2.2 to 2.2; Gaussian tails continue.',15,N);
+      return v.join('');
+     }
      function diagram(h,step,iteration){
+      if(step>=7)return denoising(h,step,iteration);
       let v=[];
       const text=(x,y,s,size=18,color=N,anchor='start',weight=400)=>v.push(`<text x="${x}" y="${y}" font-family="Arial,Helvetica,sans-serif" font-size="${size}" fill="${color}" text-anchor="${anchor}" font-weight="${weight}">${esc(s)}</text>`);
       const line=(x1,y1,x2,y2,color=N,width=1,extra='')=>v.push(`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${width}" ${extra}/>`);
@@ -2480,7 +2623,7 @@ This is a separate implementation mode. The result animations show the realizati
        const range=root.querySelector('input[type="range"]'),out=root.querySelector('output');
        const play=root.querySelector('[data-action="play"]');
        const select=root.querySelector('select');
-       const api={index:detail&&location.search.includes('print-pdf')?7:0,iteration:detail?Number(select.value):0,playing:false,timer:null};
+       const api={index:detail&&location.search.includes('print-pdf')?9:0,iteration:detail?Number(select.value):0,playing:false,timer:null};
        const max=Number(range.max);
        function pause(){clearTimeout(api.timer);api.timer=null;api.playing=false;play.textContent='Play';play.setAttribute('aria-pressed','false');}
        function render(){
@@ -2492,7 +2635,9 @@ This is a separate implementation mode. The result animations show the realizati
          out.textContent=`Iteration ${Math.floor(api.index/3)+1}/8 · phase ${api.index%3+1}/3`;
         }else{
          const h=window.mbdTeachingData.history[api.iteration];
-         root.querySelectorAll('.algorithm-step').forEach((e,i)=>{e.classList.toggle('active',i===api.index);e.classList.toggle('done',i<api.index);if(i===api.index)e.setAttribute('aria-current','step');else e.removeAttribute('aria-current');});
+         const algorithmStep=Math.min(api.index,7);
+         root.querySelectorAll('.algorithm-step').forEach((e,i)=>{e.classList.toggle('active',i===algorithmStep);e.classList.toggle('done',i<algorithmStep);if(i===algorithmStep)e.setAttribute('aria-current','step');else e.removeAttribute('aria-current');});
+         root.querySelector('[data-action="continue"]').disabled=api.index<max||h.level===1;
          root.querySelectorAll('.mbd-equation').forEach((e,i)=>e.hidden=i!==api.index);
          root.querySelector('.mbd-stage').innerHTML=diagram(h,api.index,api.iteration);
          const valid=h.valid.filter(Boolean).length;
@@ -2504,10 +2649,13 @@ This is a separate implementation mode. The result animations show the realizati
           'Use temperature λ = 0.12. Feasible shorter paths receive larger weights; all 64 weights sum to one.',
           `The weighted height is ā = ${fmt(h.weighted_mean)}. This mean is separate from the best evaluated feasible path and need not be feasible.`,
           `The score estimate is ${fmt(h.score)}. It combines the current noisy value and the cost-weighted parameter mean.`,
-          `Apply the denoising update: yᵢ = ${fmt(h.noisy)} becomes yᵢ₋₁ = ${fmt(h.next_noisy)}. ${h.level===1?'The reverse levels are complete.':'The next iteration starts from this new noisy value.'}`
+          '8a. Add the score correction. It places the intermediate noisy value at the current noise-scaled weighted mean. The sampling distribution has not changed yet.',
+          '8b. Divide by √αᵢ. This expresses the weighted mean at the next noise level, giving the next noisy optimizer value yᵢ₋₁.',
+          h.level===1?'8c. The final noise level has been removed: y₀ = ā. There is no next Gaussian proposal. Feasibility of the mean still needs checking.':'8c. The next Gaussian is centered at ā and has smaller standard deviation. Gray dashed is the old proposal; blue is the next proposal.',
+          h.level===1?'8d. Reverse iterations are complete. The weighted mean and best evaluated feasible path remain separate; no new samples are drawn.':'8d. Draw fresh heights from the blue Gaussian. The new blue paths have not been cost-weighted yet. Use Continue to next iteration to evaluate them.'
          ];
          root.querySelector('.mbd-explanation').textContent=comments[api.index];
-         out.textContent=`Iteration ${api.iteration+1}/8 · step ${api.index+1}/8`;
+         out.textContent=`Iteration ${api.iteration+1}/8 · ${api.index<7?`step ${api.index+1}/8`:`step 8${'abcd'[api.index-7]}`}`;
         }
        }
        function seek(i){pause();api.index=Math.max(0,Math.min(max,i));render();}
@@ -2523,6 +2671,7 @@ This is a separate implementation mode. The result animations show the realizati
         if(action==='reset')seek(0);
         if(action==='prev')seek(api.index-1);
         if(action==='next')seek(api.index+1);
+        if(action==='continue'&&api.index===max&&api.iteration<7){api.iteration++;select.value=String(api.iteration);seek(0);}
         if(action==='play'){
          if(api.playing)pause();else{if(api.index===max){api.index=0;render();}api.playing=true;play.textContent='Pause';play.setAttribute('aria-pressed','true');api.timer=setTimeout(tick,detail?2200:1500);}
         }
