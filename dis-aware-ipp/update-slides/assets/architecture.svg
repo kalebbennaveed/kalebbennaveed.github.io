@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2000" height="930" viewBox="0 0 2000 930"><title>Generic planning architecture: complete diffusion levels, then execute and assimilate measurements</title><defs>
+<marker id="a00274c" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="12" refX="13" refY="6" orient="auto"><path d="M0,0 L13,6 L0,12 Z" fill="#00274c"/></marker>
+<marker id="a2474bf" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="12" refX="13" refY="6" orient="auto"><path d="M0,0 L13,6 L0,12 Z" fill="#2474bf"/></marker>
+<marker id="a9b4682" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="12" refX="13" refY="6" orient="auto"><path d="M0,0 L13,6 L0,12 Z" fill="#9b4682"/></marker>
+<marker id="a008653" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="12" refX="13" refY="6" orient="auto"><path d="M0,0 L13,6 L0,12 Z" fill="#008653"/></marker>
+<marker id="ad77717" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="12" refX="13" refY="6" orient="auto"><path d="M0,0 L13,6 L0,12 Z" fill="#d77717"/></marker>
+<marker id="a667889" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="12" refX="13" refY="6" orient="auto"><path d="M0,0 L13,6 L0,12 Z" fill="#667889"/></marker>
+</defs><rect width="100%" height="100%" fill="white"/>
+<text x="40" y="38" font-family="Arial,Helvetica,sans-serif" font-size="27" font-weight="700" fill="#2474bf" text-anchor="start">PLANNING  ·  evaluate motion and monitoring over horizon T</text>
+<g id="inputs" data-panel="inputs" data-bounds="40,75,310,350">
+<rect x="40" y="75" width="310" height="350" rx="12" fill="#fbfcfe" stroke="#b5c7d6" stroke-width="2"/>
+<circle cx="75" cy="114" r="21" fill="#00274c" opacity="1"/>
+<text x="75" y="123" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="700" fill="white" text-anchor="middle">1</text>
+<text x="110" y="123" font-family="Arial,Helvetica,sans-serif" font-size="27" font-weight="700" fill="#00274c" text-anchor="start">Current inputs</text>
+<text x="65" y="185" font-family="Arial,Helvetica,sans-serif" font-size="27" font-weight="400" fill="#00274c" text-anchor="start">Robot state</text>
+<text x="65" y="242" font-family="Arial,Helvetica,sans-serif" font-size="27" font-weight="400" fill="#00274c" text-anchor="start">Clarity vector</text>
+<text x="65" y="299" font-family="Arial,Helvetica,sans-serif" font-size="27" font-weight="400" fill="#00274c" text-anchor="start">Wind belief</text>
+<text x="65" y="356" font-family="Arial,Helvetica,sans-serif" font-size="27" font-weight="400" fill="#00274c" text-anchor="start">Geometry and targets</text>
+</g>
+<g id="parameters" data-panel="parameters" data-bounds="410,75,350,350">
+<rect x="410" y="75" width="350" height="350" rx="12" fill="#fbfcfe" stroke="#b5c7d6" stroke-width="2"/>
+<circle cx="445" cy="114" r="21" fill="#00274c" opacity="1"/>
+<text x="445" y="123" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="700" fill="white" text-anchor="middle">2</text>
+<text x="480" y="123" font-family="Arial,Helvetica,sans-serif" font-size="25" font-weight="700" fill="#00274c" text-anchor="start">Sample parameters</text>
+<text x="440" y="195" font-family="Arial,Helvetica,sans-serif" font-size="32" font-weight="700" fill="#2474bf" text-anchor="start">θ</text>
+<rect x="485" y="172" width="29" height="29" rx="1" fill="#d8e8f4" stroke="#2474bf" stroke-width="2"/>
+<rect x="523" y="172" width="29" height="29" rx="1" fill="#aacce4" stroke="#2474bf" stroke-width="2"/>
+<rect x="561" y="172" width="29" height="29" rx="1" fill="#79acd0" stroke="#2474bf" stroke-width="2"/>
+<rect x="599" y="172" width="29" height="29" rx="1" fill="#d8e8f4" stroke="#2474bf" stroke-width="2"/>
+<rect x="637" y="172" width="29" height="29" rx="1" fill="#aacce4" stroke="#2474bf" stroke-width="2"/>
+<rect x="675" y="172" width="29" height="29" rx="1" fill="#79acd0" stroke="#2474bf" stroke-width="2"/>
+<text x="440" y="240" font-family="Arial,Helvetica,sans-serif" font-size="32" font-weight="700" fill="#2474bf" text-anchor="start">θ</text>
+<rect x="485" y="217" width="29" height="29" rx="1" fill="#aacce4" stroke="#2474bf" stroke-width="2"/>
+<rect x="523" y="217" width="29" height="29" rx="1" fill="#79acd0" stroke="#2474bf" stroke-width="2"/>
+<rect x="561" y="217" width="29" height="29" rx="1" fill="#d8e8f4" stroke="#2474bf" stroke-width="2"/>
+<rect x="599" y="217" width="29" height="29" rx="1" fill="#aacce4" stroke="#2474bf" stroke-width="2"/>
+<rect x="637" y="217" width="29" height="29" rx="1" fill="#79acd0" stroke="#2474bf" stroke-width="2"/>
+<rect x="675" y="217" width="29" height="29" rx="1" fill="#d8e8f4" stroke="#2474bf" stroke-width="2"/>
+<text x="440" y="285" font-family="Arial,Helvetica,sans-serif" font-size="32" font-weight="700" fill="#2474bf" text-anchor="start">θ</text>
+<rect x="485" y="262" width="29" height="29" rx="1" fill="#79acd0" stroke="#2474bf" stroke-width="2"/>
+<rect x="523" y="262" width="29" height="29" rx="1" fill="#d8e8f4" stroke="#2474bf" stroke-width="2"/>
+<rect x="561" y="262" width="29" height="29" rx="1" fill="#aacce4" stroke="#2474bf" stroke-width="2"/>
+<rect x="599" y="262" width="29" height="29" rx="1" fill="#79acd0" stroke="#2474bf" stroke-width="2"/>
+<rect x="637" y="262" width="29" height="29" rx="1" fill="#d8e8f4" stroke="#2474bf" stroke-width="2"/>
+<rect x="675" y="262" width="29" height="29" rx="1" fill="#aacce4" stroke="#2474bf" stroke-width="2"/>
+<text x="435" y="350" font-family="Arial,Helvetica,sans-serif" font-size="25" font-weight="400" fill="#00274c" text-anchor="start">Each vector defines one</text>
+<text x="435" y="386" font-family="Arial,Helvetica,sans-serif" font-size="25" font-weight="400" fill="#00274c" text-anchor="start">nominal control policy.</text>
+</g>
+<g id="prediction" data-panel="prediction" data-bounds="820,75,570,350">
+<rect x="820" y="75" width="570" height="350" rx="12" fill="#fbfcfe" stroke="#b5c7d6" stroke-width="2"/>
+<circle cx="855" cy="114" r="21" fill="#00274c" opacity="1"/>
+<text x="855" y="123" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="700" fill="white" text-anchor="middle">3</text>
+<text x="890" y="123" font-family="Arial,Helvetica,sans-serif" font-size="28" font-weight="700" fill="#00274c" text-anchor="start">Predict execution</text>
+<rect x="845" y="155" width="245" height="175" rx="6" fill="#f5f8fb" stroke="#d0dce5" stroke-width="2"/>
+<rect x="854.8" y="267.0" width="53.9" height="49.00000000000001" rx="1" fill="#dce7f0" stroke="#b3c9da" stroke-width="2"/>
+<text x="881.75" y="302.0" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#00274c" text-anchor="middle">B</text>
+<rect x="1026.3" y="169.0" width="53.9" height="49.00000000000001" rx="1" fill="#dce7f0" stroke="#b3c9da" stroke-width="2"/>
+<text x="1053.25" y="204.0" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#00274c" text-anchor="middle">A</text>
+<circle cx="962.6" cy="225.0" r="22.75" fill="#9aa9b6" opacity="1"/>
+<circle cx="992.0" cy="275.75" r="22.75" fill="#9aa9b6" opacity="1"/>
+<polyline data-connector=":" points="901.35,183.0 884.2,193.5" fill="none" stroke="#667889" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a667889)"/>
+<polyline data-connector=":" points="962.6,181.25 945.45,191.75" fill="none" stroke="#667889" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a667889)"/>
+<polyline data-connector=":" points="1045.9,268.75 1028.75,279.25" fill="none" stroke="#667889" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a667889)"/>
+<polyline data-connector=":" points="906.25,239.0 889.1,249.5" fill="none" stroke="#667889" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#a667889)"/>
+<path d="M1048.35,198.75 C1082.65,300.25 962.6,326.5 881.75,291.5" fill="none" stroke="#2474bf" stroke-width="4"/>
+<circle cx="1011.6" cy="291.5" r="10" fill="#2474bf" opacity="0.15"/>
+<circle cx="1011.6" cy="291.5" r="5" fill="#2474bf" opacity="1"/>
+<circle cx="1053.25" cy="221.5" r="4" fill="#9b4682" opacity="1"/>
+<circle cx="1053.25" cy="242.5" r="4" fill="#9b4682" opacity="1"/>
+<circle cx="1043.45" cy="263.5" r="4" fill="#9b4682" opacity="1"/>
+<circle cx="1021.4" cy="282.75" r="4" fill="#9b4682" opacity="1"/>
+<text x="1120" y="195" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="400" fill="#00274c" text-anchor="start">Applied inputs</text>
+<text x="1120" y="240" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="400" fill="#00274c" text-anchor="start">Robot motion</text>
+<text x="1120" y="285" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="400" fill="#00274c" text-anchor="start">Sensing and clarity</text>
+<text x="845" y="368" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="700" fill="#2474bf" text-anchor="start">Current belief → wind-aware evaluation</text>
+<text x="845" y="404" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#9b4682" text-anchor="start">Updated belief → anticipated-learning evaluation</text>
+</g>
+<g id="cost" data-panel="cost" data-bounds="1450,75,510,350">
+<rect x="1450" y="75" width="510" height="350" rx="12" fill="#fbfcfe" stroke="#b5c7d6" stroke-width="2"/>
+<circle cx="1485" cy="114" r="21" fill="#00274c" opacity="1"/>
+<text x="1485" y="123" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="700" fill="white" text-anchor="middle">4</text>
+<text x="1520" y="123" font-family="Arial,Helvetica,sans-serif" font-size="28" font-weight="700" fill="#00274c" text-anchor="start">Evaluate monitoring</text>
+<path d="M1490,205 V307 H1910" fill="none" stroke="#667889" stroke-width="2"/>
+<path d="M1495,233.56 C1595.0,276.4 1691.6,226.42 1742.0,252.94 S1842.8,276.4 1900,240.7 L1900,305 H1495 Z" fill="#2474bf" opacity=".16"/>
+<path d="M1495,233.56 C1595.0,276.4 1691.6,226.42 1742.0,252.94 S1842.8,276.4 1900,240.7" fill="none" stroke="#2474bf" stroke-width="4"/>
+<text x="1490" y="191" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="400" fill="#667889" text-anchor="start">Clarity deficit</text>
+<text x="1910" y="339" font-family="Arial,Helvetica,sans-serif" font-size="23" font-weight="400" fill="#667889" text-anchor="end">Prediction time</text>
+<text x="1475" y="368" font-family="Arial,Helvetica,sans-serif" font-size="23" font-weight="400" fill="#00274c" text-anchor="start">Integrate clarity deficit;</text>
+<text x="1475" y="404" font-family="Arial,Helvetica,sans-serif" font-size="23" font-weight="400" fill="#00274c" text-anchor="start">average over possible physical fields.</text>
+</g>
+<polyline data-connector="inputs:parameters" points="350,245 410,245" fill="none" stroke="#00274c" stroke-width="3" stroke-linejoin="round" marker-end="url(#a00274c)"/>
+<polyline data-connector="parameters:prediction" points="760,245 820,245" fill="none" stroke="#00274c" stroke-width="3" stroke-linejoin="round" marker-end="url(#a00274c)"/>
+<polyline data-connector="prediction:cost" points="1390,245 1450,245" fill="none" stroke="#00274c" stroke-width="3" stroke-linejoin="round" marker-end="url(#a00274c)"/>
+<g id="refinement" data-panel="refinement" data-bounds="1450,485,510,110">
+<rect x="1450" y="485" width="510" height="110" rx="12" fill="#edf4fa" stroke="#2474bf" stroke-width="2"/>
+<circle cx="1485" cy="526" r="21" fill="#00274c" opacity="1"/>
+<text x="1485" y="535" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="700" fill="white" text-anchor="middle">5</text>
+<text x="1520" y="535" font-family="Arial,Helvetica,sans-serif" font-size="27" font-weight="700" fill="#00274c" text-anchor="start">MBD score update</text>
+<text x="1475" y="570" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="400" fill="#00274c" text-anchor="start">Cost weights → weighted mean → refine</text>
+</g>
+<polyline data-connector="cost:refinement" points="1705,425 1705,485" fill="none" stroke="#00274c" stroke-width="3" stroke-linejoin="round" marker-end="url(#a00274c)"/>
+<g id="decision" data-panel="decision" data-bounds="820,485,570,110">
+<rect x="820" y="485" width="570" height="110" rx="12" fill="#fff9dc" stroke="#00274c" stroke-width="2"/>
+<text x="1105" y="535" font-family="Arial,Helvetica,sans-serif" font-size="30" font-weight="700" fill="#00274c" text-anchor="middle">More diffusion levels?</text>
+<text x="1105" y="572" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="400" fill="#667889" text-anchor="middle">Choose exactly one continuation below.</text>
+</g>
+<polyline data-connector="refinement:decision" points="1450,540 1390,540" fill="none" stroke="#00274c" stroke-width="3" stroke-linejoin="round" marker-end="url(#a00274c)"/>
+<polyline data-connector="decision:parameters" points="820,540 585,540 585,425" fill="none" stroke="#00274c" stroke-width="3" stroke-linejoin="round" marker-end="url(#a00274c)"/>
+<text x="700" y="477" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="700" fill="#00274c" text-anchor="middle">YES</text>
+<text x="700" y="515" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="700" fill="#00274c" text-anchor="middle">Repeat MBD</text>
+<polyline data-connector="decision:execution" points="1105,595 1105,690" fill="none" stroke="#008653" stroke-width="3" stroke-linejoin="round" marker-end="url(#a008653)"/>
+<text x="1130" y="644" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="700" fill="#008653" text-anchor="start">NO · optimization finished</text>
+<text x="820" y="677" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="700" fill="#008653" text-anchor="start">PHYSICAL EXECUTION</text>
+<g id="execution" data-panel="execution" data-bounds="820,690,570,150">
+<rect x="820" y="690" width="570" height="150" rx="12" fill="#eff7f2" stroke="#008653" stroke-width="2"/>
+<circle cx="855" cy="731" r="21" fill="#008653" opacity="1"/>
+<text x="855" y="740" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="700" fill="white" text-anchor="middle">6</text>
+<text x="890" y="740" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="700" fill="#008653" text-anchor="start">Execute the next interval</text>
+<text x="845" y="784" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="400" fill="#00274c" text-anchor="start">Select and check an evaluated policy.</text>
+<text x="845" y="821" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="400" fill="#00274c" text-anchor="start">Apply its inputs; collect measurements.</text>
+</g>
+<g id="measurement" data-panel="measurement" data-bounds="1450,690,510,150">
+<rect x="1450" y="690" width="510" height="150" rx="12" fill="#fbf2f8" stroke="#9b4682" stroke-width="2"/>
+<circle cx="1485" cy="731" r="21" fill="#9b4682" opacity="1"/>
+<text x="1485" y="740" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="700" fill="white" text-anchor="middle">7</text>
+<text x="1520" y="740" font-family="Arial,Helvetica,sans-serif" font-size="25" font-weight="700" fill="#9b4682" text-anchor="start">Update measured inputs</text>
+<text x="1475" y="784" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="400" fill="#00274c" text-anchor="start">Update state, clarity and wind belief.</text>
+<text x="1475" y="821" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="400" fill="#00274c" text-anchor="start">Start the next planning call.</text>
+</g>
+<polyline data-connector="execution:measurement" points="1390,765 1450,765" fill="none" stroke="#008653" stroke-width="3" stroke-linejoin="round" marker-end="url(#a008653)"/>
+<polyline data-connector="measurement:inputs" points="1705,840 1705,900 20,900 20,455 195,455 195,425" fill="none" stroke="#008653" stroke-width="3" stroke-linejoin="round" marker-end="url(#a008653)"/>
+<rect x="650" y="881" width="600" height="38" rx="0" fill="white" stroke="white" stroke-width="2"/>
+<text x="950" y="910" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="700" fill="#008653" text-anchor="middle">REAL MEASUREMENTS → NEXT PLANNING CALL</text>
+<text x="45" y="665" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="700" fill="#667889" text-anchor="start">Inside the motion sketch</text>
+<path d="M50,705 H100" fill="none" stroke="#2474bf" stroke-width="4"/>
+<text x="120" y="713" font-family="Arial,Helvetica,sans-serif" font-size="23" font-weight="400" fill="#00274c" text-anchor="start">Predicted executed motion</text>
+<circle cx="75" cy="752" r="5" fill="#9b4682" opacity="1"/>
+<text x="120" y="760" font-family="Arial,Helvetica,sans-serif" font-size="23" font-weight="400" fill="#00274c" text-anchor="start">Predicted observation location</text>
+<text x="45" y="810" font-family="Arial,Helvetica,sans-serif" font-size="23" font-weight="400" fill="#667889" text-anchor="start">The sketch illustrates the prediction,</text>
+<text x="45" y="844" font-family="Arial,Helvetica,sans-serif" font-size="23" font-weight="400" fill="#667889" text-anchor="start">not an additional experiment.</text>
+</svg>
