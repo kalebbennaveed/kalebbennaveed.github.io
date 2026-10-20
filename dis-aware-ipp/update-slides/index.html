@@ -146,13 +146,13 @@
 Disturbance-aware<br>informative planning
 </div>
 <div class="cover-subtitle">
-Predicting executed monitoring performance<br>and anticipating useful wind learning
+Predicting executed monitoring performance<br>with optimistic planning and real online learning
 </div>
 <div class="cover-band">
 <strong>Kaleb Ben Naveed</strong><br>Department of Robotics · University of Michigan<br><span>Model-based diffusion with a learned disturbance model</span>
 </div>
 <aside class="notes">
-<p>The first contribution is wind-aware informative planning: optimize the monitoring quality that can actually be delivered under disturbances and the execution controller. Anticipated learning is the second contribution. This deck uses the supplied Disturbance_aware_ipp.pdf for the problem notation and the current MBD implementation for the method. The supplied manuscript’s older Stein/two-pass counterfactual estimator is not silently equated with the current causal MBD rollout. All displayed missions are archived development runs. The revised numerical target and solver discussion does not imply that those archives were rerun.</p>
+<p>Method proposal for review, 20 October 2026. The first contribution is disturbance-aware prediction of delivered monitoring. The revision introduces optimism over performance outcomes and importance-corrected proposal adaptation. It holds the posterior fixed inside predictions and learns from real measurements. The new method has not been implemented or evaluated. All previous value-of-learning equations and their associated results are retained in the final Archived method section.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -176,11 +176,11 @@ The central issue is that a nominally informative trajectory may not deliver its
 <b>1. Wind-aware planning</b><br>Predict how wind and controller intervention change motion, arrival time and sensing.
 </div>
 <div>
-<b>2. Anticipated learning</b><br>Predict where observations can improve those future execution predictions.
+<b>2. Optimistic planning with online learning</b><br>Try favorable plausible alternatives and learn from actual execution.
 </div>
 </div>
 <aside class="notes">
-<p>The paths are conceptual illustrations on the recorded A/B geometry, not measured comparisons or a new experiment. Wind arrows use the archived physical field for explanation. The planner only has its estimated wind belief. The first question is whether the robot can deliver the sensing predicted by a nominal route. The second is whether future observations will change subsequent execution. Uncertainty reduction is not the task objective.</p>
+<p>The paths are conceptual illustrations on the recorded A/B geometry, not measured comparisons or a new experiment. Wind arrows use the archived physical field for explanation. The planner only has its estimated wind belief. The first question is whether the robot can deliver the sensing predicted by a nominal route. The second is whether optimism encourages useful early experience that improves later monitoring. This is a hypothesis for the revised method. Uncertainty reduction is not the task objective.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -271,16 +271,16 @@ Paper notation: Eq. (4) writes the disturbance-dependent dynamics as <span class
 <b>2</b><span><strong>Preliminaries</strong><br>Clarity, POAM, robust policy values and model-based diffusion.</span>
 </div>
 <div>
-<b>3</b><span><strong>Problem formulation</strong><br>Wind-aware planning; wind-aware planning with anticipated learning.</span>
+<b>3</b><span><strong>Problem formulation</strong><br>Disturbance-aware monitoring and optimistic performance preference.</span>
 </div>
 <div>
-<b>4</b><span><strong>Method</strong><br>Architecture, execution prediction, belief updates and optimization.</span>
+<b>4</b><span><strong>Method</strong><br>Execution prediction, optimistic costs, adapted sampling and real learning.</span>
 </div>
 <div>
-<b>5</b><span><strong>MBD comparison</strong><br>The retained score estimator and the changed rollout objective.</span>
+<b>5</b><span><strong>MBD comparison</strong><br>The target, importance correction and retained reverse update.</span>
 </div>
 <div>
-<b>6</b><span><strong>Results</strong><br>Original and reversed A/B environments.</span>
+<b>6</b><span><strong>Planned evaluation</strong><br>Baselines and ablations; prior method and results in the final archive.</span>
 </div>
 </div>
 </section>
@@ -402,17 +402,17 @@ Chen, Liu and Khardon, POAM, RSS 2024. The next slides explain one scalar wind c
 <section id="poam-uses-spatial-correlation-to-connect-observations" class="slide level2 notation-slide" data-section="2 · Preliminaries">
 <h2>POAM uses spatial correlation to connect observations</h2>
 <p>For one scalar wind component, use a <strong>Gaussian process (GP)</strong>: any finite collection of wind values has a joint Gaussian distribution.</p>
-<p><span class="latex-display" data-latex="d(r)\sim\mathcal{GP}\!\left(0,k_\eta(r,r')\right)."></span></p>
+<p><span class="latex-display" data-latex="d(r)\sim\mathcal{GP}\!\left(0,k_\vartheta(r,r')\right)."></span></p>
 <div class="definition-grid">
 <div>
-<span class="latex-inline" data-latex="d(r)"></span>: uncertain wind component at <span class="latex-inline" data-latex="r"></span>.<br><span class="latex-inline" data-latex="0"></span>: prior mean, before observations.<br><span class="latex-inline" data-latex="k_\eta(r,r')"></span>: prior covariance between positions.
+<span class="latex-inline" data-latex="d(r)"></span>: uncertain wind component at <span class="latex-inline" data-latex="r"></span>.<br><span class="latex-inline" data-latex="0"></span>: prior mean, before observations.<br><span class="latex-inline" data-latex="k_\vartheta(r,r')"></span>: prior covariance between positions.
 </div>
 <div>
-<span class="latex-inline" data-latex="\eta"></span>: kernel parameters.<br>The kernel controls how an observation at one position influences predictions elsewhere.
+<span class="latex-inline" data-latex="\vartheta"></span>: kernel parameters.<br>The kernel controls how an observation at one position influences predictions elsewhere.
 </div>
 </div>
 <p>The <strong>attentive kernel</strong> combines spatial correlation lengths:</p>
-<p><span class="latex-display" data-latex="k_\eta(r,r')=\sigma_f^2\,[\bar w(r)^{\mathsf T}\bar w(r')]
+<p><span class="latex-display" data-latex="k_\vartheta(r,r')=\sigma_f^2\,[\bar w(r)^{\mathsf T}\bar w(r')]
 \sum_{b=1}^{B}\bar w_b(r)\bar w_b(r')\,
 \exp\!\left(-\frac{\|r-r'\|_2^2}{2\ell_b^2}\right)."></span></p>
 <div class="definition-grid">
@@ -429,8 +429,8 @@ Chen, Liu and Khardon, POAM, Sec. III-B. The following slide defines the locatio
 </section>
 <section id="what-the-attentive-weights-mean" class="slide level2 notation-slide" data-section="2 · Preliminaries">
 <h2>What the attentive weights mean</h2>
-<p>At each position, a neural network produces a nonnegative vector <span class="latex-inline" data-latex="w_\eta(r)\in\mathbb R^B"></span>. Normalize it to obtain</p>
-<p><span class="latex-display" data-latex="\bar w(r)=\frac{w_\eta(r)}{\|w_\eta(r)\|_2},\qquad
+<p>At each position, a neural network produces a nonnegative vector <span class="latex-inline" data-latex="w_\vartheta(r)\in\mathbb R^B"></span>. Normalize it to obtain</p>
+<p><span class="latex-display" data-latex="\bar w(r)=\frac{w_\vartheta(r)}{\|w_\vartheta(r)\|_2},\qquad
 \bar w_b(r)=\text{component }b\text{ of }\bar w(r)."></span></p>
 <div class="two-points">
 <div>
@@ -445,23 +445,23 @@ Chen, Liu and Khardon, POAM, Sec. III-B. The following slide defines the locatio
 These are kernel weights over spatial length scales. Later, MBD uses different weights over sampled decisions.
 </div>
 <div class="source">
-<span class="latex-inline" data-latex="\mathbb R^B"></span>: vectors with <span class="latex-inline" data-latex="B"></span> real entries. <span class="latex-inline" data-latex="\eta"></span> includes the network and kernel parameters. The numerical visual uses specified illustrative weights.
+<span class="latex-inline" data-latex="\mathbb R^B"></span>: vectors with <span class="latex-inline" data-latex="B"></span> real entries. <span class="latex-inline" data-latex="\vartheta"></span> includes the network and kernel parameters. The numerical visual uses specified illustrative weights.
 </div>
 </section>
 <section id="poam-predicts-wind-through-a-sparse-gaussian-posterior" class="slide level2 notation-slide" data-section="2 · Preliminaries">
 <h2>POAM predicts wind through a sparse Gaussian posterior</h2>
 <p>Choose <span class="latex-inline" data-latex="M"></span> representative <strong>inducing positions</strong> <span class="latex-inline" data-latex="Z=(z_1,\ldots,z_M)"></span>. They are model locations, not additional observations. Collect their wind values in <span class="latex-inline" data-latex="d_Z=[d(z_1),\ldots,d(z_M)]^{\mathsf T}"></span>.</p>
-<p><span class="latex-display" data-latex="d_Z\sim\mathcal N(m_Z,S_Z),\qquad K_{ZZ}=k_\eta(Z,Z),\qquad
-\beta(r)=K_{ZZ}^{-1}k_\eta(Z,r)."></span></p>
+<p><span class="latex-display" data-latex="d_Z\sim\mathcal N(m_Z,S_Z),\qquad K_{ZZ}=k_\vartheta(Z,Z),\qquad
+\beta(r)=K_{ZZ}^{-1}k_\vartheta(Z,r)."></span></p>
 <div class="definition-grid">
 <div>
 <span class="latex-inline" data-latex="m_Z"></span>: mean vector of the <span class="latex-inline" data-latex="M"></span> inducing values.<br><span class="latex-inline" data-latex="S_Z"></span>: their <span class="latex-inline" data-latex="M\times M"></span> posterior covariance.<br><span class="latex-inline" data-latex="K_{ZZ}"></span>: prior covariance matrix at <span class="latex-inline" data-latex="Z"></span>.
 </div>
 <div>
-<span class="latex-inline" data-latex="k_\eta(Z,r)"></span>: vector of covariances from <span class="latex-inline" data-latex="Z"></span> to <span class="latex-inline" data-latex="r"></span>.<br><span class="latex-inline" data-latex="\beta(r)"></span>: interpolation-coefficient vector.<br><span class="latex-inline" data-latex="K_{ZZ}^{-1}"></span>: matrix inverse (computed by a solve).
+<span class="latex-inline" data-latex="k_\vartheta(Z,r)"></span>: vector of covariances from <span class="latex-inline" data-latex="Z"></span> to <span class="latex-inline" data-latex="r"></span>.<br><span class="latex-inline" data-latex="\beta(r)"></span>: interpolation-coefficient vector.<br><span class="latex-inline" data-latex="K_{ZZ}^{-1}"></span>: matrix inverse (computed by a solve).
 </div>
 </div>
-<p><span class="latex-display" data-latex="\mu_d(r)=\beta(r)^{\mathsf T}m_Z"></span> <span class="latex-display" data-latex="\Sigma_d(r,r')=\underbrace{k_\eta(r,r')-\beta(r)^{\mathsf T}K_{ZZ}\beta(r')}_{\text{conditional residual}}+\beta(r)^{\mathsf T}S_Z\beta(r')."></span></p>
+<p><span class="latex-display" data-latex="\mu_d(r)=\beta(r)^{\mathsf T}m_Z"></span> <span class="latex-display" data-latex="\Sigma_d(r,r')=\underbrace{k_\vartheta(r,r')-\beta(r)^{\mathsf T}K_{ZZ}\beta(r')}_{\text{conditional residual}}+\beta(r)^{\mathsf T}S_Z\beta(r')."></span></p>
 <div class="key-line">
 The residual retains uncertainty that the finite inducing values cannot represent. Local wind standard deviation is <span class="latex-inline" data-latex="\sigma_d(r)=\sqrt{\Sigma_d(r,r)}"></span>.
 </div>
@@ -610,7 +610,7 @@ Next step
 </div>
 </div>
 <div class="key-line">
-That specified control law is the <b>design policy</b>, denoted <span class="latex-inline" data-latex="\pi_b"></span>. It makes the future-motion test well defined.
+That specified control law is the <b>design policy</b>, denoted <span class="latex-inline" data-latex="\pi_D"></span>. It makes the future-motion test well defined.
 </div>
 <div class="source">
 Policy-value construction: Knoedler et al., <i>Safety on the Fly</i>, Sec. III-A.
@@ -648,9 +648,9 @@ The value depends on the chosen policy. Wind, actuator limits or a different bra
 </section>
 <section id="from-the-example-to-a-robust-policy-value" class="slide level2" data-section="2 · Preliminaries">
 <h2>From the example to a robust policy value</h2>
-<p>Let <span class="latex-inline" data-latex="\phi_b(\tau;x,d)"></span> be the state reached from <span class="latex-inline" data-latex="x"></span> after time <span class="latex-inline" data-latex="\tau"></span> when following <span class="latex-inline" data-latex="\pi_b"></span> under disturbance signal <span class="latex-inline" data-latex="d"></span>.</p>
+<p>Let <span class="latex-inline" data-latex="\phi_D(\tau;x,d)"></span> be the state reached from <span class="latex-inline" data-latex="x"></span> after time <span class="latex-inline" data-latex="\tau"></span> when following <span class="latex-inline" data-latex="\pi_D"></span> under disturbance signal <span class="latex-inline" data-latex="d"></span>.</p>
 <p><span class="latex-display" data-latex="V_a(x)=\sup_{d\in\mathscr D}\;\sup_{\tau\geq0}
- h_a\!\left(\phi_b(\tau;x,d)\right)"></span></p>
+ h_a\!\left(\phi_D(\tau;x,d)\right)"></span></p>
 <div class="definition-grid">
 <div>
 <span class="latex-inline" data-latex="h_a"></span>: constraint function for constraint <span class="latex-inline" data-latex="a"></span>; violation means <span class="latex-inline" data-latex="h_a>0"></span>.<br><span class="latex-inline" data-latex="\mathscr D"></span>: disturbance signals considered in the source formulation.
@@ -690,7 +690,7 @@ If <span class="latex-inline" data-latex="u_{\mathrm{nom}}"></span> satisfies th
 This changes motion and sensing. Our planner predicts that controller response when evaluating monitoring performance.
 </div>
 <div class="source">
-RPCBF uses this construction for safety filtering. Our finite, sampled execution model is inspired by it; we do not claim its safety guarantees for the planner.
+RPCBF motivates the policy-value construction. The common-input inequalities shown here specify our sampled adaptation; the original paper states a separate robust condition.
 </div>
 </section>
 <section id="mbd-example-optimize-one-path-height-parameter" class="slide level2" data-section="2 · Preliminaries">
@@ -982,8 +982,1060 @@ Step 8 has four frames: score correction, rescaling, next sampling distribution,
           display:block!important;
       }</style></aside>
 </section>
-<section id="problem-formulation" class="slide level2 section-break" data-section="3 · Problem formulation">
+<section id="optimistic-problem" class="slide level2 section-break" data-section="3 · Problem formulation">
 <h2>Problem formulation</h2>
+<div class="section-number">
+3
+</div>
+<div class="section-subtitle">
+Disturbance-aware monitoring with optimism over plausible executions.
+</div>
+<div class="section-agenda">
+Current information, policy decision, constraints and monitoring cost
+</div>
+</section>
+<section id="optimistic-decision" class="slide level2" data-section="3 · Problem formulation">
+<h2>The decision at one replanning time</h2>
+<p>At physical time <span class="latex-inline" data-latex="t_k"></span>, the robot knows its state <span class="latex-inline" data-latex="x_k"></span>, clarity vector <span class="latex-inline" data-latex="q_k"></span>, disturbance belief <span class="latex-inline" data-latex="\mathcal B_k^d"></span>, environment geometry and target clarity <span class="latex-inline" data-latex="\bar q"></span>.</p>
+<p>Choose a <strong>nominal policy parameter vector</strong> <span class="latex-inline" data-latex="\theta\in\Theta"></span>:</p>
+<p><span class="latex-display" data-latex="u_{\mathrm{nom}}(\tau)=\pi^{\mathrm{nom}}(\tau,x(\tau),q(\tau);\mathcal B_k^d,\theta),\qquad 0\leq\tau\leq T."></span></p>
+<div class="definition-grid">
+<div>
+<span class="latex-inline" data-latex="k"></span>: physical replanning index.<br><span class="latex-inline" data-latex="\Theta"></span>: bounded policy parameter domain.<br><span class="latex-inline" data-latex="\theta"></span>: one vector that specifies a nominal policy.
+</div>
+<div>
+<span class="latex-inline" data-latex="T"></span>: prediction horizon.<br><span class="latex-inline" data-latex="\tau"></span>: elapsed prediction time.<br><span class="latex-inline" data-latex="u_{\mathrm{nom}}"></span>: control input requested by that policy.
+</div>
+</div>
+<p>The execution filter determines the applied input <span class="latex-inline" data-latex="u"></span>. Its resulting motion determines sensing and clarity.</p>
+<div class="key-line">
+One sampled parameter vector specifies one policy to evaluate. A trajectory is an output of that evaluation.
+</div>
+<aside class="notes">
+<p>Updated source: Paper Pitch Development, pp.&nbsp;2–5 and 7. A policy can be represented by a reference trajectory and a tracking controller, but the generic method does not choose a particular vehicle model or parameter count. Theta dependence is suppressed on state and clarity for readability. The nominal policy and the design policy used to construct the filter are different objects. The design policy was introduced in the preliminaries.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="optimistic-task" class="slide level2" data-section="3 · Problem formulation">
+<h2>Monitoring cost and admissible motion</h2>
+<p>For a possible spatial disturbance field <span class="latex-inline" data-latex="d"></span>, predict the executed state and clarity:</p>
+<p><span class="latex-display" data-latex="\dot x=f_d(x,u,d(\Psi(x))),\qquad
+\dot q_j=\frac{C_j(x)^2}{R}(1-q_j)^2-Q_jq_j^2."></span></p>
+<p><span class="latex-display" data-latex="x(0)=x_k,\quad q(0)=q_k,\quad u(\tau)\in\mathcal U,\quad h_a(x(\tau))\leq0\quad\forall a."></span></p>
+<div class="definition-grid">
+<div>
+<span class="latex-inline" data-latex="\Psi(x)"></span>: position extracted from state.<br><span class="latex-inline" data-latex="h_a"></span>: state or environment constraint indexed by <span class="latex-inline" data-latex="a"></span>; positive values indicate violation.
+</div>
+<div>
+<span class="latex-inline" data-latex="\mathcal U"></span>: admissible actuator inputs.<br><span class="latex-inline" data-latex="C_j,R,Q_j"></span>: sensing quality, measurement noise and monitored-process noise, as defined in the preliminaries.
+</div>
+</div>
+<p><span class="latex-display" data-latex="J(\theta;d)=\int_0^T q_d(q(\tau))\,d\tau,\qquad
+q_d(q)=\frac1{N_p}\sum_{j=1}^{N_p}[\bar q_j-q_j]_+."></span></p>
+<div class="key-line">
+Lower cost means less accumulated monitoring deficit along the predicted executed motion.
+</div>
+<div class="small-note">
+The method checks finitely many disturbance fields and numerical trajectory points. Those checks do not certify all possible executions.
+</div>
+</section>
+<section id="optimistic-two-criteria" class="slide level2" data-section="3 · Problem formulation">
+<h2>Expected performance and optimistic performance</h2>
+<p><strong>Disturbance-aware expected-cost criterion:</strong> choose a policy with low average monitoring cost under the current disturbance belief.</p>
+<p><strong>Proposed optimistic criterion:</strong> choose a policy with low monitoring cost among a specified fraction of its favorable plausible executions.</p>
+<p>Both criteria use the same disturbed dynamics, execution filter, sensing model and motion checks.</p>
+<p><span class="latex-display" data-latex="\boxed{\mathcal B^d(\tau)=\mathcal B_k^d\qquad 0\leq\tau\leq T}"></span></p>
+<div class="two-points">
+<div>
+<b>Inside prediction</b><br>The posterior remains fixed. The controller still responds to every predicted state.
+</div>
+<div>
+<b>After real execution</b><br>Actual observations update POAM. The next planning call uses that updated posterior.
+</div>
+</div>
+<div class="key-line">
+Optimism can favor trying an uncertain alternative. A later monitoring benefit remains an experimental hypothesis.
+</div>
+<aside class="notes">
+<p>Source: Paper Pitch Development, pp.&nbsp;5–6 and 10–12. This revision does not simulate hypothetical observations or posterior reductions. It therefore does not compute the value of learning. Favorable-tail cost is a decision criterion, not an estimate of expected monitoring cost. The explicit empirical definition follows after the execution model.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="optimistic-method" class="slide level2 section-break" data-section="4 · Proposed method">
+<h2>Method</h2>
+<div class="section-number">
+4
+</div>
+<div class="section-subtitle">
+Predict executed monitoring, score favorable outcomes, then refine policy parameters.
+</div>
+<div class="section-agenda">
+Execution prediction, optimistic objective, adapted MBD proposal and real learning
+</div>
+</section>
+<section id="optimistic-architecture" class="slide level2" data-section="4 · Method architecture">
+<h2>Architecture of the proposed method</h2>
+<p><img class="architecture architecture-main" src="assets/optimistic_architecture.svg" alt="Current state, clarity and wind belief enter MBD. Its policy samples are evaluated through disturbed filtered motion and clarity. Optimistic costs and feasibility guide refinement. After optimization, fresh-field reevaluation selects a policy; real execution and observations update the next planning input."></p>
+<aside class="notes">
+<p>Method design for review. The diagram separates the numerical search loop from the physical execution loop. Only the latter changes the disturbance posterior. The optimistic score affects the target density and final selection. The mixture proposal changes search efficiency and is corrected by importance weights. No revised simulation result is presented.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="two-field-banks" class="slide level2" data-section="4 · Executed monitoring prediction">
+<h2>Two sets of disturbance fields serve different purposes</h2>
+<p>Let <span class="latex-inline" data-latex="\mathcal P_k^d"></span> be the spatial-field distribution represented by the current POAM belief <span class="latex-inline" data-latex="\mathcal B_k^d"></span>.</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Field set</th>
+<th>How it is obtained</th>
+<th>What it evaluates</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Performance fields</strong> <span class="latex-inline" data-latex="d^{[s]}"></span>, <span class="latex-inline" data-latex="s=1,\ldots,S"></span></td>
+<td>Draw from <span class="latex-inline" data-latex="\mathcal P_k^d"></span></td>
+<td>One complete monitoring cost per field</td>
+</tr>
+<tr class="even">
+<td><strong>Construction fields</strong> <span class="latex-inline" data-latex="\widetilde d^{[\ell]}"></span>, <span class="latex-inline" data-latex="\ell=1,\ldots,L"></span></td>
+<td>Use the execution filter’s sampling rule</td>
+<td>Largest constraint value in design-policy rollouts</td>
+</tr>
+</tbody>
+</table>
+<p>Each realization is a coherent spatial function. Its value changes with position, and it remains the same field throughout a rollout.</p>
+<div class="key-line">
+Optimism acts on monitoring costs. The filter retains its adverse construction samples.
+</div>
+<div class="small-note">
+Fix these fields or their base random draws within one planning call. Recompute trajectories and constraint values at each queried state.
+</div>
+<aside class="notes">
+<p>Source: Paper Pitch Development, pp.&nbsp;2–4. Performance fields must be posterior-probability samples. The source RPCBF paper uses informed sampling including uniform bounded samples and vertices; those are not probability samples for a monitoring-cost average. A posterior-informed construction bank is an adaptation whose rule must match the runtime filter. Do not independently redraw a wind vector at every integration step or remove unfavorable construction samples after seeing optimistic costs.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="two-policy-roles" class="slide level2" data-section="4 · Executed monitoring prediction">
+<h2>Nominal and design policies have different roles</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Policy</th>
+<th>Role</th>
+<th>Chosen by MBD?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="latex-inline" data-latex="\pi^{\mathrm{nom}}(\tau,x,q;\mathcal B_k^d,\theta)"></span></td>
+<td>Requests the inputs that pursue monitoring</td>
+<td>Yes, through <span class="latex-inline" data-latex="\theta"></span></td>
+</tr>
+<tr class="even">
+<td><span class="latex-inline" data-latex="\pi_D(x;\mathcal B_k^d)"></span></td>
+<td>Supplies a specified continuation for evaluating future constraint values</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example:</strong> the nominal policy requests motion toward an inspection region. The design policy predicts braking from the current position and velocity under the tested disturbances.</p>
+<p>A predicted braking violation can require the execution filter to change the nominal request.</p>
+<div class="key-line">
+The design-policy rollout constructs a constraint test. It is separate from the monitoring rollout being scored.
+</div>
+<div class="source">
+RPCBF-inspired construction. The generic method retains the chosen design policy and nominal-policy representation.
+</div>
+</section>
+<section id="state-dependent-value" class="slide level2" data-section="4 · Executed monitoring prediction">
+<h2>Construct a constraint value at the queried state</h2>
+<p>For each construction field, start at the currently queried state <span class="latex-inline" data-latex="x"></span> and follow the design policy:</p>
+<p><span class="latex-display" data-latex="\dot z^{[\ell]}=f_d\!\left(z^{[\ell]},\pi_D(z^{[\ell]};\mathcal B_k^d),
+\widetilde d^{[\ell]}(\Psi(z^{[\ell]}))\right),\qquad z^{[\ell]}(0)=x."></span></p>
+<p>Fit a cubic spline <span class="latex-inline" data-latex="s_{a\ell}(\sigma;x)"></span> through the values of <span class="latex-inline" data-latex="h_a(z^{[\ell]}(\sigma))"></span>. Compute</p>
+<p><span class="latex-display" data-latex="V_{a,k}(x)=\max_{\ell=1,\ldots,L}\ \max_{0\leq\sigma\leq T_B}s_{a\ell}(\sigma;x),
+\qquad \nabla_xV_{a,k}(x)."></span></p>
+<div class="definition-grid">
+<div>
+<span class="latex-inline" data-latex="z^{[\ell]}"></span>: design-policy trajectory.<br><span class="latex-inline" data-latex="T_B"></span>: design-policy evaluation horizon.<br><span class="latex-inline" data-latex="\sigma"></span>: time within that short rollout.
+</div>
+<div>
+<span class="latex-inline" data-latex="s_{a\ell}"></span>: interpolated constraint value.<br><span class="latex-inline" data-latex="V_{a,k}"></span>: largest tested value.<br><span class="latex-inline" data-latex="\nabla_xV_{a,k}"></span>: state sensitivity.
+</div>
+</div>
+<div class="key-line">
+Maximize the spline over time, including interior extrema. A maximum over integration nodes alone is a different approximation.
+</div>
+<div class="source">
+Adapted from Knoedler et al., Algorithm 1 and Eqs. (18)–(21). A closed finite interval includes its endpoint in this presentation.
+</div>
+<aside class="notes">
+<p>The design policy is fixed during this construction. The fields remain fixed spatial functions, but differentiation includes their dependence on the queried position along z. Holding a recorded sequence of wind vectors constant while differentiating the path would drop that dependence. At ties the maximum can be nondifferentiable; numerical derivative conventions and regularity require explicit treatment during implementation. The PDF writes 0&lt;=sigma&lt;T_B; we include the terminal point as an explicit finite-horizon checking convention.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="state-dependent-filter" class="slide level2" data-section="4 · Executed monitoring prediction">
+<h2>Compute the applied input at that state</h2>
+<p>For control-affine disturbed dynamics, write</p>
+<p><span class="latex-display" data-latex="f_d(x,u,\delta)=f_0(x,\delta)+G(x,\delta)u,\qquad
+\delta_\ell(x)=\widetilde d^{[\ell]}(\Psi(x))."></span></p>
+<p>With a polyhedral actuator set <span class="latex-inline" data-latex="\mathcal U"></span>, the execution filter solves the <strong>quadratic program (QP)</strong></p>
+<p><span class="latex-display" data-latex="\begin{aligned}
+u=\Gamma_k(x,u_{\mathrm{nom}})
+&amp;\in\underset{v\in\mathcal U}{\arg\min}\ \tfrac12\|v-u_{\mathrm{nom}}\|_2^2\\
+\text{subject to }\quad
+\nabla_xV_{a,k}(x)^{\mathsf T}[f_0(x,\delta_\ell)+G(x,\delta_\ell)v]
+&amp;\leq-\kappa V_{a,k}(x),\quad \forall a,\ell.
+\end{aligned}"></span></p>
+<div class="definition-grid">
+<div>
+<span class="latex-inline" data-latex="f_0"></span>: uncontrolled drift; <span class="latex-inline" data-latex="G"></span>: input matrix.<br><span class="latex-inline" data-latex="\delta_\ell"></span>: tested disturbance at this state.<br><span class="latex-inline" data-latex="v"></span>: trial input; <span class="latex-inline" data-latex="\Gamma_k"></span>: resulting input map.
+</div>
+<div>
+<span class="latex-inline" data-latex="\kappa>0"></span>: value-rate coefficient.<br>One input must satisfy all listed inequalities.<br>A feasible nominal input remains unchanged.
+</div>
+</div>
+<div class="small-note">
+This is our explicit finite-sample formulation inspired by RPCBF, using a linear value-rate function. It is not a verbatim expansion of the paper’s Eq. (19) or a general safety certificate.
+</div>
+<aside class="notes">
+<p>Source: Paper Pitch Development, p.&nbsp;4. The source paper’s Eq. (19) has a supremum-over-disturbance then infimum-over-input ordering. We explicitly require a common input for all sampled inequalities and do not claim that this stronger finite-sample formulation follows merely by interchanging those extrema. A polyhedral actuator set makes the displayed control-affine formulation a QP; a general convex actuator set instead yields a convex optimization problem with a quadratic objective. Numerical gradients, sample coverage and finite prediction limit guarantees. Planning and execution must use the same filter and prescribed infeasibility response.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="fixed-belief-changing-control" class="slide level2" data-section="4 · Executed monitoring prediction">
+<h2>A fixed belief still gives a changing controller</h2>
+<p>Each performance realization has its own reached state. At every predicted control step:</p>
+<ol type="1">
+<li>Evaluate the nominal policy at that reached state.</li>
+<li>Rebuild the design-policy trajectories, spline maxima and state gradients.</li>
+<li>Solve the QP at that state, then propagate motion in that performance field.</li>
+<li>Update clarity from the resulting position.</li>
+</ol>
+<p><span class="latex-display" data-latex="\begin{aligned}
+u_{\mathrm{nom}}^{[s]}&amp;=\pi^{\mathrm{nom}}(\tau,x^{[s]},q^{[s]};\mathcal B_k^d,\theta),\\
+u^{[s]}&amp;=\Gamma_k(x^{[s]},u_{\mathrm{nom}}^{[s]}),\\
+\dot x^{[s]}&amp;=f_d(x^{[s]},u^{[s]},d^{[s]}(\Psi(x^{[s]}))).
+\end{aligned}"></span></p>
+<div class="key-line">
+Different wind fields can produce different states and interventions even though the posterior is fixed.
+</div>
+<div class="small-note">
+The hidden performance field enters the simulated physical dynamics. It is not supplied as known wind to the nominal policy or filter.
+</div>
+</section>
+<section id="performance-costs" class="slide level2" data-section="4 · Optimistic monitoring objective">
+<h2>Each performance field gives one monitoring cost</h2>
+<p>For the same policy parameters <span class="latex-inline" data-latex="\theta"></span>, every performance prediction starts from <span class="latex-inline" data-latex="x_k,q_k"></span> and accumulates clarity deficit:</p>
+<p><span class="latex-display" data-latex="J_s(\theta)=\int_0^Tq_d(q^{[s]}(\tau))\,d\tau,\qquad
+\widehat J_k(\theta)=\frac1S\sum_{s=1}^{S}J_s(\theta)."></span></p>
+<div class="definition-grid">
+<div>
+<span class="latex-inline" data-latex="J_s"></span>: cost in performance field <span class="latex-inline" data-latex="s"></span>.<br><span class="latex-inline" data-latex="q^{[s]}"></span>: clarity along that field’s executed trajectory.
+</div>
+<div>
+<span class="latex-inline" data-latex="\widehat J_k"></span>: sampled expected cost.<br><span class="latex-inline" data-latex="S"></span>: number of performance fields.
+</div>
+</div>
+<p>The nominal route can be short while the predicted execution is slow, deflected, or repeatedly interrupted by the filter. Those effects change sensing and therefore <span class="latex-inline" data-latex="J_s"></span>.</p>
+<div class="key-line">
+The cost already includes travel and monitoring consequences. No separate wind-variance or filter-intervention reward is added.
+</div>
+</section>
+<section id="optimistic-tail-cost" class="slide level2" data-section="4 · Optimistic monitoring objective">
+<h2>Optimism selects a favorable fraction of costs</h2>
+<p>Sort the <span class="latex-inline" data-latex="S"></span> costs for one policy: <span class="latex-inline" data-latex="J_{(1)}(\theta)\leq\cdots\leq J_{(S)}(\theta)"></span>. Choose a fraction <span class="latex-inline" data-latex="\eta\in(0,1]"></span> and define <span class="latex-inline" data-latex="m=\lfloor\eta S\rfloor"></span>, <span class="latex-inline" data-latex="r=\eta S-m"></span>.</p>
+<p><span class="latex-display" data-latex="\boxed{J^{\mathrm{opt}}_{k,\eta}(\theta)=
+\frac{\displaystyle\sum_{s=1}^{m}J_{(s)}(\theta)+rJ_{(m+1)}(\theta)}{\eta S}}"></span></p>
+<div class="definition-grid">
+<div>
+<span class="latex-inline" data-latex="\eta"></span>: fraction of favorable outcomes retained.<br><span class="latex-inline" data-latex="m"></span>: number of fully included sorted costs.<br><span class="latex-inline" data-latex="r\in[0,1)"></span>: fractional weight on the next cost.
+</div>
+<div>
+Omit the fractional term when <span class="latex-inline" data-latex="r=0"></span>.<br><span class="latex-inline" data-latex="\eta=1"></span>: recover the expected cost.<br><span class="latex-inline" data-latex="\eta S<1"></span>: use the minimum sampled cost.
+</div>
+</div>
+<div class="key-line">
+Smaller <span class="latex-inline" data-latex="\eta"></span> expresses more optimism about monitoring performance.
+</div>
+<div class="small-note">
+Known strong wind remains in the model. If all fields give the same cost, optimism does not change that cost.
+</div>
+<aside class="notes">
+<p>Source: Paper Pitch Development, pp.&nbsp;5–6. This is the empirical lower partial mean for costs, also describable as a favorable lower-tail average. It is not upper-tail risk-averse CVaR and is not the expected value of information. m=0 is valid, with an empty sum. At eta=1, m=S and r=0, so J_(S+1) must not be evaluated. Two fields and eta=0.25 reduce to a single minimum, which is a poorly resolved tail criterion. Sample count and eta need separate sensitivity studies.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="optimism-cost-example" class="slide level2" data-section="4 · Optimistic monitoring objective">
+<h2>Example: an uncertain policy can become preferable</h2>
+<p><strong>Illustrative costs only.</strong> Four equally weighted performance fields, with all policies passing the motion checks. Lower is better.</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Policy</th>
+<th>Sorted costs</th>
+<th style="text-align: right;">Expected cost</th>
+<th style="text-align: right;">Optimistic cost, <span class="latex-inline" data-latex="\eta=0.5"></span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Established route</td>
+<td><span class="latex-inline" data-latex="9,10,10,11"></span></td>
+<td style="text-align: right;"><strong>10</strong></td>
+<td style="text-align: right;">9.5</td>
+</tr>
+<tr class="even">
+<td>Uncertain alternative</td>
+<td><span class="latex-inline" data-latex="6,8,14,20"></span></td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;"><strong>7</strong></td>
+</tr>
+<tr class="odd">
+<td>Poor alternative</td>
+<td><span class="latex-inline" data-latex="11,13,16,20"></span></td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">12</td>
+</tr>
+<tr class="even">
+<td>Known costly route</td>
+<td><span class="latex-inline" data-latex="12,12,12,12"></span></td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">12</td>
+</tr>
+</tbody>
+</table>
+<p>The uncertain alternative loses on average and wins under the favorable-half criterion. The poor alternative remains unattractive even in its favorable outcomes.</p>
+<div class="key-line">
+This preference is deliberate optimism. The table does not demonstrate a later learning benefit.
+</div>
+<aside class="notes">
+<p>All numbers are invented explicitly for arithmetic teaching and are not performance measurements. For eta=0.625 the uncertain alternative has eta<em>S=2.5 and score (6+8+0.5</em>14)/2.5=8.4. The interactive walkthrough below uses eta=0.5 to illustrate the sequence of calculations.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="optimistic-acceptance" class="slide level2" data-section="4 · Optimistic monitoring objective">
+<h2>Numerical acceptance applies to every tested field</h2>
+<p>Let <span class="latex-inline" data-latex="v_k(\theta)=1"></span> only when the policy passes all declared numerical checks in every performance rollout:</p>
+<ul>
+<li>Finite state propagation and monitoring cost.</li>
+<li>No detected state-constraint violation.</li>
+<li>Successful QP execution without an infeasibility fallback.</li>
+</ul>
+<p>Otherwise <span class="latex-inline" data-latex="v_k(\theta)=0"></span> and the policy receives zero MBD weight.</p>
+<p><span class="latex-display" data-latex="v_k(\theta)=0\quad\Longrightarrow\quad\text{reject the policy, regardless of its favorable costs}."></span></p>
+<div class="key-line">
+The lower tail changes cost preference. It never hides a failed unfavorable realization.
+</div>
+<div class="small-note">
+Planning must reproduce the actual filter and fallback behavior. A finite sampled acceptance test does not establish continuous-time or all-disturbance safety.
+</div>
+</section>
+<section id="optimistic-target" class="slide level2" data-section="4 · MBD optimization">
+<h2>The optimistic target density</h2>
+<p>MBD’s clean optimization variable is the nominal parameter vector: <span class="latex-inline" data-latex="y_0=\theta"></span>.</p>
+<p><span class="latex-display" data-latex="p_{0,k}(\theta)=\frac1{Z_k}\,\mathbf1_\Theta(\theta)\,v_k(\theta)
+\exp\!\left(-\frac{J^{\mathrm{opt}}_{k,\eta}(\theta)}{\lambda}\right)."></span></p>
+<div class="definition-grid">
+<div>
+<span class="latex-inline" data-latex="p_{0,k}"></span>: target density at planning time <span class="latex-inline" data-latex="k"></span>.<br><span class="latex-inline" data-latex="Z_k"></span>: normalizing integral.<br><span class="latex-inline" data-latex="\mathbf1_\Theta"></span>: indicator of the bounded parameter domain.
+</div>
+<div>
+<span class="latex-inline" data-latex="v_k"></span>: numerical acceptance indicator.<br><span class="latex-inline" data-latex="\lambda>0"></span>: MBD cost temperature.<br><span class="latex-inline" data-latex="\eta"></span>: optimistic fraction, separate from <span class="latex-inline" data-latex="\lambda"></span>.
+</div>
+</div>
+<p>A bounded domain and an accepted subset of positive volume with finite cost give a positive, finite normalizer.</p>
+<div class="key-line">
+The density and weighted mean are over policy parameters. Filtered inputs and executed states remain rollout outputs.
+</div>
+<div class="source">
+Pan et al., MBD Sec. 4.1 supplies the generic target construction. The optimistic monitoring criterion is the proposed addition.
+</div>
+</section>
+<section id="optimistic-reference-proposal" class="slide level2" data-section="4 · MBD optimization">
+<h2>The ordinary MBD proposal remains the reference</h2>
+<p>Retain the forward-noise model from the preliminaries:</p>
+<p><span class="latex-display" data-latex="y_i=\sqrt{\bar\alpha_i}\,\theta+\sqrt{1-\bar\alpha_i}\,\epsilon,
+\qquad \epsilon\sim\mathcal N(0,I),\qquad \bar\alpha_i=\prod_{j=1}^{i}\alpha_j."></span></p>
+<p>At level <span class="latex-inline" data-latex="i"></span>, its Gaussian proposal in clean parameter coordinates is</p>
+<p><span class="latex-display" data-latex="\phi_i(\theta)=\mathcal N\!\left(\theta;\frac{y_i}{\sqrt{\bar\alpha_i}},\sigma_i^2I\right),
+\qquad \sigma_i^2=\bar\alpha_i^{-1}-1."></span></p>
+<div class="definition-grid">
+<div>
+<span class="latex-inline" data-latex="i=N,\ldots,1"></span>: reverse diffusion level.<br><span class="latex-inline" data-latex="y_i"></span>: current noisy parameter vector.<br><span class="latex-inline" data-latex="0<\alpha_i<1"></span>: per-step variance retention.
+</div>
+<div>
+<span class="latex-inline" data-latex="\bar\alpha_i"></span>: cumulative variance retention.<br><span class="latex-inline" data-latex="\phi_i"></span>: ordinary Gaussian proposal density.<br><span class="latex-inline" data-latex="\sigma_i^2"></span>: variance per parameter coordinate.
+</div>
+</div>
+<div class="key-line">
+We adapt where evaluation samples are drawn. The forward diffusion model stays unchanged.
+</div>
+<div class="source">
+Pan et al., Eqs. (3), (6), (8) and (9). The proposal here follows Eq. (8)’s indexing.
+</div>
+</section>
+<section id="optimistic-archive-priority" class="slide level2" data-section="4 · MBD optimization">
+<h2>Evaluated policies identify promising alternatives</h2>
+<p>Maintain <span class="latex-inline" data-latex="\mathcal A_k"></span>, the archive of evaluated policy parameter vectors in the current planning call. Its accepted expected-cost incumbent is</p>
+<p><span class="latex-display" data-latex="\theta_{\mathrm{inc}}\in\underset{\theta\in\mathcal A_k:\,v_k(\theta)=1}{\arg\min}\ \widehat J_k(\theta)."></span></p>
+<p>For an accepted archive entry <span class="latex-inline" data-latex="\theta_a"></span>, define the <strong>optimism margin</strong> and <strong>sampling priority</strong>:</p>
+<p><span class="latex-display" data-latex="b_k(\theta_a)=\widehat J_k(\theta_a)-J^{\mathrm{opt}}_{k,\eta}(\theta_a),"></span> <span class="latex-display" data-latex="a_a=\left[J^{\mathrm{opt}}_{k,\eta}(\theta_{\mathrm{inc}})-J^{\mathrm{opt}}_{k,\eta}(\theta_a)\right]_+
+\mathbf1\{b_k(\theta_a)>0\}."></span></p>
+<div class="definition-grid">
+<div>
+<span class="latex-inline" data-latex="a"></span>: archive-entry index on this slide.<br><span class="latex-inline" data-latex="b_k"></span>: gap between mean and optimistic cost.<br><span class="latex-inline" data-latex="a_a"></span>: priority for additional sampling near that entry.
+</div>
+<div>
+Positive priority requires a better optimistic cost than the incumbent and a positive optimism margin. Rejected entries are ineligible.
+</div>
+</div>
+<div class="small-note">
+These quantities describe cost variation and search priority. Neither estimates the benefit of a future observation.
+</div>
+</section>
+<section id="optimistic-mixture" class="slide level2" data-section="4 · MBD optimization">
+<h2>An adapted proposal preserves ordinary sampling</h2>
+<p>Normalize positive archive priorities, then place a Gaussian around each qualifying policy:</p>
+<p><span class="latex-display" data-latex="\nu_a=\frac{a_a}{\sum_ba_b},\qquad
+\psi_i(\theta)=\sum_{a:a_a>0}\nu_a\,\mathcal N(\theta;\theta_a,\sigma_i^2I)."></span></p>
+<p>Mix this archive proposal with the ordinary Gaussian:</p>
+<p><span class="latex-display" data-latex="\boxed{q_i^{\mathrm{prop}}(\theta)=(1-\rho)\phi_i(\theta)+\rho\psi_i(\theta),\qquad 0<\rho<1}"></span></p>
+<div class="definition-grid">
+<div>
+<span class="latex-inline" data-latex="\nu_a"></span>: normalized sampling priority.<br><span class="latex-inline" data-latex="\psi_i"></span>: archive-centered mixture density.<br><span class="latex-inline" data-latex="b"></span>: summation index over archive entries.
+</div>
+<div>
+<span class="latex-inline" data-latex="\rho"></span>: fraction assigned to archive sampling.<br><span class="latex-inline" data-latex="q_i^{\mathrm{prop}}"></span>: sampling density, distinct from clarity <span class="latex-inline" data-latex="q"></span>.<br>No positive priority: use <span class="latex-inline" data-latex="q_i^{\mathrm{prop}}=\phi_i"></span>.
+</div>
+</div>
+<div class="key-line">
+The ordinary Gaussian remains available. Extra samples explore already discovered alternatives more closely.
+</div>
+<div class="small-note">
+Freeze the proposal for a batch. Update the archive after evaluating that batch. Discovery of every route is not guaranteed.
+</div>
+</section>
+<section id="optimistic-importance" class="slide level2" data-section="4 · MBD optimization">
+<h2>Importance correction preserves the intended target</h2>
+<p>Draw <span class="latex-inline" data-latex="K"></span> fresh parameter vectors <span class="latex-inline" data-latex="\theta_n\sim q_i^{\mathrm{prop}}"></span>, <span class="latex-inline" data-latex="n=1,\ldots,K"></span>. Their unnormalized weights are</p>
+<p><span class="latex-display" data-latex="\widetilde w_n=\mathbf1_\Theta(\theta_n)v_k(\theta_n)
+\exp\!\left(-\frac{J^{\mathrm{opt}}_{k,\eta}(\theta_n)}{\lambda}\right)
+\frac{\phi_i(\theta_n)}{q_i^{\mathrm{prop}}(\theta_n)}."></span></p>
+<p><span class="latex-display" data-latex="w_n=\frac{\widetilde w_n}{\sum_{m=1}^{K}\widetilde w_m},\qquad
+\bar\theta=\sum_{n=1}^{K}w_n\theta_n."></span></p>
+<div class="definition-grid">
+<div>
+<span class="latex-inline" data-latex="\widetilde w_n"></span>: weight before normalization.<br><span class="latex-inline" data-latex="w_n"></span>: normalized importance weight.<br><span class="latex-inline" data-latex="\bar\theta"></span>: weighted parameter mean.
+</div>
+<div>
+<span class="latex-inline" data-latex="\phi_i/q_i^{\mathrm{prop}}"></span> corrects for the changed sampling density.<br><span class="latex-inline" data-latex="K"></span>: number of fresh samples in the batch.<br><span class="latex-inline" data-latex="m"></span>: sample index in the denominator.
+</div>
+</div>
+<div class="key-line">
+The target changes the preference. The corrected proposal changes how efficiently that target is searched.
+</div>
+<div class="small-note">
+Use the full mixture density in the denominator. Old archive entries guide sampling but are not appended as if drawn from this batch.
+</div>
+<aside class="notes">
+<p>Derivation: the conditional mean in MBD Eq. (9a) is integral theta<em>phi_i</em>p_0 divided by integral phi_i<em>p_0. Rewriting each integral as an expectation under q_i^prop introduces phi_i/q_i^prop. Self-normalization gives the displayed finite-sample estimate; it need not be unbiased at finite K. Since q_i^prop &gt;= (1-rho)</em>phi_i, the density ratio is bounded above by 1/(1-rho). Do not use the density of only the mixture component that generated a sample. With importance correction, adapting a proposal alone does not introduce the optimistic preference into the target.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="optimistic-denoising" class="slide level2" data-section="4 · MBD optimization">
+<h2>Score estimation and the next diffusion level</h2>
+<p>Use the corrected parameter mean in the original MBD score and reverse update:</p>
+<p><span class="latex-display" data-latex="\widehat s_i=\frac{-y_i+\sqrt{\bar\alpha_i}\bar\theta}{1-\bar\alpha_i},\qquad
+y_{i-1}=\frac{y_i+(1-\bar\alpha_i)\widehat s_i}{\sqrt{\alpha_i}}
+=\sqrt{\bar\alpha_{i-1}}\,\bar\theta."></span></p>
+<div class="definition-grid">
+<div>
+<span class="latex-inline" data-latex="\widehat s_i"></span>: estimated gradient of the noisy target’s log density.<br><span class="latex-inline" data-latex="y_{i-1}"></span>: noisy parameter vector for the next level.
+</div>
+<div>
+<span class="latex-inline" data-latex="\bar\alpha_0=1"></span>: clean endpoint.<br>The next ordinary proposal centers on <span class="latex-inline" data-latex="\bar\theta"></span> with its reduced noise variance.
+</div>
+</div>
+<p><strong>If <span class="latex-inline" data-latex="i>1"></span>:</strong> construct the next mixture and draw a new batch.<br> <strong>If <span class="latex-inline" data-latex="i=1"></span>:</strong> diffusion ends and final policy reevaluation begins.</p>
+<div class="key-line">
+A weighted mean may describe a different, infeasible route. Evaluate the final vector before accepting it.
+</div>
+<div class="small-note">
+Evaluate weights in log space. Outside <span class="latex-inline" data-latex="\Theta"></span>: zero weight, without clipping. If all weights vanish, record failure and retry or retain an evaluated feasible policy.
+</div>
+</section>
+<section id="optimistic-selection" class="slide level2" data-section="4 · Selection and real learning">
+<h2>Selection uses fresh performance fields</h2>
+<p>After diffusion, collect the leading accepted archive policies, the expected-cost incumbent and the retained previous-plan continuation. Also evaluate the final diffusion vector before admitting it.</p>
+<p>Reevaluate these policies with a <strong>fresh, shared bank</strong> of performance fields. Use the same execution filter and acceptance checks.</p>
+<p><span class="latex-display" data-latex="\theta_k^\star\in\underset{\theta\in\mathcal A_k^{\mathrm{val}}}{\arg\min}\
+J^{\mathrm{opt,val}}_{k,\eta}(\theta)."></span></p>
+<div class="definition-grid">
+<div>
+<span class="latex-inline" data-latex="\mathcal A_k^{\mathrm{val}}"></span>: policies accepted on the fresh bank.<br><span class="latex-inline" data-latex="J^{\mathrm{opt,val}}_{k,\eta}"></span>: optimistic score recomputed on that bank.
+</div>
+<div>
+The same new fields are shared across policies.<br>Keep the optimistic criterion for selection; changing to expected cost would alter the decision rule.
+</div>
+</div>
+<div class="small-note">
+This is a selection check, not an unbiased final test or a probabilistic safety certificate. If none passes, use the declared runtime fallback and record a planning failure.
+</div>
+</section>
+<section id="optimistic-real-learning" class="slide level2" data-section="4 · Selection and real learning">
+<h2>Real measurements change the next planning call</h2>
+<p>Execute the selected policy only for the next replanning interval <span class="latex-inline" data-latex="\Delta t>0"></span>, using the actual execution filter.</p>
+<p>Collect disturbance observations along the actual trajectory, then update POAM:</p>
+<p><span class="latex-display" data-latex="\mathcal B_{k+1}^d=\operatorname{POAMUpdate}(\mathcal B_k^d,\mathcal D_k^{d,\mathrm{real}})."></span></p>
+<div class="definition-grid">
+<div>
+<span class="latex-inline" data-latex="\mathcal D_k^{d,\mathrm{real}}"></span>: real disturbance measurements and their locations collected during the interval.
+</div>
+<div>
+<span class="latex-inline" data-latex="x_{k+1},q_{k+1}"></span>: attained state and clarity.<br>The next planning call starts from these attained quantities.
+</div>
+</div>
+<p>The updated posterior changes both the performance-field distribution and the filter construction at the next call.</p>
+<div class="key-line">
+Learning occurs through executed motion. The planning rollout contains no hypothetical posterior updates.
+</div>
+</section>
+<section id="optimistic-walkthrough" class="slide level2 optimistic-walk-slide" data-section="4 · Interactive explanation">
+<h2>Proposed method, step by step</h2>
+<div id="optimistic-walkthrough-player" data-step="0">
+<div class="optimistic-player-grid">
+<div class="optimistic-visual" aria-live="polite">
+
+</div>
+<ol class="optimistic-steps">
+<li>
+Read current state, clarity and posterior
+</li>
+<li>
+Predict each policy in fixed sampled fields
+</li>
+<li>
+Compute its optimistic cost
+</li>
+<li>
+Adapt sampling around qualifying policies
+</li>
+<li>
+Correct weights and denoise
+</li>
+<li>
+Check and select after optimization
+</li>
+<li>
+Execute, observe and update the posterior
+</li>
+</ol>
+</div>
+<div class="optimistic-explanation" aria-live="polite">
+
+</div>
+<div class="optimistic-equation">
+
+</div>
+<div class="mbd-controls">
+<button type="button" data-action="reset">
+Restart
+</button>
+<button type="button" data-action="prev">
+Previous
+</button>
+<button type="button" data-action="play" aria-pressed="false">
+Play
+</button>
+<button type="button" data-action="next">
+Next step
+</button>
+<input type="range" min="0" max="6" value="0" step="1" aria-label="Proposed method step">
+<output>
+</output>
+</div>
+</div>
+<div class="caption">
+Illustrative arithmetic and process diagram. This walkthrough is not a planner run or a monitoring result.
+</div>
+</section>
+<section id="optimistic-long-mission" class="slide level2" data-section="4 · Intended long-term behavior">
+<h2>Why optimism could help a long mission</h2>
+<p>An uncertain route can look worse on average yet offer favorable plausible monitoring. Optimism can make the robot try that route earlier.</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>During the early visit</th>
+<th>During later monitoring</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Real motion exposes the robot to an uncertain disturbance region.</td>
+<td>The updated spatial model changes later route and control decisions.</td>
+</tr>
+<tr class="even">
+<td>Travel or imperfect tracking may increase monitoring deficit.</td>
+<td>Repeated useful visits may repay that early cost.</td>
+</tr>
+</tbody>
+</table>
+<p>The hypothesis needs a persistent disturbance pattern, informative measurements, usable spatial generalization and enough remaining mission time to exploit the information.</p>
+<div class="key-line">
+The full-mission deficit must show whether the later gain actually repays the early loss.
+</div>
+<div class="small-note">
+The criterion does not predict observation informativeness or future belief changes. Optimism can also favor an alternative that teaches little or remains costly.
+</div>
+</section>
+<section id="optimism-schedule" class="slide level2" data-section="4 · Method assessment">
+<h2>Early optimism needs an explicit schedule to fade</h2>
+<p>The supplied method uses a specified <span class="latex-inline" data-latex="\eta"></span>. By itself, this does not force optimism to decrease with physical time. Real learning may narrow the distribution of monitoring costs, but that effect is not guaranteed.</p>
+<p><strong>Optional ablation for the early-optimism hypothesis:</strong></p>
+<p><span class="latex-display" data-latex="\eta(t)=\eta_0+(1-\eta_0)\min(t/T_{\mathrm{anneal}},1)."></span></p>
+<div class="definition-grid">
+<div>
+<span class="latex-inline" data-latex="t"></span>: elapsed physical mission time.<br><span class="latex-inline" data-latex="\eta_0\in(0,1)"></span>: initial optimistic fraction.
+</div>
+<div>
+<span class="latex-inline" data-latex="T_{\mathrm{anneal}}>0"></span>: time at which the criterion reaches the full mean, <span class="latex-inline" data-latex="\eta=1"></span>.
+</div>
+</div>
+<div class="key-line">
+Compare a fixed fraction with a fraction that grows toward one. The schedule is a proposed ablation, not part of the supplied core method.
+</div>
+<div class="small-note">
+No fraction, schedule, sample count or computational budget is selected here as an established optimum.
+</div>
+</section>
+<section id="optimistic-mbd-comparison" class="slide level2 section-break" data-section="5 · Comparison with MBD">
+<h2>Comparison with MBD</h2>
+<div class="section-number">
+5
+</div>
+<div class="section-subtitle">
+A different task target and a corrected sampling proposal.
+</div>
+<div class="section-agenda">
+The forward diffusion and reverse score update retain their original form
+</div>
+</section>
+<section id="optimistic-algorithm-comparison" class="slide level2" data-section="5 · Comparison with MBD">
+<h2>Algorithm comparison with the MBD paper</h2>
+<div class="algorithm-grid">
+<div>
+<h3>
+Model-based diffusion
+</h3>
+<ol>
+<li>
+Define task cost and feasibility over the decision vector.
+</li>
+<li>
+Initialize the noisy vector <span class="latex-inline" data-latex="y_N"></span>.
+</li>
+<li>
+At level <span class="latex-inline" data-latex="i"></span>, draw decisions from <span class="latex-inline" data-latex="\phi_i"></span>.
+</li>
+<li>
+Evaluate cost and constraint factors through the model.
+</li>
+<li>
+Normalize target-density weights and form the decision mean.
+</li>
+<li>
+Estimate the score and update <span class="latex-inline" data-latex="y_i"></span> to <span class="latex-inline" data-latex="y_{i-1}"></span>.
+</li>
+</ol>
+</div>
+<div>
+<h3>
+Proposed monitoring method
+</h3>
+<ol>
+<li>
+Define optimistic executed-monitoring cost and sampled acceptance over <span class="latex-inline" data-latex="\theta"></span>.
+</li>
+<li>
+Evaluate seeds and continuation; initialize <span class="latex-inline" data-latex="y_N"></span> and the policy archive.
+</li>
+<li>
+At level <span class="latex-inline" data-latex="i"></span>, draw policies from <span class="latex-inline" data-latex="q_i^{\mathrm{prop}}"></span>.
+</li>
+<li>
+Predict filtered motion and clarity in coherent performance fields.
+</li>
+<li>
+Include <span class="latex-inline" data-latex="\phi_i/q_i^{\mathrm{prop}}"></span> in weights and average nominal parameters.
+</li>
+<li>
+Apply the same score update. After diffusion, reevaluate and select.
+</li>
+</ol>
+</div>
+</div>
+<div class="source">
+Pan et al., Eqs. (6), (8), (9) and Algorithm 2. The adapted proposal and optimistic task criterion are proposed additions.
+</div>
+<aside class="notes">
+<p>This is an algorithm-level comparison. MBD is a generic model-evaluated optimization method and does not universally require a particular trajectory representation. Its trajectory-optimization instantiation uses rollout and constraint factors. Our nominal-policy representation is a specialization of the generic optimization variable. Initialization, finite budgets and numerical acceptance are separate choices. A warm start can be retained, but is not a new convergence result.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="optimistic-mbd-components" class="slide level2" data-section="5 · Comparison with MBD">
+<h2>What changes and what remains</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Component</th>
+<th>Ordinary MBD</th>
+<th>Proposed specialization</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Decision</td>
+<td>Task-dependent decision vector</td>
+<td>Nominal policy parameters <span class="latex-inline" data-latex="\theta"></span></td>
+</tr>
+<tr class="even">
+<td>Target objective</td>
+<td>Model-evaluated task cost</td>
+<td>Lower-tail executed monitoring cost</td>
+</tr>
+<tr class="odd">
+<td>Rollout</td>
+<td>Task-dependent dynamics and constraints</td>
+<td>Disturbance, state-dependent filter and clarity</td>
+</tr>
+<tr class="even">
+<td>Sampling density</td>
+<td>Gaussian <span class="latex-inline" data-latex="\phi_i"></span></td>
+<td>Mixture <span class="latex-inline" data-latex="q_i^{\mathrm{prop}}"></span></td>
+</tr>
+<tr class="odd">
+<td>Weight correction</td>
+<td>Cancels for samples from <span class="latex-inline" data-latex="\phi_i"></span></td>
+<td>Explicit ratio <span class="latex-inline" data-latex="\phi_i/q_i^{\mathrm{prop}}"></span></td>
+</tr>
+<tr class="even">
+<td>Forward noise and reverse update</td>
+<td>Original MBD equations</td>
+<td>Same equations</td>
+</tr>
+</tbody>
+</table>
+<div class="key-line">
+Disturbance-aware task prediction is the foundation. Optimism changes the decision criterion; proposal adaptation changes the search.
+</div>
+<div class="small-note">
+No additional convergence, safety or value-of-learning guarantee follows from this construction.
+</div>
+</section>
+<section id="optimistic-evaluation" class="slide level2 section-break" data-section="6 · Planned evaluation">
+<h2>Planned evaluation</h2>
+<div class="section-number">
+6
+</div>
+<div class="section-subtitle">
+The revised method awaits implementation and experimental evaluation.
+</div>
+<div class="section-agenda">
+Requested baselines, diagnostic ablations and long-mission measurements
+</div>
+</section>
+<section id="optimistic-baselines" class="slide level2" data-section="6 · Planned evaluation">
+<h2>Baselines separate planning from runtime filtering</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Planning prediction</th>
+<th>Execution filter</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Proposed</strong></td>
+<td>Disturbed, filtered monitoring; optimistic cost; adapted MBD proposal</td>
+<td>Current-belief filter</td>
+</tr>
+<tr class="even">
+<td><strong>Wind-blind planning</strong></td>
+<td>Nominal dynamics without the disturbance or filter response</td>
+<td>No added constraint filter</td>
+</tr>
+<tr class="odd">
+<td><strong>Wind-blind planning with safety filter</strong></td>
+<td>Same nominal planning as wind-blind</td>
+<td>Same current-belief filter as proposed</td>
+</tr>
+</tbody>
+</table>
+<p>All methods retain the same vehicle, actuator bounds, sensing model and low-level tracking law. The two blind planners ignore disturbance inside their planning objective.</p>
+<div class="key-line">
+Primary replay: proposed versus disturbance-blind planning. The filtered blind baseline remains in the quantitative evaluation.
+</div>
+<div class="small-note">
+Baseline convention for review: runtime wind estimation and tracking compensation are shared; the unfiltered baseline differs by omitting the added constraint filter. Report collisions and failures without removing those runs.
+</div>
+<aside class="notes">
+<p>The baseline convention assigns wind-blind planning no added constraint filter and the second blind baseline the same runtime filter as proposed; both use the same wind-blind planning model. This convention must remain fixed across comparisons. Sharing estimation and tracking compensation isolates planning awareness from controller differences. Proposed versus filtered blind is the stronger control-matched planning contrast. The primary visualization compares proposed versus unfiltered disturbance-blind; all three appear in numerical tables. No new results are available.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="optimistic-ablations" class="slide level2" data-section="6 · Planned evaluation">
+<h2>Ablations separate optimism from sampling</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Ablation</th>
+<th>Monitoring criterion</th>
+<th>Parameter sampling</th>
+<th>Question</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Expected-cost disturbance-aware</td>
+<td>Full mean, <span class="latex-inline" data-latex="\eta=1"></span></td>
+<td>Ordinary Gaussian</td>
+<td>Does optimism help?</td>
+</tr>
+<tr class="even">
+<td>Optimistic disturbance-aware</td>
+<td>Lower tail, fixed <span class="latex-inline" data-latex="\eta<1"></span></td>
+<td>Ordinary Gaussian</td>
+<td>What does optimism alone do?</td>
+</tr>
+<tr class="odd">
+<td><strong>Proposed</strong></td>
+<td>Same lower tail</td>
+<td>Corrected mixture</td>
+<td>Does proposal adaptation help?</td>
+</tr>
+<tr class="even">
+<td>Fading optimism</td>
+<td><span class="latex-inline" data-latex="\eta(t)"></span> grows toward 1</td>
+<td>Corrected mixture</td>
+<td>Is early optimism sufficient?</td>
+</tr>
+</tbody>
+</table>
+<p>Use the same runtime filter, real learning and policy representation across these four comparisons. Compare both equal rollout budgets and measured computation time.</p>
+<div class="small-note">
+Also vary the number of performance fields <span class="latex-inline" data-latex="S"></span>, optimistic fraction <span class="latex-inline" data-latex="\eta"></span>, mixture fraction <span class="latex-inline" data-latex="\rho"></span> and prediction horizon <span class="latex-inline" data-latex="T"></span>. Two fields with <span class="latex-inline" data-latex="\eta=0.25"></span> reduce to the minimum of two costs.
+</div>
+</section>
+<section id="optimistic-evidence-plan" class="slide level2" data-section="6 · Planned evaluation">
+<h2>Evidence needed for a long-term learning benefit</h2>
+<p>Measure cumulative clarity deficit throughout the mission, per-region deficit, completed visits, tracking error, constraint failures and computation time.</p>
+<p><strong>To explain the mechanism:</strong> record the selected route, its sampled cost distribution, actual wind observations, posterior error and later changes in decisions.</p>
+<p><strong>To test the learning explanation:</strong> compare real posterior updates with a frozen-posterior diagnostic while holding the remaining algorithm fixed. A lower uncertainty estimate alone is insufficient evidence.</p>
+<div class="key-line">
+Use independent mission realizations and seeds, including failures. Report early cost, late cost and total cost.
+</div>
+<div class="small-note">
+The fresh selection bank is part of the planner. Final evaluation requires separate disturbance realizations. Account for missed replanning deadlines instead of pausing physical time during planning.
+</div>
+</section>
+<section id="optimistic-assessment" class="slide level2" data-section="6 · Planned evaluation">
+<h2>Method assessment before implementation</h2>
+<p><strong>The specification is mathematically coherent:</strong> a defined optimistic target, a state-dependent execution model and an importance-corrected proposal.</p>
+<p><strong>The intended payoff is conditional:</strong> an early experiment can improve later monitoring when its observations change useful future decisions. The optimistic criterion does not calculate that payoff.</p>
+<p><strong>Important failure modes:</strong> favorable-tail sampling error, poorly calibrated wind beliefs, repeated optimism about uninformative regions, inadequate route representation and excessive computation time.</p>
+<div class="key-line">
+The next stage is to test the hypothesis. Existing simulations provide no evidence for this revised algorithm.
+</div>
+<div class="small-note">
+The former anticipated-learning method, its interactive explanations and its A/B results are preserved after the source slide in the archive.
+</div>
+</section>
+<section id="optimistic-sources" class="slide level2" data-section="Sources">
+<h2>Sources for the revised method</h2>
+<ul>
+<li><strong>Paper Pitch Development</strong>, supplied 20 October 2026: optimistic cost, two field roles, adapted proposal and execution loop.</li>
+<li>Naveed, <strong>Disturbance-aware informative planning</strong>, supplied manuscript: generic robot model, sensing and clarity objective.</li>
+<li>Pan et al., <strong>Model-Based Diffusion for Trajectory Optimization</strong> (2024): Eqs. (2), (6), (8), (9) and Algorithm 2. <a href="https://arxiv.org/abs/2407.01573">Paper</a></li>
+<li>Knoedler et al., <strong>Safety on the Fly</strong> (2025): policy-value construction, cubic spline maxima and runtime control filtering.</li>
+<li>Chen, Liu and Khardon, <strong>POAM</strong> (RSS 2024): online spatial belief model. <a href="https://www.roboticsproceedings.org/rss20/p019.html">Paper</a></li>
+</ul>
+<div class="key-line">
+The optimistic criterion and proposal adaptation are proposed additions. The source papers do not establish their monitoring benefit.
+</div>
+<aside class="notes">
+<p>The review preserves the explicit distinctions in the supplied PDF. The proposed sampled QP is specified independently, rather than attributed verbatim to RPCBF Eq. (19). The proposal correction is derived from MBD Eq. (9a). New teaching numbers are labeled illustrative; archived measured results retain their original provenance. No planner, simulator or simulation parameter has been changed for this slide revision.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="archived-method" class="slide level2 section-break" data-section="Archived method">
+<h2>Archived method</h2>
+<div class="section-number">
+A
+</div>
+<div class="section-subtitle">
+Previous anticipated-learning and value-of-learning formulation.
+</div>
+<div class="section-agenda">
+Original equations, interactive explanations, A/B results and implementation notes retained for reference
+</div>
+<aside class="notes">
+<p>Everything after this divider belongs to the earlier method. Its hypothetical posterior updates and signed value-of-learning decomposition are not used by the revised optimistic method. Its recorded A/B results have not been recomputed and must not be attributed to the new proposal. The word proposed inside these archived figures and animations denotes the earlier anticipated-learning planner. Numerical implementation details here are historical only.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="archived-problem-formulation" class="slide level2 section-break archived-method" data-section="Archived method" data-archived="true">
+<h2>Archived problem formulation</h2>
 <div class="section-number">
 3
 </div>
@@ -994,7 +2046,7 @@ Two planning problems with the same monitoring objective.
 Define the decision variable → hold the wind belief fixed → anticipate observations
 </div>
 </section>
-<section id="define-the-decision-and-the-planning-horizon" class="slide level2" data-section="3 · Problem formulation">
+<section id="define-the-decision-and-the-planning-horizon" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Define the decision and the planning horizon</h2>
 <p>At time <span class="latex-inline" data-latex="t"></span>, the planner knows the robot state <span class="latex-inline" data-latex="x_t"></span>, clarity vector <span class="latex-inline" data-latex="q_t"></span>, wind belief <span class="latex-inline" data-latex="\mathcal B_t^d"></span>, environment geometry and target clarity <span class="latex-inline" data-latex="\bar q"></span>.</p>
 <p><strong>Decision:</strong> choose parameters <span class="latex-inline" data-latex="\theta\in\Theta"></span> of a nominal control policy:</p>
@@ -1025,7 +2077,7 @@ The decision is a nominal policy. Its predicted motion and sensing determine the
           display:block!important;
       }</style></aside>
 </section>
-<section id="shared-motion-constraints-and-execution-controller" class="slide level2" data-section="3 · Problem formulation">
+<section id="shared-motion-constraints-and-execution-controller" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Shared motion constraints and execution controller</h2>
 <p>Both problems require admissible policy parameters, actuator inputs and predicted states:</p>
 <p><span class="latex-display" data-latex="\theta\in\Theta,\qquad u(\tau)\in\mathcal U,\qquad
@@ -1055,7 +2107,7 @@ The numerical method uses finite field samples and time checks. If the controlle
           display:block!important;
       }</style></aside>
 </section>
-<section id="problem-1-wind-aware-planning-with-a-fixed-predicted-belief" class="slide level2" data-section="3 · Problem formulation">
+<section id="problem-1-wind-aware-planning-with-a-fixed-predicted-belief" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Problem 1: wind-aware planning with a fixed predicted belief</h2>
 <p><strong>Choose a nominal policy that minimizes the monitoring deficit of its predicted execution under uncertain wind.</strong></p>
 <p><span class="latex-display" data-latex="\min_{\theta\in\Theta}\ \mathbb E_{d\mid\mathcal B_t^d}
@@ -1072,7 +2124,7 @@ u&amp;\in\mathcal U, &amp;h_a(x)&amp;\leq0\quad\forall a.
 A possible physical field <span class="latex-inline" data-latex="d"></span> is drawn from the current belief. Requirements apply to predicted executions; numerical enforcement checks the sampled fields and times. Real measurements still update the belief between planning calls.
 </div>
 </section>
-<section id="problem-2-wind-aware-planning-with-anticipated-learning" class="slide level2" data-section="3 · Problem formulation">
+<section id="problem-2-wind-aware-planning-with-anticipated-learning" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Problem 2: wind-aware planning with anticipated learning</h2>
 <p><strong>Choose the policy while predicting how future observations change later inputs, motion and monitoring.</strong></p>
 <p><span class="latex-display" data-latex="\min_{\theta\in\Theta}\ \mathbb E_{d,\varepsilon^d\mid\mathcal B_t^d}
@@ -1090,7 +2142,7 @@ Continue from the reached <span class="latex-inline" data-latex="x,q"></span> us
 <span class="latex-inline" data-latex="\varepsilon_m^d\sim\mathcal N(0,R_d)"></span> is measurement noise. The belief starts at <span class="latex-inline" data-latex="\mathcal B_t^d"></span> and is retained between updates. The expectation includes fields and observation noise; there is no separate learning reward.
 </div>
 </section>
-<section id="method-from-policy-parameters-to-delivered-monitoring" class="slide level2" data-section="4 · Method — architecture">
+<section id="method-from-policy-parameters-to-delivered-monitoring" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Method: from policy parameters to delivered monitoring</h2>
 <p><img class="architecture architecture-main" src="assets/architecture.svg" alt="Planning loop: read current state, sample nominal policy parameters, predict execution and monitoring, score and refine. An explicit decision repeats diffusion if levels remain, otherwise executes the first interval and updates measured state."></p>
 <aside class="notes">
@@ -1107,7 +2159,7 @@ Continue from the reached <span class="latex-inline" data-latex="x,q"></span> us
           display:block!important;
       }</style></aside>
 </section>
-<section id="first-distinguish-the-requested-input-from-the-applied-input" class="slide level2" data-section="4 · Method — execution prediction">
+<section id="first-distinguish-the-requested-input-from-the-applied-input" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>First distinguish the requested input from the applied input</h2>
 <p>For a given parameter vector <span class="latex-inline" data-latex="\theta"></span>, the nominal policy requests</p>
 <p><span class="latex-display" data-latex="u_{\mathrm{nom}}=\pi_\theta(x,\mathcal B^d,\tau)."></span></p>
@@ -1128,7 +2180,7 @@ Next we construct the execution controller’s wind-dependent constraint test, t
 Here <span class="latex-inline" data-latex="d"></span> is a possible physical wind field. The controller receives the belief, not privileged knowledge of that field.
 </div>
 </section>
-<section id="predict-future-constraint-values-under-a-fixed-policy" class="slide level2" data-section="4 · Method — execution prediction">
+<section id="predict-future-constraint-values-under-a-fixed-policy" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Predict future constraint values under a fixed policy</h2>
 <p>Use the constraint functions <span class="latex-inline" data-latex="h_a"></span> and a fixed design policy <span class="latex-inline" data-latex="\pi_b"></span> from the preliminaries. MBD optimizes <span class="latex-inline" data-latex="\theta"></span>, the parameters of the nominal task policy <span class="latex-inline" data-latex="\pi_\theta"></span>; <span class="latex-inline" data-latex="\pi_b"></span> is fixed.</p>
 <p>Draw <span class="latex-inline" data-latex="L"></span> wind fields <span class="latex-inline" data-latex="\widetilde d^{[\ell]}"></span> from the belief. Starting at <span class="latex-inline" data-latex="x"></span>, follow <span class="latex-inline" data-latex="\pi_b"></span> under each field. Denote the resulting state trajectory by <span class="latex-inline" data-latex="\phi_b^{[\ell]}(\sigma)"></span>.</p>
@@ -1146,7 +2198,7 @@ Here <span class="latex-inline" data-latex="d"></span> is a possible physical wi
 Illustrative traces. Finite sampled policy-value construction inspired by Knoedler et al.; spline maxima approximate the time maximum.
 </div>
 </section>
-<section id="predict-which-input-the-execution-controller-will-apply" class="slide level2" data-section="4 · Method — execution prediction">
+<section id="predict-which-input-the-execution-controller-will-apply" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Predict which input the execution controller will apply</h2>
 <p>At the predicted state, choose the input closest to the nominal request:</p>
 <p><span class="latex-display" data-latex="u=\underset{v\in\mathcal U}{\arg\min}\ \frac12\|v-u_{\mathrm{nom}}\|^2"></span></p>
@@ -1168,7 +2220,7 @@ Wind affects both the value <span class="latex-inline" data-latex="\widehat V_a"
 Control-affine dynamics give a quadratic program. If the inequalities are infeasible, the execution model must reproduce the controller’s constraint relaxation; the planner does not assert safety.
 </div>
 </section>
-<section id="propagate-the-applied-input-then-compute-sensing" class="slide level2" data-section="4 · Method — execution prediction">
+<section id="propagate-the-applied-input-then-compute-sensing" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Propagate the applied input, then compute sensing</h2>
 <p>The chosen input <span class="latex-inline" data-latex="u"></span> and the possible physical wind field <span class="latex-inline" data-latex="d"></span> determine the next robot state:</p>
 <p><span class="latex-display" data-latex="\dot x=f_d(x,u,d(\Psi(x))),\qquad x(0)=x_t."></span></p>
@@ -1187,7 +2239,7 @@ Control-affine dynamics give a quadratic program. If the inequalities are infeas
 The constraint value is part of the execution model. The objective is monitoring quality, not the size of the controller’s intervention.
 </div>
 </section>
-<section id="wind-aware-evaluation-average-costs-across-possible-fields" class="slide level2" data-section="4 · Method — wind-aware objective">
+<section id="wind-aware-evaluation-average-costs-across-possible-fields" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Wind-aware evaluation: average costs across possible fields</h2>
 <p>One possible physical field gives one predicted trajectory and one monitoring cost. Use <span class="latex-inline" data-latex="S"></span> coherent fields <span class="latex-inline" data-latex="d^{[1]},\ldots,d^{[S]}"></span> drawn from the current belief.</p>
 <p><span class="latex-display" data-latex="J_s(\theta)=\int_0^T q_d(q^{[s]}(\tau))\,d\tau,
@@ -1207,7 +2259,7 @@ A short nominal route can have a higher cost if wind and controller intervention
 The <span class="latex-inline" data-latex="S"></span> physical-field predictions evaluate monitoring. The <span class="latex-inline" data-latex="L"></span> short design-policy predictions on the previous slides construct the controller’s constraint test; these have different roles.
 </div>
 </section>
-<section id="anticipated-learning-update-then-continue" class="slide level2" data-section="4 · Method — anticipated learning">
+<section id="anticipated-learning-update-then-continue" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Anticipated learning: update, then continue</h2>
 <p><img class="anticipation" src="assets/anticipated_flow.svg" alt="Common motion prediction up to a measurement update; continue from the same reached state with either the retained belief or the updated belief"></p>
 <div class="key-line">
@@ -1227,7 +2279,7 @@ A predicted observation changes only the continuation after it becomes available
           display:block!important;
       }</style></aside>
 </section>
-<section id="predict-one-observation-and-its-belief-update" class="slide level2" data-section="4 · Method — anticipated learning">
+<section id="predict-one-observation-and-its-belief-update" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Predict one observation and its belief update</h2>
 <p>At a scheduled sensing time, the predicted robot reaches position <span class="latex-inline" data-latex="r_m"></span>. In the chosen possible physical field <span class="latex-inline" data-latex="d"></span>, generate</p>
 <p><span class="latex-display" data-latex="y_m^d=d(r_m)+\varepsilon_m^d,\qquad
@@ -1249,7 +2301,7 @@ Example: an observation can reveal stronger crosswind than expected. Later predi
 The observation is generated from the possible field used for this trajectory. The controller learns about it only through the predicted measurement.
 </div>
 </section>
-<section id="what-changes-after-a-predicted-observation" class="slide level2" data-section="4 · Method — anticipated learning">
+<section id="what-changes-after-a-predicted-observation" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>What changes after a predicted observation?</h2>
 <p>From the reached state <span class="latex-inline" data-latex="x"></span>, recompute the nominal request with the updated belief:</p>
 <p><span class="latex-display" data-latex="u_{\mathrm{nom}}=\pi_\theta(x,\mathcal B^{d,+},\tau)."></span></p>
@@ -1271,7 +2323,7 @@ Keep the same policy parameters <span class="latex-inline" data-latex="\theta"><
 The anticipated-learning cost includes the initial motion, sensing and later continuation. The following slides express its benefit through matched predictions.
 </div>
 </section>
-<section id="paired-predictions" class="slide level2" data-section="4 · Method — anticipated learning">
+<section id="paired-predictions" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Two matched predictions define the value of learning</h2>
 <p>Fix one policy parameter vector <span class="latex-inline" data-latex="\theta"></span>. Each draw <span class="latex-inline" data-latex="s"></span> contains a physical field and an observation-noise stream. Both predictions use that field and the same initial state and clarity.</p>
 <p><span class="latex-display" data-latex="J_s^{\mathrm{fixed}}=\int_0^T q_d(q_s^{\mathrm{fixed}}(\tau))\,d\tau,
@@ -1310,7 +2362,7 @@ Both costs cover the same full horizon, including the motion used to obtain info
           display:block!important;
       }</style></aside>
 </section>
-<section id="probability-and-magnitude" class="slide level2" data-section="4 · Method — anticipated learning">
+<section id="probability-and-magnitude" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>How often and how much does learning help?</h2>
 <p>Among the <span class="latex-inline" data-latex="S"></span> matched predictions, let <span class="latex-inline" data-latex="n_+"></span> count those with <span class="latex-inline" data-latex="\Delta_s>0"></span>.</p>
 <p><span class="latex-display" data-latex="\widehat p=\frac{n_+}{S},\qquad
@@ -1345,7 +2397,7 @@ These quantities describe one policy. They do not yet account for outcomes where
           display:block!important;
       }</style></aside>
 </section>
-<section id="signed-learning-value" class="slide level2" data-section="4 · Method — anticipated learning">
+<section id="signed-learning-value" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Signed learning value includes deterioration</h2>
 <p>The expected deterioration is</p>
 <p><span class="latex-display" data-latex="\widehat D=\frac1S\sum_{s=1}^{S}\max(-\Delta_s,0)."></span></p>
@@ -1392,7 +2444,7 @@ A policy receives credit for beneficial outcomes and a penalty for deterioration
           display:block!important;
       }</style></aside>
 </section>
-<section id="learning-cost-in-mbd" class="slide level2" data-section="4 · Method — anticipated learning">
+<section id="learning-cost-in-mbd" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Complete task cost with anticipated learning</h2>
 <p>Average the two matched full-horizon costs:</p>
 <p><span class="latex-display" data-latex="\widehat J^{\mathrm{fixed}}=\frac1S\sum_s J_s^{\mathrm{fixed}},
@@ -1450,7 +2502,7 @@ Do not subtract learning value again from <span class="latex-inline" data-latex=
           display:block!important;
       }</style></aside>
 </section>
-<section id="mbd-now-optimizes-the-complete-monitoring-prediction" class="slide level2" data-section="4 · Method — optimization">
+<section id="mbd-now-optimizes-the-complete-monitoring-prediction" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>MBD now optimizes the complete monitoring prediction</h2>
 <p>The MBD decision is the nominal policy parameter vector: <span class="latex-inline" data-latex="y=\theta"></span>. A <strong>sampled policy parameter vector</strong> <span class="latex-inline" data-latex="\theta^{[k]}"></span> defines one policy whose cost is evaluated by the preceding prediction.</p>
 <p><span class="latex-display" data-latex="w_k\propto \mathbf1_{\Theta_{\mathrm{eval}}}(\theta^{[k]})
@@ -1472,7 +2524,7 @@ Use <span class="latex-inline" data-latex="\bar\theta"></span> in the MBD score 
 Weights act on nominal parameters. Executed trajectories supply the costs; they do not replace parameters in the weighted mean.
 </div>
 </section>
-<section id="proposed-policy-walkthrough" class="slide level2 walk-slide" data-section="4 · Method — interactive explanation">
+<section id="proposed-policy-walkthrough" class="slide level2 walk-slide archived-method" data-section="Archived method" data-archived="true">
 <h2>Follow one policy’s predicted execution</h2>
 <div class="walk-player" data-walk="rollout" data-print-step="6">
 <div class="walk-status">
@@ -1570,7 +2622,7 @@ Schematic explanation of the algorithm, not a new mission result. Orange: nomina
           display:block!important;
       }</style></aside>
 </section>
-<section id="proposed-mbd-walkthrough" class="slide level2 walk-slide" data-section="4 · Method — interactive explanation">
+<section id="proposed-mbd-walkthrough" class="slide level2 walk-slide archived-method" data-section="Archived method" data-archived="true">
 <h2>Turn predicted monitoring costs into the next action</h2>
 <div class="walk-player" data-walk="cycle" data-print-step="4">
 <div class="walk-status">
@@ -1656,7 +2708,7 @@ Schematic algorithm walkthrough. The weighted mean updates MBD parameters; the s
           display:block!important;
       }</style></aside>
 </section>
-<section id="finish-optimization-before-physical-execution" class="slide level2" data-section="4 · Method — complete algorithm">
+<section id="finish-optimization-before-physical-execution" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Finish optimization before physical execution</h2>
 <div class="algorithm-wide">
 <ol>
@@ -1684,7 +2736,7 @@ Schematic algorithm walkthrough. The weighted mean updates MBD parameters; the s
 End of method. The following comparison concerns MBD; concrete vehicle models and numerical settings are in the appendix.
 </div>
 </section>
-<section id="comparison-with-mbd" class="slide level2 section-break" data-section="5 · Comparison with MBD">
+<section id="comparison-with-mbd" class="slide level2 section-break archived-method" data-section="Archived method" data-archived="true">
 <h2>Comparison with MBD</h2>
 <div class="section-number">
 5
@@ -1696,7 +2748,7 @@ Retain the model-based score estimator; change what the model evaluates.
 Algorithm comparison → unchanged components and method-specific components
 </div>
 </section>
-<section id="algorithm-comparison-what-changes-inside-mbd" class="slide level2" data-section="5 · Comparison with MBD">
+<section id="algorithm-comparison-what-changes-inside-mbd" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Algorithm comparison: what changes inside MBD?</h2>
 <div class="algorithm-grid">
 <div>
@@ -1767,7 +2819,7 @@ Adapted from Pan et al., Algorithm 2 with the proposal written consistently with
           display:block!important;
       }</style></aside>
 </section>
-<section id="relationship-to-the-mbd-paper" class="slide level2" data-section="5 · Comparison with MBD">
+<section id="relationship-to-the-mbd-paper" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Relationship to the MBD paper</h2>
 <table class="caption-top">
 <colgroup>
@@ -1830,7 +2882,7 @@ Pan et al., Sections 4.1–4.2. The short numerical search is an approximation, 
           display:block!important;
       }</style></aside>
 </section>
-<section id="results" class="slide level2 section-break" data-section="6 · Results">
+<section id="results" class="slide level2 section-break archived-method" data-section="Archived method" data-archived="true">
 <h2>Results</h2>
 <div class="section-number">
 6
@@ -1842,7 +2894,7 @@ Compare delivered monitoring in matched physical environments.
 Wind-blind → wind-aware → wind-aware with anticipated learning
 </div>
 </section>
-<section id="three-levels-of-planning-awareness" class="slide level2" data-section="6 · Results — methods">
+<section id="three-levels-of-planning-awareness" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Three levels of planning awareness</h2>
 <table class="caption-top">
 <colgroup>
@@ -1905,7 +2957,7 @@ All three use the wind-informed controller during real execution. The archived w
           display:block!important;
       }</style></aside>
 </section>
-<section id="two-environments-with-opposite-wind-directions" class="slide level2" data-section="6 · Results — setup">
+<section id="two-environments-with-opposite-wind-directions" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Two environments with opposite wind directions</h2>
 <p><img class="wide-figure" src="assets/scenario_fields.svg" alt="Original A/B environment and the same geometry with the entire physical wind field reversed"></p>
 <div class="experiment-line">
@@ -1928,7 +2980,7 @@ Matched initial state, clarity, task, survey and physical wind within each envir
           display:block!important;
       }</style></aside>
 </section>
-<section id="environment-1-original-ab-region-wind" class="slide level2 replay" data-section="Results">
+<section id="environment-1-original-ab-region-wind" class="slide level2 replay archived-method" data-section="Archived method" data-archived="true">
 <h2>Environment 1: original A/B-region wind</h2>
 <div class="animation">
 <img class="result-gif" data-src="assets/original.gif" data-original-src="assets/original.gif" alt="Three-method original-wind replay: clarity-deficit maps above and recorded wind-uncertainty maps below, both with fixed shared color bars"><img class="print-poster" src="assets/original_poster.png" alt="Original-wind monitoring deficit and wind uncertainty at 60 seconds">
@@ -1953,7 +3005,7 @@ Top: monitoring deficit and wind arrows. Bottom: recorded wind uncertainty and o
           display:block!important;
       }</style></aside>
 </section>
-<section id="original-wind-compare-delivered-monitoring" class="slide level2" data-section="Results">
+<section id="original-wind-compare-delivered-monitoring" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Original wind: compare delivered monitoring</h2>
 <div class="columns">
 <div class="column" style="width:68%;">
@@ -1990,7 +3042,7 @@ No physical contact in these three archived runs’ dense audits.
           display:block!important;
       }</style></aside>
 </section>
-<section id="environment-2-reversed-wind" class="slide level2 replay" data-section="Results">
+<section id="environment-2-reversed-wind" class="slide level2 replay archived-method" data-section="Archived method" data-archived="true">
 <h2>Environment 2: reversed wind</h2>
 <div class="animation">
 <img class="result-gif" data-src="assets/reversed.gif" data-original-src="assets/reversed.gif" alt="Three-method reversed-wind replay with fixed color scales for monitoring deficit and wind standard deviation"><img class="print-poster" src="assets/reversed_poster.png" alt="Reversed-wind monitoring deficit and uncertainty at 60 seconds">
@@ -2015,7 +3067,7 @@ The entire physical wind field is reversed. Both color scales match Environment 
           display:block!important;
       }</style></aside>
 </section>
-<section id="reversed-wind-the-additional-learning-gain-is-smaller" class="slide level2" data-section="Results">
+<section id="reversed-wind-the-additional-learning-gain-is-smaller" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Reversed wind: the additional learning gain is smaller</h2>
 <div class="columns">
 <div class="column" style="width:66%;">
@@ -2045,7 +3097,7 @@ The observed direction changes. Consistent exploitation of the middle passage is
           display:block!important;
       }</style></aside>
 </section>
-<section id="separate-the-wind-aware-gain-from-the-learning-gain" class="slide level2" data-section="Results">
+<section id="separate-the-wind-aware-gain-from-the-learning-gain" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Separate the wind-aware gain from the learning gain</h2>
 <table class="caption-top">
 <thead>
@@ -2098,7 +3150,7 @@ Descriptive comparisons from archived development runs. The wind-blind contrast 
           display:block!important;
       }</style></aside>
 </section>
-<section id="what-the-current-evidence-establishes" class="slide level2" data-section="Conclusion">
+<section id="what-the-current-evidence-establishes" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>What the current evidence establishes</h2>
 <div class="columns text-columns">
 <div class="column">
@@ -2149,7 +3201,7 @@ Method correctness, optimizer quality and experimental performance are separate 
           display:block!important;
       }</style></aside>
 </section>
-<section id="takeaways" class="slide level2" data-section="Conclusion">
+<section id="takeaways" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Takeaways</h2>
 <div class="takeaways">
 <p>
@@ -2176,7 +3228,7 @@ Method correctness, optimizer quality and experimental performance are separate 
           display:block!important;
       }</style></aside>
 </section>
-<section id="implementation-appendix" class="slide level2 section-break" data-section="Appendix · Implementation">
+<section id="implementation-appendix" class="slide level2 section-break archived-method" data-section="Archived method" data-archived="true">
 <h2>Implementation appendix</h2>
 <div class="section-number">
 A
@@ -2188,7 +3240,7 @@ Concrete simulation choices, kept separate from the generic method.
 Policy representation → planar controller → numerical budgets → covariance-only variant
 </div>
 </section>
-<section id="implementation-the-18-dimensional-policy-representation" class="slide level2" data-section="Appendix · Implementation">
+<section id="implementation-the-18-dimensional-policy-representation" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Implementation: the 18-dimensional policy representation</h2>
 <p>A reference trajectory specifies desired positions for the tracking controller. The implementation uses <span class="latex-inline" data-latex="\theta=(a_0,a_1,\xi_1,\ldots,\xi_4,\operatorname{vec}G)\in\mathbb R^{18}"></span>.</p>
 <div class="parameter-row">
@@ -2220,7 +3272,7 @@ Bounded mappings convert the parameters to accelerations and reference positions
           display:block!important;
       }</style></aside>
 </section>
-<section id="implementation-a-planar-tracking-controller" class="slide level2" data-section="Appendix · Implementation">
+<section id="implementation-a-planar-tracking-controller" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Implementation: a planar tracking controller</h2>
 <p>The planar simulation specializes the generic robot model to</p>
 <p><span class="latex-display" data-latex="x=(r,v),\qquad \dot r=v,\qquad \dot v=u-\gamma v+d(r)."></span></p>
@@ -2243,7 +3295,7 @@ Nominal wind compensation uses the estimated field. Predicted robot motion uses 
 The initial 2 s use the interpolated acceleration parameters instead of the reference-tracking terms. Defaults: <span class="latex-inline" data-latex="\gamma=1"></span>, <span class="latex-inline" data-latex="k_p=1.2"></span>, <span class="latex-inline" data-latex="k_v=1.8"></span>.
 </div>
 </section>
-<section id="implementation-the-velocity-damping-design-policy" class="slide level2" data-section="Appendix · Implementation">
+<section id="implementation-the-velocity-damping-design-policy" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Implementation: the velocity-damping design policy</h2>
 <p>To predict the implemented control modification, use the geometric constraint <span class="latex-inline" data-latex="h_a"></span> from the preliminaries and a fixed velocity-damping design policy:</p>
 <p><span class="latex-display" data-latex="\pi_b(x;\mathcal B^d)=\operatorname{clip}_{\mathcal U}
@@ -2265,7 +3317,7 @@ The design-policy prediction measures how current velocity and uncertain wind af
 Construction inspired by Knoedler et al.’s policy-value approach. It supplies an approximate execution model within our planning objective.
 </div>
 </section>
-<section id="implementation-the-planar-input-inequality" class="slide level2" data-section="Appendix · Implementation">
+<section id="implementation-the-planar-input-inequality" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Implementation: the planar input inequality</h2>
 <p>For <span class="latex-inline" data-latex="x=(r,v)"></span>, partition the value gradient into</p>
 <p><span class="latex-display" data-latex="g_{r,a}=\nabla_r\widehat V_a,\qquad g_{v,a}=\nabla_v\widehat V_a."></span></p>
@@ -2289,7 +3341,7 @@ These changes alter the predicted control input, motion and sensing. The monitor
 This row is obtained by substituting <span class="latex-inline" data-latex="\dot r=v"></span> and <span class="latex-inline" data-latex="\dot v=u-\gamma v+\widetilde d^{[\ell]}(r)"></span> into the preceding rate condition.
 </div>
 </section>
-<section id="implementation-belief-dependent-reference-positions" class="slide level2" data-section="Appendix · Implementation">
+<section id="implementation-belief-dependent-reference-positions" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Implementation: belief-dependent reference positions</h2>
 <p>The matrix <span class="latex-inline" data-latex="G"></span> in the policy parameter vector maps wind-belief features to a reference-position adjustment.</p>
 <p><span class="latex-display" data-latex="z(\mathcal B^d)=\frac1{s_d}
@@ -2320,7 +3372,7 @@ This parameterization can deform the reference trajectory. It does not represent
           display:block!important;
       }</style></aside>
 </section>
-<section id="implementation-a-bounded-target-for-parameter-search" class="slide level2" data-section="Appendix · Implementation">
+<section id="implementation-a-bounded-target-for-parameter-search" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Implementation: a bounded target for parameter search</h2>
 <p>Set the unperturbed decision vector to <span class="latex-inline" data-latex="y=\theta"></span> and evaluate its <strong>cumulative clarity deficit</strong> <span class="latex-inline" data-latex="\widehat J(\theta)"></span>.</p>
 <p><span class="latex-display" data-latex="p_0(\theta)=\frac1{Z_\lambda}\,
@@ -2356,7 +3408,7 @@ The executed controls and paths are outputs of the rollout. They are not substit
           display:block!important;
       }</style></aside>
 </section>
-<section id="appendix-covariance-only-anticipation" class="slide level2" data-section="Appendix · Implementation">
+<section id="appendix-covariance-only-anticipation" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Appendix: covariance-only anticipation</h2>
 <p>For fixed sensing locations <span class="latex-inline" data-latex="\mathcal R"></span> and fixed GP hyperparameters, one can predict covariance reduction:</p>
 <p><span class="latex-display" data-latex="\Sigma_d^+(r,r')=\Sigma_d(r,r')-
@@ -2389,7 +3441,7 @@ This is a separate implementation mode. The result animations show the realizati
           display:block!important;
       }</style></aside>
 </section>
-<section id="appendix-sources-and-reproducibility" class="slide level2" data-section="Appendix · Implementation">
+<section id="appendix-sources-and-reproducibility" class="slide level2 archived-method" data-section="Archived method" data-archived="true">
 <h2>Appendix: sources and reproducibility</h2>
 <p><strong>Problem and method</strong></p>
 <ul>
@@ -2625,7 +3677,7 @@ This is a separate implementation mode. The result animations show the realizati
      renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],ignoredClasses:['katex','latex-display','latex-inline'],throwOnError:true,errorCallback:(msg)=>window.mathErrors.push(msg)});
      function ready(){
       const update=()=>{
-       const slide=Reveal.getCurrentSlide();document.getElementById('current-section').textContent=slide.dataset.section||'Method';
+       const slide=Reveal.getCurrentSlide();document.getElementById('current-section').textContent=slide.dataset.section||'Method';document.body.classList.toggle('show-archive-label',slide.dataset.archived==='true'||slide.id==='archived-method');
        const gif=slide.querySelector('.result-gif');if(gif)restart(gif);
       };
       function restart(img){const src=img.dataset.originalSrc||img.getAttribute('src')||img.dataset.src;img.dataset.originalSrc=src;img.src='';requestAnimationFrame(()=>img.src=src);}
@@ -3073,6 +4125,97 @@ This is a separate implementation mode. The result animations show the realizati
        document.addEventListener('visibilitychange',()=>{if(document.hidden)pause()});
        Object.assign(api,{seek,pause,render});window.walkPlayers.push(api);render();
       });
+     }
+     if(window.Reveal?.isReady())setup();else Reveal.on('ready',setup);
+    })();
+
+    </script>
+
+    <div id="archive-label">Archived method · prior formulation and results</div>
+    <script>
+    /* Presentation-only arithmetic and walkthrough. Does not run the monitoring planner. */
+    (function(){
+     const NS='http://www.w3.org/2000/svg', navy='#00274c',blue='#2474bf',green='#008653',orange='#b77316',grey='#607486';
+     const rows=[['Established route',[9,10,10,11]],['Uncertain alternative',[6,8,14,20]],['Poor alternative',[11,13,16,20]],['Known costly route',[12,12,12,12]]];
+     const explanations=[
+     'Begin one planning call with the measured state, current clarity and current disturbance posterior. The posterior stays fixed until physical execution.',
+     'Evaluate each nominal policy through the state-dependent filter in every coherent performance field. Different reached states can produce different inputs. Reject any policy that fails a numerical acceptance check.',
+     'Here η = 0.5 retains the two smallest of four costs. The uncertain alternative has a higher mean cost but a lower optimistic cost. These numbers illustrate the criterion only.',
+     'The established route is the expected-cost incumbent. The uncertain alternative has priority 9.5 − 7 = 2.5. The other two alternatives have zero priority. Additional proposal mass goes around the qualifying policy.',
+     'Draw a fresh parameter batch from the mixture. Correct each weight by ordinary-proposal density divided by mixture density, then use the weighted parameter mean in the original MBD score update.',
+     'Repeat sampling and denoising while diffusion levels remain. After the last level, reevaluate leading policies using fresh shared performance fields and select by optimistic cost. Check the final weighted vector before accepting it.',
+     'Execute only the next replanning interval. Real wind measurements update POAM. Begin the next planning call from the attained state, clarity and updated posterior.'
+     ];
+     const equations=[
+     String.raw`x_k,\ q_k,\ \mathcal B_k^d,\qquad \mathcal B^d(\tau)=\mathcal B_k^d`,
+     String.raw`u^{[s]}=\Gamma_k(x^{[s]},u_{\mathrm{nom}}^{[s]}),\quad J_s=\int_0^Tq_d(q^{[s]}(\tau))\,d\tau`,
+     String.raw`J^{\mathrm{opt}}_{k,0.5}(\theta)=\tfrac12\big(J_{(1)}(\theta)+J_{(2)}(\theta)\big)`,
+     String.raw`q_i^{\mathrm{prop}}=(1-\rho)\phi_i+\rho\psi_i`,
+     String.raw`\widetilde w_n\propto\mathbf1_\Theta v_k\,e^{-J^{\mathrm{opt}}_{k,\eta}/\lambda}\,\phi_i/q_i^{\mathrm{prop}},\quad y_{i-1}=\sqrt{\bar\alpha_{i-1}}\bar\theta`,
+     String.raw`\theta_k^\star\in\arg\min_{\theta\in\mathcal A_k^{\mathrm{val}}}J^{\mathrm{opt,val}}_{k,\eta}(\theta)`,
+     String.raw`\mathcal B_{k+1}^d=\operatorname{POAMUpdate}(\mathcal B_k^d,\mathcal D_k^{d,\mathrm{real}})`
+     ];
+     function draw(step){
+      const a=[];const t=(x,y,s,size=23,color=navy,weight=400)=>a.push(`<text x="${x}" y="${y}" font-family="Arial" font-size="${size}" fill="${color}" font-weight="${weight}">${s}</text>`);
+      const line=(x,y,xx,yy,color=navy,width=2)=>a.push(`<line x1="${x}" y1="${y}" x2="${xx}" y2="${yy}" stroke="${color}" stroke-width="${width}"/>`);
+      const box=(x,y,w,h,label,sub,color=blue)=>{a.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="#f4f8fb" stroke="${color}" stroke-width="2"/>`);t(x+16,y+34,label,23,color,700);sub.forEach((v,i)=>t(x+16,y+70+31*i,v,21));};
+      const arrow=(x,y,xx,yy,color=navy)=>a.push(`<path d="M${x},${y} L${xx},${yy}" stroke="${color}" stroke-width="2.5" fill="none" marker-end="url(#opt-arrow)"/>`);
+      if(step===0){
+       t(30,35,'One physical replanning time',28,navy,700);
+       box(30,75,340,190,'Measured inputs',['Robot state and clarity','Disturbance posterior','Geometry and clarity targets']);
+       arrow(375,170,445,170);
+       box(450,75,370,190,'One planning call',['Draw fixed spatial fields','Evaluate nominal policies','Keep the posterior fixed']);
+       t(30,330,'The robot has not executed the new plan yet.',24,green,700);
+      }else if(step===1){
+       t(30,35,'Same policy, different possible execution',28,navy,700);
+       box(30,90,215,185,'One policy',['Policy parameters','Same initial state','Same initial clarity']);
+       for(let i=0;i<3;i++){let y=80+98*i;arrow(248,175,315,y+35);box(320,y,480,80,`Performance field ${i+1}`,['State-dependent filter, motion and sensing']);}
+       t(30,402,'All fields must pass the declared numerical checks.',23,green,700);
+      }else if(step===2||step===3){
+       t(25,33,step===2?'Illustrative monitoring costs':'Illustrative archive priorities',28,navy,700);
+       const headers=step===2?['Policy','Sorted field costs','Mean','Lower half']:['Policy','Mean','Optimistic','Priority'];
+       const xs=step===2?[25,345,610,705]:[25,380,520,705];
+       headers.forEach((v,i)=>t(xs[i],85,v,21,grey,700));line(25,101,825,101,'#aebfcb');
+       rows.forEach((r,i)=>{let y=145+62*i;const mean=r[1].reduce((a,b)=>a+b)/4, opt=(r[1][0]+r[1][1])/2,priority=Math.max(9.5-opt,0)*(mean>opt);if(i===1)a.push(`<rect x="15" y="${y-29}" width="820" height="51" fill="#e6f3ec"/>`);t(25,y,r[0],22,i===1?green:navy,i===1?700:400);if(step===2){t(345,y,r[1].join(', '),24);t(610,y,String(mean),24);t(715,y,String(opt),24,i===1?green:navy,700);}else{t(380,y,String(mean),24);t(540,y,String(opt),24);t(725,y,String(priority),24,i===1?green:navy,700);}});
+       t(25,405,'Teaching example only. All four policies pass the checks.',20,grey);
+      }else if(step===4){
+       t(25,35,'One diffusion level',28,navy,700);
+       box(25,80,235,170,'Fresh samples',['Ordinary Gaussian','plus archive mixture']);
+       arrow(264,165,300,165);
+       box(305,80,250,170,'Correct the weights',['Optimistic target weight','× density ratio']);
+       arrow(559,165,595,165);
+       box(600,80,225,170,'Denoise',['Weighted mean','Original score update']);
+       t(25,315,'Sampling preference and target preference are distinct.',24,green,700);
+       t(25,358,'Archive entries do not count as newly drawn samples.',23);
+      }else if(step===5){
+       t(25,35,'After a score update',28,navy,700);
+       box(25,80,305,150,'More levels remain',['Return to mixture sampling','Then evaluate a fresh batch']);
+       box(450,80,365,150,'Last level finished',['Fresh-field reevaluation','Optimistic final selection']);
+       t(25,280,'These are alternative branches, determined by the level.',23,green,700);
+       t(25,330,'No accepted policy: record failure and use runtime fallback.',22);
+       t(25,375,'A weighted parameter mean still needs its own rollout check.',22);
+      }else{
+       t(25,35,'Physical execution and online learning',28,navy,700);
+       box(25,90,240,170,'Execute an interval',['Actual execution filter','Actual disturbance']);
+       arrow(269,175,310,175);
+       box(315,90,245,170,'Measure and update',['Real wind observations','POAM posterior update']);
+       arrow(564,175,605,175);
+       box(610,90,215,170,'Replan',['Attained state','Attained clarity']);
+       t(25,330,'Only real measurements update the disturbance belief.',25,green,700);
+      }
+      return `<svg xmlns="${NS}" viewBox="0 0 860 430" role="img" aria-label="${explanations[step]}"><defs><marker id="opt-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="${navy}"/></marker></defs>${a.join('')}</svg>`;
+     }
+     function setup(){const root=document.getElementById('optimistic-walkthrough-player');if(!root)return;
+      const range=root.querySelector('input'),play=root.querySelector('[data-action="play"]');
+      const api={index:location.search.includes('snapshot')||location.search.includes('print-pdf')?2:0,playing:false,timer:null};
+      function pause(){clearTimeout(api.timer);api.playing=false;play.textContent='Play';play.setAttribute('aria-pressed','false');}
+      function render(){root.dataset.step=api.index;root.querySelector('.optimistic-visual').innerHTML=draw(api.index);root.querySelector('.optimistic-explanation').textContent=explanations[api.index];katex.render(equations[api.index],root.querySelector('.optimistic-equation'),{displayMode:true,throwOnError:true});root.querySelectorAll('.optimistic-steps li').forEach((el,i)=>{el.classList.toggle('active',i===api.index);if(i===api.index)el.setAttribute('aria-current','step');else el.removeAttribute('aria-current');});range.value=api.index;root.querySelector('output').textContent=`Step ${api.index+1} / 7`;root.querySelector('[data-action="prev"]').disabled=api.index===0;root.querySelector('[data-action="next"]').disabled=api.index===6;}
+      function seek(n){pause();api.index=Math.min(6,Math.max(0,n));render();}
+      function tick(){if(!api.playing)return;if(api.index===6){pause();return;}api.index++;render();if(api.index===6)pause();else api.timer=setTimeout(tick,3500);}
+      root.querySelectorAll('button').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const act=b.dataset.action;if(act==='reset')seek(0);if(act==='prev')seek(api.index-1);if(act==='next')seek(api.index+1);if(act==='play'){if(api.playing)pause();else{if(api.index===6){api.index=0;render();}api.playing=true;play.textContent='Pause';play.setAttribute('aria-pressed','true');api.timer=setTimeout(tick,3500);}}}));
+      range.addEventListener('input',()=>seek(Number(range.value)));root.querySelectorAll('button,input').forEach(e=>e.addEventListener('keydown',ev=>ev.stopPropagation()));
+      Reveal.on('slidechanged',()=>{if(Reveal.getCurrentSlide()!==root.closest('section'))pause();});document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});
+      Object.assign(api,{seek,pause,render});window.optimisticPlayer=api;render();
      }
      if(window.Reveal?.isReady())setup();else Reveal.on('ready',setup);
     })();

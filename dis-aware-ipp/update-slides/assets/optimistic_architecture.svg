@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1530 690"><defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#00274c"/></marker></defs>
+<text x="25" y="28" font-family="Arial,Helvetica,sans-serif" font-size="25" fill="#2474bf" font-weight="700">PLANNING  ·  current disturbance posterior stays fixed</text>
+<text x="1130" y="28" font-family="Arial,Helvetica,sans-serif" font-size="25" fill="#008653" font-weight="700">REAL EXECUTION</text>
+<g id="input" data-panel="true" data-bounds="25,65,275,205"><rect x="25" y="65" width="275" height="205" rx="5" fill="#f5f8fb" stroke="#2474bf" stroke-width="2"/>
+<text x="43" y="100" font-family="Arial,Helvetica,sans-serif" font-size="26" fill="#2474bf" font-weight="700">1  Current inputs</text>
+<text x="43" y="143" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#00274c" font-weight="400">Measured robot state</text>
+<text x="43" y="178" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#00274c" font-weight="400">Current clarity</text>
+<text x="43" y="213" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#00274c" font-weight="400">Disturbance posterior</text>
+<text x="43" y="248" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#00274c" font-weight="400">Geometry and targets</text>
+</g>
+<g id="search" data-panel="true" data-bounds="360,65,315,205"><rect x="360" y="65" width="315" height="205" rx="5" fill="#f5f8fb" stroke="#2474bf" stroke-width="2"/>
+<text x="378" y="100" font-family="Arial,Helvetica,sans-serif" font-size="26" fill="#2474bf" font-weight="700">2  MBD policy search</text>
+<text x="378" y="143" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#00274c" font-weight="400">Draw nominal parameters</text>
+<text x="378" y="178" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#00274c" font-weight="400">Predict filtered execution</text>
+<text x="378" y="213" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#00274c" font-weight="400">Score optimistic monitoring</text>
+<text x="378" y="248" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#00274c" font-weight="400">Correct weights and refine</text>
+</g>
+<g id="select" data-panel="true" data-bounds="735,65,335,205"><rect x="735" y="65" width="335" height="205" rx="5" fill="#f5f8fb" stroke="#2474bf" stroke-width="2"/>
+<text x="753" y="100" font-family="Arial,Helvetica,sans-serif" font-size="26" fill="#2474bf" font-weight="700">3  Final reevaluation</text>
+<text x="753" y="143" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#00274c" font-weight="400">After all diffusion levels</text>
+<text x="753" y="178" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#00274c" font-weight="400">Use fresh shared fields</text>
+<text x="753" y="213" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#00274c" font-weight="400">Check all tested executions</text>
+<text x="753" y="248" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#00274c" font-weight="400">Select by optimistic cost</text>
+</g>
+<g id="execute" data-panel="true" data-bounds="1130,65,365,205"><rect x="1130" y="65" width="365" height="205" rx="5" fill="#f5f8fb" stroke="#008653" stroke-width="2"/>
+<text x="1148" y="100" font-family="Arial,Helvetica,sans-serif" font-size="26" fill="#008653" font-weight="700">4  Execute one interval</text>
+<text x="1148" y="143" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#00274c" font-weight="400">Actual tracking and filter</text>
+<text x="1148" y="178" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#00274c" font-weight="400">Actual disturbance</text>
+<text x="1148" y="213" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#00274c" font-weight="400">Actual motion and sensing</text>
+<text x="1148" y="248" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#00274c" font-weight="400">Collect wind observations</text>
+</g>
+<polyline data-connector="input:search" points="300,165 360,165" stroke="#00274c" stroke-width="2.5" fill="none" marker-end="url(#a)"/>
+<polyline data-connector="search:select" points="675,165 735,165" stroke="#00274c" stroke-width="2.5" fill="none" marker-end="url(#a)"/>
+<polyline data-connector="select:execute" points="1070,165 1130,165" stroke="#00274c" stroke-width="2.5" fill="none" marker-end="url(#a)"/>
+<polyline data-connector="search:search" points="445,270 445,320 600,320 600,270" stroke="#00274c" stroke-width="2.5" fill="none" marker-end="url(#a)"/>
+<text x="25" y="330" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#2474bf" font-weight="700">Within MBD:</text>
+<text x="25" y="365" font-family="Arial,Helvetica,sans-serif" font-size="22" fill="#00274c" font-weight="400">repeat only while</text>
+<text x="25" y="397" font-family="Arial,Helvetica,sans-serif" font-size="22" fill="#00274c" font-weight="400">diffusion levels remain</text>
+<g id="rollout" data-panel="true" data-bounds="360,390,710,175"><rect x="360" y="390" width="710" height="175" rx="5" fill="#f5f8fb" stroke="#2474bf" stroke-width="2"/>
+<text x="378" y="425" font-family="Arial,Helvetica,sans-serif" font-size="26" fill="#2474bf" font-weight="700">Inside every policy evaluation</text>
+<text x="378" y="468" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#00274c" font-weight="400">Performance fields: disturbed motion and clarity costs</text>
+<text x="378" y="503" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#00274c" font-weight="400">Construction fields: state-dependent design-policy maxima</text>
+<text x="378" y="538" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#00274c" font-weight="400">The filter is rebuilt at each predicted state</text>
+</g>
+<polyline data-connector="search:rollout" points="675,210 705,210 705,390" stroke="#00274c" stroke-width="2.5" fill="none" marker-end="url(#a)"/>
+<g id="belief" data-panel="true" data-bounds="1130,390,365,175"><rect x="1130" y="390" width="365" height="175" rx="5" fill="#f5f8fb" stroke="#008653" stroke-width="2"/>
+<text x="1148" y="425" font-family="Arial,Helvetica,sans-serif" font-size="26" fill="#008653" font-weight="700">5  POAM update</text>
+<text x="1148" y="468" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#00274c" font-weight="400">Assimilate real measurements</text>
+<text x="1148" y="503" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#00274c" font-weight="400">Retain attained state and clarity</text>
+<text x="1148" y="538" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#00274c" font-weight="400">Start the next planning call</text>
+</g>
+<polyline data-connector="execute:belief" points="1310,270 1310,390" stroke="#00274c" stroke-width="2.5" fill="none" marker-end="url(#a)"/>
+<polyline data-connector="belief:input" points="1310,565 1310,620 8,620 8,165 25,165" stroke="#00274c" stroke-width="2.5" fill="none" marker-end="url(#a)"/>
+<text x="390" y="657" font-family="Arial,Helvetica,sans-serif" font-size="25" fill="#008653" font-weight="700">Real execution advances time and updates the posterior</text>
+</svg>
