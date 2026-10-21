@@ -1,0 +1,744 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MPPI in JAX · Kaleb Ben Naveed</title>
+<meta name="description" content="A detailed JAX MPPI implementation tutorial, with uv, three toy environments, numerical tests, and an interactive local playground.">
+<style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:#333;background:#fff;font-family:Arial,sans-serif;font-size:17px;line-height:1.75}header{border-bottom:1px solid #eee;padding:18px 5%;display:flex;gap:24px;align-items:center;flex-wrap:wrap}header a{color:#3e484d;text-decoration:none}.brand{font-size:20px;margin-right:auto}.layout{display:grid;grid-template-columns:270px minmax(0,850px);gap:50px;max-width:1250px;margin:0 auto;padding:40px 25px}aside{font-size:14px;align-self:start;position:sticky;top:25px;max-height:92vh;overflow:auto}aside ul{padding-left:16px}aside li{margin:8px 0}a{color:#26758f;text-decoration:none}a:hover{text-decoration:underline}h1{font-size:38px;margin-top:0;line-height:1.3}h2{font-size:26px;line-height:1.4;margin-top:55px;padding-top:15px;border-top:1px solid #eee}h3{font-size:21px}p{margin:18px 0}code{font-family:ui-monospace,SFMono-Regular,monospace;font-size:.85em;background:#f2f3f3;padding:2px 4px;border-radius:3px}pre{background:#f7f7f5;border:1px solid #e6e6e0;border-radius:7px;padding:18px;overflow:auto;line-height:1.5}pre code{padding:0;background:none}table{display:block;max-width:100%;overflow:auto;border-collapse:collapse;font-size:15px}th,td{padding:12px;border:1px solid #ddd;text-align:left;vertical-align:top}th{background:#f7f7f5}img{max-width:100%;height:auto}.math.display{display:block;overflow-x:auto;padding:8px 0}.example{background:#e8e6f5;padding:22px;border-radius:10px;margin:24px 0}.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;font-size:14px}.gallery a{border:1px solid #ddd;padding:8px;border-radius:7px}.gallery img{display:block}.caption{font-size:14px;color:#667}footer{border-top:1px solid #eee;padding:25px 5%;font-size:14px}.button{display:inline-block;background:#275e70;color:white;padding:9px 15px;border-radius:5px;margin-right:8px}details{margin:20px 0}summary{cursor:pointer} @media(max-width:880px){.layout{display:block;padding:24px 18px}aside{position:static;max-height:none;background:#f7f7f5;padding:15px;border-radius:7px;margin-bottom:30px}aside ul{columns:2}h1{font-size:30px}.gallery{grid-template-columns:1fr}header{gap:16px;font-size:14px}}
+</style>
+<style>html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */</style>
+<script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax:{inlineMath:[['\\(','\\)']],processEscapes:true},displayAlign:'center'});</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+</head><body><header><a class="brand" href="/">Kaleb Ben Naveed</a><a href="/kaleb_notes/">Notes</a><a href="/planning-algorithm-tutorial/">Planning tutorials</a><a href="https://github.com/kalebbennaveed/planning-algorithms-library">Code</a></header>
+<div class="layout"><aside aria-label="Contents"><strong>In this tutorial</strong><ul>
+<li><a href="#install-and-run-with-uv"
+id="toc-install-and-run-with-uv">1. Install and run with uv</a></li>
+<li><a href="#files-and-array-shapes" id="toc-files-and-array-shapes">2.
+Files and array shapes</a></li>
+<li><a href="#define-a-model-and-two-costs"
+id="toc-define-a-model-and-two-costs">3. Define a model and two
+costs</a></li>
+<li><a href="#sample-input-sequences-with-an-explicit-random-key"
+id="toc-sample-input-sequences-with-an-explicit-random-key">4. Sample
+input sequences with an explicit random key</a></li>
+<li><a
+href="#apply-physical-input-limits-without-changing-the-gaussian-algebra"
+id="toc-apply-physical-input-limits-without-changing-the-gaussian-algebra">5.
+Apply physical input limits without changing the Gaussian
+algebra</a></li>
+<li><a href="#compute-the-score-from-the-likelihood-ratio"
+id="toc-compute-the-score-from-the-likelihood-ratio">6. Compute the
+score from the likelihood ratio</a></li>
+<li><a href="#normalize-and-update" id="toc-normalize-and-update">7.
+Normalize and update</a></li>
+<li><a href="#apply-one-input-then-shift-once"
+id="toc-apply-one-input-then-shift-once">8. Apply one input, then shift
+once</a></li>
+<li><a href="#the-three-environments-fully-specified"
+id="toc-the-three-environments-fully-specified">9. The three
+environments, fully specified</a></li>
+<li><a href="#compare-with-smooth-mppi"
+id="toc-compare-with-smooth-mppi">10. Compare with smooth MPPI</a></li>
+<li><a href="#experiments-to-try" id="toc-experiments-to-try">11.
+Experiments to try</a></li>
+<li><a href="#add-your-own-environment"
+id="toc-add-your-own-environment">12. Add your own environment</a></li>
+<li><a href="#check-the-implementation"
+id="toc-check-the-implementation">13. Check the implementation</a></li>
+<li><a href="#references" id="toc-references">References</a></li>
+</ul></aside><main>
+<h1>MPPI in JAX</h1><p>From the sampling equations to a controller you can run and change.</p>
+<p><a class="button" href="jax-mppi-tutorial.zip">Download the uv project</a><a href="/kaleb_notes/model-predictive-path-integral-control.html">Read the theory notes →</a></p>
+<div class="example"><strong>Explore a recorded run</strong><p>These animations were generated by the JAX implementation with seed 0. Play or scrub through the motion and predicted trajectories. To change parameters and recompute, download the project and run <code>uv run mppi-play</code>.</p>
+<div class="gallery"><a href="examples/point_mass/playback.html"><img src="examples/point_mass/summary.png" alt="Double integrator trajectory and controls">Double integrator →</a><a href="examples/unicycle/playback.html"><img src="examples/unicycle/summary.png" alt="Unicycle trajectory and controls">Unicycle →</a><a href="examples/pendulum/playback.html"><img src="examples/pendulum/summary.png" alt="Pendulum swing-up and controls">Pendulum swing-up →</a></div></div>
+<p>This tutorial builds a small model predictive path integral (MPPI)
+controller that you can read, modify, and run on a CPU. It accompanies
+the <a
+href="https://kalebbennaveed.github.io/kaleb_notes/model-predictive-path-integral-control.html">MPPI
+chapter in Kaleb Notes</a>. Start there for the probability and control
+derivations; this page connects those equations to working code.</p>
+<p>The three examples are a double integrator moving around an obstacle,
+a unicycle moving around an obstacle, and pendulum swing-up. Their
+models come from the existing notes. The tasks, numerical parameters,
+and costs are teaching choices. They do not reproduce the papers’
+experiments.</p>
+<h2 id="install-and-run-with-uv">1. Install and run with uv</h2>
+<p>Install <a
+href="https://docs.astral.sh/uv/getting-started/installation/">uv</a>
+using the instructions for your operating system. Then run:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/kalebbennaveed/planning-algorithms-library.git</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> planning-algorithms-library/planning-algorithm-tutorial/mppi</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> sync <span class="at">--locked</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run mppi-demo <span class="at">--env</span> point_mass <span class="at">--seed</span> 0 <span class="at">--output</span> outputs/point_mass</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run mppi-demo <span class="at">--env</span> unicycle <span class="at">--seed</span> 0 <span class="at">--output</span> outputs/unicycle</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run mppi-demo <span class="at">--env</span> pendulum <span class="at">--seed</span> 0 <span class="at">--output</span> outputs/pendulum</span></code></pre></div>
+<p>Alternatively, download the source archive from the website, extract
+it, enter its <code>mppi</code> directory, and run the same
+<code>uv</code> commands. Python 3.12 is selected by
+<code>.python-version</code>. The committed <code>uv.lock</code> records
+the dependency versions. The default JAX installation runs on the CPU;
+no GPU is required. Installation needs internet access, but the
+installed examples and playback pages do not.</p>
+<p>Each run writes four files:</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">File</th>
+<th style="text-align: left;">Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>playback.html</code></td>
+<td style="text-align: left;">Offline animation with play/pause, time
+slider, predicted paths, inputs, and diagnostics</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>summary.png</code></td>
+<td style="text-align: left;">Trajectory or angle error, applied inputs,
+state cost, and effective sample size</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>episode.json</code></td>
+<td style="text-align: left;">Full settings, seed, software versions,
+states, actions, predictions, and measured results</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>episode.npz</code></td>
+<td style="text-align: left;">NumPy arrays for further analysis</td>
+</tr>
+</tbody>
+</table>
+<p>Open <code>playback.html</code> in your browser. For example, on
+macOS, run <code>open outputs/point_mass/playback.html</code>. On other
+platforms, open the file from your file manager.</p>
+<p>For an interactive control panel that runs the <strong>actual JAX
+solver</strong>, use:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run mppi-play</span></code></pre></div>
+<p>Open <a href="http://127.0.0.1:8765">the local playground</a>. It
+runs on your machine, bound to the loopback interface. Choose an
+environment, change parameters, click <strong>Run simulation</strong>,
+and then play or scrub through the result. Changing the environment
+resets its recommended settings. The first run includes compilation.
+Press Ctrl+C in the terminal to stop the server. Use
+<code>--port 8767</code> if the default port is occupied.</p>
+<p>The published website provides recorded examples; live parameter
+changes require this local Python process. There is no separate
+JavaScript approximation of MPPI hidden in the browser.</p>
+<h2 id="files-and-array-shapes">2. Files and array shapes</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">File</th>
+<th style="text-align: left;">Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>src/jax_mppi/core.py</code></td>
+<td style="text-align: left;">Gaussian sampling, rollout, density
+correction, weights, mean update, and SMPPI</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>src/jax_mppi/envs.py</code></td>
+<td style="text-align: left;">Models, running state costs, terminal
+costs, actuator bounds, and default settings</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>src/jax_mppi/demo.py</code></td>
+<td style="text-align: left;">Receding-horizon loop, experiment records,
+plots, and command line</td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><code>src/jax_mppi/playground.py</code></td>
+<td style="text-align: left;">Small local HTTP server calling the same
+experiment code</td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><code>src/jax_mppi/playground.html</code></td>
+<td style="text-align: left;">Parameter form and canvas playback</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>examples/minimal.py</code></td>
+<td style="text-align: left;">A complete controller loop without
+plotting or the web interface</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>examples/compare.py</code></td>
+<td style="text-align: left;">Reproducible MPPI/SMPPI comparison across
+seeds</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>tests/</code></td>
+<td style="text-align: left;">Equation-level checks and bounded,
+reproducible environment runs</td>
+</tr>
+</tbody>
+</table>
+<p>Let <span class="math inline">\(n\)</span> be the state dimension,
+<span class="math inline">\(m\)</span> the input dimension, <span
+class="math inline">\(H\)</span> the prediction horizon in steps, and
+<span class="math inline">\(K\)</span> the number of sampled sequences.
+Every state/input vector is represented by a one-dimensional JAX array.
+The arrays are:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Python name</th>
+<th style="text-align: left;">Mathematical meaning</th>
+<th style="text-align: left;">Shape</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>state</code></td>
+<td style="text-align: left;">Current measured state <span
+class="math inline">\(x_0\)</span></td>
+<td style="text-align: left;"><code>(n,)</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>mean</code></td>
+<td style="text-align: left;">Gaussian mean sequence <span
+class="math inline">\(U\)</span></td>
+<td style="text-align: left;"><code>(H, m)</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>noise</code></td>
+<td style="text-align: left;">Independent perturbations <span
+class="math inline">\(E^{(k)}\)</span></td>
+<td style="text-align: left;"><code>(K, H, m)</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sampled_actions</code></td>
+<td style="text-align: left;">Physical input sequences</td>
+<td style="text-align: left;"><code>(K, H, m)</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>scores</code>,
+<code>weights</code></td>
+<td style="text-align: left;">Corrected costs <span
+class="math inline">\(C_k\)</span> and weights <span
+class="math inline">\(w_k\)</span></td>
+<td style="text-align: left;"><code>(K,)</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>predicted</code></td>
+<td style="text-align: left;">One rollout, including its initial
+state</td>
+<td style="text-align: left;"><code>(H + 1, n)</code></td>
+</tr>
+</tbody>
+</table>
+<p>The prediction index <span class="math inline">\(t\)</span> runs from
+<span class="math inline">\(0\)</span> to <span
+class="math inline">\(H-1\)</span>. The sample index <span
+class="math inline">\(k\)</span> runs over the batch. A physical input
+is called <code>action</code>; <code>mean</code> is the mean in the
+Gaussian sampling coordinates. These coincide only before the
+physical-input map is applied.</p>
+<h2 id="define-a-model-and-two-costs">3. Define a model and two
+costs</h2>
+<p>The controller receives three functions:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>step(x, action)       <span class="co"># returns x_next with shape (n,)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>state_cost(x)         <span class="co"># returns one scalar c(x_t)</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>terminal_cost(x)      <span class="co"># returns one scalar phi(x_H)</span></span></code></pre></div>
+<p>Use <code>jax.numpy</code> inside these functions. Each function must
+return the same array shapes on every call. They should depend only on
+their arguments and captured constants. In particular, do not draw NumPy
+random numbers or mutate a global object inside a compiled rollout.</p>
+<p>The rollout score is</p>
+<p><span
+class="math display">\[S=\sum_{t=0}^{H-1}c(x_t)+\phi(x_H).\]</span></p>
+<p>The code evaluates <code>state_cost</code> <strong>before</strong>
+the state transition, then adds the terminal cost exactly once. If your
+cost is a rate per second, multiply it by <code>dt</code> inside
+<code>state_cost</code>. The controller does not multiply it a second
+time. The terminal cost is not a rate.</p>
+<p>Here is the central operation, with output details shortened for
+explanation:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> advance(x, action):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    cost <span class="op">=</span> state_cost(x)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    x_next <span class="op">=</span> step(x, action)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x_next, (x_next, cost)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>last, (states, costs) <span class="op">=</span> jax.lax.scan(advance, x0, actions)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>total <span class="op">=</span> costs.<span class="bu">sum</span>() <span class="op">+</span> terminal_cost(last)</span></code></pre></div>
+<p><code>lax.scan</code> carries the current state through the
+prediction steps. <code>vmap</code> applies that entire rollout to all
+<span class="math inline">\(K\)</span> action sequences, keeping
+<code>x0</code> shared. <code>jit</code> compiles the calculation for
+the selected dimensions. No dynamics or cost derivatives are taken. See
+the primary <a
+href="https://docs.jax.dev/en/latest/jit-compilation.html">JAX
+compilation</a> and <a
+href="https://docs.jax.dev/en/latest/automatic-vectorization.html">vectorization</a>
+documentation for those programming operations.</p>
+<h2 id="sample-input-sequences-with-an-explicit-random-key">4. Sample
+input sequences with an explicit random key</h2>
+<p>The reference covariance is diagonal:</p>
+<p><span
+class="math display">\[\Sigma=\operatorname{diag}(\sigma_1^2,\ldots,\sigma_m^2).\]</span></p>
+<p><code>config.sigma</code> stores <strong>standard
+deviations</strong>, not variances. <code>covariance_scale</code> stores
+<span class="math inline">\(\nu\)</span>, the multiplier in the proposal
+covariance <span class="math inline">\(\nu\Sigma\)</span>.</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>key, draw_key <span class="op">=</span> jax.random.split(key)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>noise <span class="op">=</span> jax.random.normal(draw_key, (K, H, m))</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>noise <span class="op">=</span> noise <span class="op">*</span> sigma <span class="op">*</span> sqrt(nu)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>raw <span class="op">=</span> mean[<span class="va">None</span>, :, :] <span class="op">+</span> noise</span></code></pre></div>
+<p>The controller returns the new key. Reusing the same input key
+repeats the same draw, so callers must carry the returned key into the
+next update. Keeping a fixed initial seed makes a complete experiment
+repeatable on the same software/backend. Bitwise agreement across
+different accelerators or JAX versions is not assumed. See <a
+href="https://docs.jax.dev/en/latest/jax.random.html">JAX random
+keys</a>.</p>
+<p><code>noise_scale</code> on the command line multiplies
+<code>sigma</code>, which changes both the reference and proposal.
+<code>covariance_scale</code> changes only the proposal and retains the
+correction needed for that change.</p>
+<h2
+id="apply-physical-input-limits-without-changing-the-gaussian-algebra">5.
+Apply physical input limits without changing the Gaussian algebra</h2>
+<p>The implementation defines physical actions by</p>
+<p><span
+class="math display">\[a_t=\operatorname{clip}(v_t,a_{\min},a_{\max}).\]</span></p>
+<p>All rollouts use these bounded actions. The reference and proposal
+densities remain densities of the <strong>raw</strong> Gaussian
+variables <span class="math inline">\(v_t\)</span>. We update their mean
+using the raw <code>noise</code>, then apply the action map to that
+mean.</p>
+<p>This gives a precise interpretation: the task cost is evaluated
+through the composite dynamics <span
+class="math inline">\(F(x,\operatorname{clip}(v))\)</span>. We do not
+pretend that clipped samples still have a Gaussian density. Nor do we
+replace <code>noise</code> by <code>clip(mean + noise) - mean</code> in
+the density correction.</p>
+<p>A consequence is that the mean of clipped samples and the clipped
+mean of raw samples need not agree. A bound on physical actions is not a
+bound on <code>mean</code>. Inspect both if you change the
+controller.</p>
+<h2 id="compute-the-score-from-the-likelihood-ratio">6. Compute the
+score from the likelihood ratio</h2>
+<p>Let <span class="math inline">\(p(V)=\prod_t\mathcal
+N(v_t;0,\Sigma)\)</span> and <span
+class="math inline">\(q(V)=\prod_t\mathcal
+N(v_t;u_t,\nu\Sigma)\)</span>. The target is proportional to <span
+class="math inline">\(e^{-S(V)/\lambda}p(V)\)</span>. Sampling from
+<span class="math inline">\(q\)</span> therefore requires the factor
+<span class="math inline">\(p/q\)</span>.</p>
+<p>After dropping terms common to every sample, the corrected score
+is</p>
+<p><span
+class="math display">\[C_k=S_k+\lambda\sum_{t,j}\frac{u_{t,j}\epsilon_{t,j}^{(k)}}{\sigma_j^2}
++\frac\lambda2(1-\nu^{-1})\sum_{t,j}\frac{(\epsilon_{t,j}^{(k)})^2}{\sigma_j^2}.\]</span></p>
+<p>Here <span class="math inline">\(j\)</span> indexes the <span
+class="math inline">\(m\)</span> input components. In
+<code>corrected_scores</code>:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>cross <span class="op">=</span> jnp.<span class="bu">sum</span>(mean[<span class="va">None</span>, :, :] <span class="op">*</span> noise <span class="op">/</span> sigma<span class="op">**</span><span class="dv">2</span>, axis<span class="op">=</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>variance <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (<span class="fl">1.0</span> <span class="op">-</span> <span class="fl">1.0</span> <span class="op">/</span> nu) <span class="op">*</span> jnp.<span class="bu">sum</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    (noise <span class="op">/</span> sigma)<span class="op">**</span><span class="dv">2</span>, axis<span class="op">=</span>(<span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>scores <span class="op">=</span> state_costs <span class="op">+</span> temperature <span class="op">*</span> (cross <span class="op">+</span> variance)</span></code></pre></div>
+<p>For <span class="math inline">\(\nu=1\)</span>, the last term
+vanishes. This gives Kim et al., Equation (10). The covariance extension
+follows the Gaussian likelihood-ratio argument in Williams et al.,
+Section III. The chapter gives the complete expansion, including the
+terms that cancel.</p>
+<p>Do not add an arbitrary quadratic input penalty as a substitute for
+this correction. An extra cost may be a deliberate new objective, but it
+does not automatically implement the density ratio.</p>
+<h2 id="normalize-and-update">7. Normalize and update</h2>
+<p>Compute</p>
+<p><span class="math display">\[\beta=\min_k C_k,\qquad
+w_k=\frac{\exp[-(C_k-\beta)/\lambda]}
+{\sum_j\exp[-(C_j-\beta)/\lambda]},\qquad
+u_t^+=u_t+\sum_kw_k\epsilon_t^{(k)}.\]</span></p>
+<p>The minimum subtraction leaves the normalized weights unchanged. It
+makes the largest exponential equal to one. In code, the sum over
+samples is</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>new_mean <span class="op">=</span> mean <span class="op">+</span> jnp.einsum(<span class="st">&quot;k,ktm-&gt;tm&quot;</span>, weights, noise)</span></code></pre></div>
+<p>Every step of one sampled sequence uses that sequence’s weight. The
+function returns the updated mean, physical actions, scores, weights,
+and effective sample size <span class="math inline">\(1/\sum_k
+w_k^2\)</span>.</p>
+<p>Nonfinite scores receive zero weight. When every score is nonfinite,
+<code>valid</code> is false, the previous plan is preserved, and
+<code>run_episode</code> stops before sending a new action. This handles
+a numerical failure; it is not a safety controller.</p>
+<p>The sample mean is not guaranteed to reduce the deterministic
+trajectory cost. The reference racing code retains an incumbent or
+chooses a best sample in some versions; this tutorial deliberately
+exposes the paper-derived weighted update so the equations and executed
+algorithm agree.</p>
+<h2 id="apply-one-input-then-shift-once">8. Apply one input, then shift
+once</h2>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> controller.optimize(key, state, mean, actions)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>key <span class="op">=</span> result.key</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>state <span class="op">=</span> plant_step(state, result.actions[<span class="dv">0</span>])</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>mean <span class="op">=</span> shift_sequence(result.mean)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>actions <span class="op">=</span> shift_sequence(result.actions)</span></code></pre></div>
+<p>Here <code>plant_step = jax.jit(env.step)</code> is created once
+before the loop, as in <code>examples/minimal.py</code>.</p>
+<p><code>optimize</code> may perform several updates from the same
+state, using fresh samples for each update. It does not shift the
+horizon. <code>shift_sequence</code> discards the first entry and
+repeats the last entry. In a robot application, replace the simulated
+plant step with sending the first action and receiving the next state
+estimate.</p>
+<p>The demonstration compiles an update separately before timing. It
+calls <code>jax.block_until_ready</code> so reported solve times include
+completion rather than just dispatch. Reported times include the
+requested updates, but exclude plot generation, plant simulation, and
+diagnostic prediction. They are measurements on the current machine, not
+real-time guarantees.</p>
+<h2 id="the-three-environments-fully-specified">9. The three
+environments, fully specified</h2>
+<h3 id="double-integrator-acceleration-controlled-motion">Double
+integrator: acceleration-controlled motion</h3>
+<p>State <span class="math inline">\(x=(p_x,p_y,v_x,v_y)\)</span>;
+physical input <span class="math inline">\(a=(a_x,a_y)\)</span>;
+<code>dt = 0.1</code> s. Each acceleration is bounded to <span
+class="math inline">\([-2,2]\)</span> m/s². The exact constant-input
+step is</p>
+<p><span class="math display">\[p^+=p+\Delta t\,v+\tfrac12\Delta
+t^2a,\qquad v^+=v+\Delta t\,a.\]</span></p>
+<p>The initial state is <span class="math inline">\((-3,-1,0,0)\)</span>
+and the goal is <span class="math inline">\((3,1.5,0,0)\)</span>. Let
+<span class="math inline">\(p_g=(3,1.5)\)</span> and let <span
+class="math inline">\(B(p)\)</span> be the obstacle cost defined below.
+The costs are</p>
+<p><span class="math display">\[c(x)=\Delta
+t\,[3\|p-p_g\|^2+0.5\|v\|^2+B(p)],
+\qquad \phi(x)=25\|p-p_g\|^2+8\|v\|^2.\]</span></p>
+<p>The squared Euclidean norm <span
+class="math inline">\(\|z\|^2\)</span> is the sum of the squared
+components of <span class="math inline">\(z\)</span>. The default uses
+<span class="math inline">\(H=25\)</span>, <span
+class="math inline">\(K=1024\)</span>, <span
+class="math inline">\(\sigma=(3,3)\)</span>, <span
+class="math inline">\(\lambda=3\)</span>, one update per control step,
+and 100 executed steps. Goal success means final position error below
+0.3 m, speed below 0.5 m/s, and nonnegative measured segment
+clearance.</p>
+<h3 id="unicycle-velocity-and-heading-rate-commands">Unicycle: velocity
+and heading-rate commands</h3>
+<p>State <span class="math inline">\(x=(p_x,p_y,\theta)\)</span>;
+physical input <span class="math inline">\(a=(v,\omega)\)</span>;
+<code>dt = 0.1</code> s. The input bounds are <span
+class="math inline">\(v\in[-1.5,1.5]\)</span> m/s and <span
+class="math inline">\(\omega\in[-2,2]\)</span> rad/s. Reverse motion is
+allowed. Holding the commands constant, define</p>
+<p><span class="math display">\[d=v\Delta
+t\,\operatorname{sinc}(\omega\Delta t/(2\pi)),\qquad
+\theta_m=\theta+\omega\Delta t/2,\]</span></p>
+<p><span class="math display">\[p_x^+=p_x+d\cos\theta_m,\quad
+p_y^+=p_y+d\sin\theta_m,
+\quad\theta^+=\theta+\omega\Delta t.\]</span></p>
+<p>Here <span class="math inline">\(\operatorname{sinc}(z)=\sin(\pi
+z)/(\pi z)\)</span>, with value one at zero, matching
+<code>jnp.sinc</code>. This exact step stays well defined at zero
+angular rate.</p>
+<p>The initial state is <span class="math inline">\((-3,-1,0)\)</span>
+and the goal position is <span class="math inline">\((3,1.5)\)</span>.
+There is no final heading requirement. Costs are <span
+class="math inline">\(c(x)=\Delta t[4\|p-p_g\|^2+B(p)]\)</span> and
+<span class="math inline">\(\phi(x)=30\|p-p_g\|^2\)</span>. Defaults:
+<span class="math inline">\(H=40\)</span>, <span
+class="math inline">\(K=512\)</span>, <span
+class="math inline">\(\sigma=(1,1.5)\)</span>, <span
+class="math inline">\(\lambda=0.8\)</span>, two updates per step, and
+100 steps. Success means final position error below 0.3 m with
+nonnegative segment clearance.</p>
+<p>Both navigation examples have one circular obstacle centered at <span
+class="math inline">\((0,0)\)</span>, with radius 0.65 m. The radius
+includes the robot’s size. Define clearance <span
+class="math inline">\(d(p)=\|p\|-0.65\)</span>. The discrete
+implementation uses</p>
+<p><span
+class="math display">\[B(p)=1200\max(0,0.35-d(p))^2+2000\,\mathbf
+1_{\{d(p)&lt;0\}}.\]</span></p>
+<p>The indicator <span class="math inline">\(\mathbf 1\)</span> is one
+inside the obstacle and zero otherwise. The quadratic term starts 0.35 m
+outside it. These are finite penalties. Collisions remain possible, and
+averaging obstacle-avoiding input sequences can produce an unsafe mean.
+The reported minimum clearance checks straight segments between executed
+positions, not the entire continuous trajectory of the physical
+system.</p>
+<h3 id="pendulum-swing-up-with-limited-torque">Pendulum: swing up with
+limited torque</h3>
+<p>State <span class="math inline">\(x=(\theta,\dot\theta)\)</span>,
+with <span class="math inline">\(\theta=0\)</span>
+<strong>downward</strong> and <span
+class="math inline">\(\theta=\pi\)</span> upright. The physical input is
+torque <span class="math inline">\(a\in[-3,3]\)</span> N m. With mass
+<span class="math inline">\(m=1\)</span> kg, length <span
+class="math inline">\(l=1\)</span> m, gravity <span
+class="math inline">\(g=9.81\)</span> m/s², and damping <span
+class="math inline">\(b=0.1\)</span> N m s/rad,</p>
+<p><span
+class="math display">\[\ddot\theta=\frac{a-b\dot\theta-mgl\sin\theta}{ml^2}.\]</span></p>
+<p>The code integrates this equation using classical fourth-order
+Runge–Kutta with <code>dt = 0.05</code> s. For a derivative function
+<span class="math inline">\(f\)</span> and fixed action, this means
+<span class="math inline">\(k_1=f(x,a)\)</span>, <span
+class="math inline">\(k_2=f(x+\Delta t k_1/2,a)\)</span>, <span
+class="math inline">\(k_3=f(x+\Delta t k_2/2,a)\)</span>, <span
+class="math inline">\(k_4=f(x+\Delta t k_3,a)\)</span>, and <span
+class="math inline">\(x^+=x+\Delta t(k_1+2k_2+2k_3+k_4)/6\)</span>.</p>
+<p>Define upright angle error <span
+class="math inline">\(e=\operatorname{atan2}(\sin(\theta-\pi),\cos(\theta-\pi))\)</span>.
+The costs are</p>
+<p><span class="math display">\[c(x)=\Delta
+t(e^2+0.1\dot\theta^2),\qquad\phi(x)=10e^2+\dot\theta^2.\]</span></p>
+<p>Kim et al., Section IV and Equation (19), use squared angle and
+angular velocity for swing-up. Here we use the notes’ analytic pendulum
+model, a downward-zero angle convention, wrapped angle error, and an
+explicit terminal cost. Their experiment uses learned dynamics; this
+example does not.</p>
+<p>Defaults: <span class="math inline">\(H=60\)</span>, <span
+class="math inline">\(K=1024\)</span>, <span
+class="math inline">\(\sigma=3\)</span>, <span
+class="math inline">\(\lambda=0.15\)</span>, two updates per step, and
+240 executed steps from rest downward. Success requires final angle
+error below 0.2 rad and final angular speed below 0.5 rad/s. The torque
+is too small for slow direct lifting through every angle, so the
+controller must build momentum.</p>
+<h2 id="compare-with-smooth-mppi">10. Compare with smooth MPPI</h2>
+<p>Run the same environment with a separate physical action
+sequence:</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run mppi-demo <span class="at">--env</span> unicycle <span class="at">--mode</span> smppi <span class="at">--seed</span> 0 <span class="at">--output</span> outputs/smppi</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run python examples/compare.py <span class="at">--seeds</span> 0 1 2 <span class="at">--output</span> outputs/comparison</span></code></pre></div>
+<p>SMPPI samples a derivative-coordinate sequence <span
+class="math inline">\(V=U+E\)</span> and evaluates actions</p>
+<p><span class="math display">\[A^{(k)}=\operatorname{clip}(A^i+\Delta
+t\,V^{(k)},a_{\min},a_{\max}).\]</span></p>
+<p>It adds <span
+class="math inline">\(\omega_a\sum_{t=1}^{H-1}\|a_t-a_{t-1}\|^2\)</span>
+to the rollout cost, with scalar <code>smooth_weight</code> <span
+class="math inline">\(\omega_a\geq0\)</span>. Then it updates <span
+class="math inline">\(U\)</span> with the same weighted perturbations
+and updates <span
+class="math inline">\(A^{i+1}=\operatorname{clip}(A^i+\Delta t
+U^{i+1})\)</span>.</p>
+<p>This is the iteration-indexed update in Kim et al., Equations
+(15)–(18) and Algorithm 1. It is not a cumulative integration along
+prediction time. The action difference cost starts at prediction step
+one and does not include a previous-executed-action term. It provides no
+hard rate limit. Our clipping is included in the candidate rollout and
+penalty; raw Gaussian variables are retained for the density
+correction.</p>
+<p>By default, SMPPI’s derivative standard deviations are the
+environment’s action standard deviations divided by <code>dt</code>, so
+one candidate perturbation has the same action scale initially. This is
+an explicit teaching convention, not a parameter setting copied from the
+paper. Tune <code>--noise-scale</code> and <code>--smooth-weight</code>
+to explore other choices.</p>
+<p>The comparison script reports every requested seed, including
+failures. It measures final error, task state cost, segment clearance,
+and the sum of squared changes in <strong>executed</strong> actions.
+Smoother actions can come with worse task performance. These toy
+settings do not establish that one method outperforms another.</p>
+<h2 id="experiments-to-try">11. Experiments to try</h2>
+<p>Keep the seed fixed while changing one parameter. For example:</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run mppi-demo <span class="at">--env</span> point_mass <span class="at">--temperature</span> 0.3 <span class="at">--output</span> outputs/cold</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run mppi-demo <span class="at">--env</span> point_mass <span class="at">--samples</span> 128 <span class="at">--output</span> outputs/fewer</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run mppi-demo <span class="at">--env</span> point_mass <span class="at">--horizon</span> 10 <span class="at">--output</span> outputs/short</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run mppi-demo <span class="at">--env</span> point_mass <span class="at">--covariance-scale</span> 1.2 <span class="at">--output</span> outputs/wider</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run mppi-demo <span class="at">--env</span> pendulum <span class="at">--mode</span> smppi <span class="at">--noise-scale</span> 0.25 <span class="at">--smooth-weight</span> 0.1 <span class="at">--output</span> outputs/smooth_pendulum</span></code></pre></div>
+<p>Inspect whether the shorter horizon can anticipate the obstacle,
+whether a smaller batch contains useful motions, and how concentrated
+weights become. Effective sample size near one means that nearly one
+trajectory determines the update. Increasing the sample count does not
+resolve a poorly chosen model or objective. Large covariance changes can
+also make importance weights concentrate strongly in a long horizon.</p>
+<p>The default seed-zero examples reach their stated goal criteria in
+the recorded CPU run. Other seeds and settings can fail. See <a
+href="validation.json">validation.json</a> for the complete recorded
+seed set, configuration, and software/backend information. These are
+demonstration checks, not a statistical performance study. For seeds 0,
+1, and 2, the recorded final-goal results are:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Environment</th>
+<th style="text-align: left;">MPPI</th>
+<th style="text-align: left;">SMPPI with the shared teaching
+defaults</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Double integrator</td>
+<td style="text-align: left;">3 / 3</td>
+<td style="text-align: left;">1 / 3</td>
+</tr>
+<tr>
+<td style="text-align: left;">Unicycle</td>
+<td style="text-align: left;">3 / 3</td>
+<td style="text-align: left;">2 / 3</td>
+</tr>
+<tr>
+<td style="text-align: left;">Pendulum</td>
+<td style="text-align: left;">2 / 3</td>
+<td style="text-align: left;">0 / 3</td>
+</tr>
+</tbody>
+</table>
+<p>All navigation runs in this set had nonnegative measured segment
+clearance. SMPPI often reduced applied-input variation but did not
+reliably meet the terminal goal with these settings. The complete
+records retain both facts. Use the parameter experiments to investigate
+that tradeoff rather than treating this small table as a ranking of the
+algorithms.</p>
+<h2 id="add-your-own-environment">12. Add your own environment</h2>
+<p>Begin with <code>examples/minimal.py</code>. Replace the three
+model/cost functions, input bounds, and initial state. Keep state
+dimension, input dimension, and output shapes fixed during an
+experiment. Ensure every evaluation returns finite values for the inputs
+you intend to explore.</p>
+<p>A new <code>Environment</code> entry also supplies goal metadata,
+plotting labels, and recommended settings. For an arbitrary state
+representation, adapt the plotting and success checks as well; those
+functions currently know the three supplied tasks. No controller code
+needs to change if the same model/cost interface is retained.</p>
+<p>When changing physical units, change input standard deviations and
+cost weights consistently. Rescaling a cost without rescaling
+temperature changes the target weights. For stochastic physical
+dynamics, specify how disturbance trajectories are sampled and how their
+distribution enters the objective before adding random draws to
+<code>step</code>.</p>
+<h2 id="check-the-implementation">13. Check the implementation</h2>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run pytest <span class="at">-q</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run ruff check src tests examples tools</span></code></pre></div>
+<p>The tests independently compute Gaussian log density ratios and
+compare them with the simplified scores for several proposal
+covariances. They check a hand-computed weighted update, recover the
+known mean of a one-dimensional Gaussian target, verify running/terminal
+cost indexing, and distinguish raw Gaussian updates from clipped-action
+averages. Additional checks cover random key use, horizon shifting,
+SMPPI’s iteration-axis update, all-invalid batches, and finite bounded
+runs for every environment and mode.</p>
+<p>The code was structured using the supplied
+<code>dual_gtk_drs_racing</code> repository’s MPPI as a reference. Its
+module points to the earlier JAX car-racing <code>build_mppi</code>
+implementation, which uses <code>lax.scan</code>, <code>vmap</code>, and
+<code>jit</code>. See <code>SOURCES.md</code> for exact source locations
+and revisions, and the differences from those implementations.</p>
+<p>The main differences are consequential: this tutorial includes the
+Gaussian likelihood correction, leaves perturbations unfiltered, retains
+the raw sampling coordinates, and exposes the weighted update without an
+incumbent-selection heuristic. Racing-specific dynamics, safety margins,
+information costs, and gatekeeper acceptance checks are not part of the
+toy controller.</p>
+<h2 id="references">References</h2>
+<ol type="1">
+<li>Grady Williams, Andrew Aldrich, and Evangelos A. Theodorou.
+<em>Model Predictive Path Integral Control using Covariance Variable
+Importance Sampling</em>. Supplied <a
+href="https://arxiv.org/abs/1509.01149v3">arXiv:1509.01149v3</a>,
+Sections II–IV.</li>
+<li>Grady Williams, Andrew Aldrich, and Evangelos A. Theodorou.
+<em>Model Predictive Path Integral Control: From Theory to Parallel
+Computation</em>. 2017. <a href="https://doi.org/10.2514/1.G001921">DOI:
+10.2514/1.G001921</a>, Sections II, III, and V.</li>
+<li>Taekyung Kim, Gyuhyun Park, Kiho Kwak, Jihwan Bae, and Wonsuk Lee.
+<em>Smooth Model Predictive Path Integral Control without
+Smoothing</em>. 2022; supplied <a
+href="https://arxiv.org/abs/2112.09988v8">arXiv:2112.09988v8</a>. <a
+href="https://doi.org/10.1109/LRA.2022.3192800">DOI:
+10.1109/LRA.2022.3192800</a>, Equations (1)–(19).</li>
+</ol>
+<p>The <a href="https://docs.astral.sh/uv/guides/projects/">uv project
+documentation</a> describes the environment and lockfile commands used
+above. The algorithmic sources are the three supplied papers; the JAX
+and uv links document software usage.</p>
+</main></div><footer>Kaleb Ben Naveed · <a href="validation.json">Recorded validation results</a> · <a href="SOURCES.md">Sources and implementation choices</a></footer></body></html>
