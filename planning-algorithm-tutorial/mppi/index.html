@@ -71,7 +71,7 @@ code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */</style>
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax:{inlineMath:[['\\(','\\)']],processEscapes:true},displayAlign:'center'});</script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-</head><body><header><a class="brand" href="/">Kaleb Ben Naveed</a><a href="/kaleb_notes/">Notes</a><a href="/planning-algorithm-tutorial/">Planning tutorials</a><a href="https://github.com/kalebbennaveed/planning-algorithms-library">Code</a></header>
+</head><body><header><a class="brand" href="/">Kaleb Ben Naveed</a><a href="/kaleb_notes/">Notes</a><a href="/planning-algorithm-tutorial/">Planning tutorials</a><a href="jax-mppi-tutorial.zip">Code download</a></header>
 <div class="layout"><aside aria-label="Contents"><strong>In this tutorial</strong><ul>
 <li><a href="#install-and-run-with-uv"
 id="toc-install-and-run-with-uv">1. Install and run with uv</a></li>
@@ -127,21 +127,26 @@ experiments.</p>
 <h2 id="install-and-run-with-uv">1. Install and run with uv</h2>
 <p>Install <a
 href="https://docs.astral.sh/uv/getting-started/installation/">uv</a>
-using the instructions for your operating system. Then run:</p>
+using the instructions for your operating system. Download the <a
+href="https://kalebbennaveed.github.io/planning-algorithm-tutorial/mppi/jax-mppi-tutorial.zip">source
+archive</a>, extract it, and open a terminal in its <code>mppi</code>
+directory. Then run:</p>
 <div class="sourceCode" id="cb1"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/kalebbennaveed/planning-algorithms-library.git</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> planning-algorithms-library/planning-algorithm-tutorial/mppi</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> sync <span class="at">--locked</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run mppi-demo <span class="at">--env</span> point_mass <span class="at">--seed</span> 0 <span class="at">--output</span> outputs/point_mass</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run mppi-demo <span class="at">--env</span> unicycle <span class="at">--seed</span> 0 <span class="at">--output</span> outputs/unicycle</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run mppi-demo <span class="at">--env</span> pendulum <span class="at">--seed</span> 0 <span class="at">--output</span> outputs/pendulum</span></code></pre></div>
-<p>Alternatively, download the source archive from the website, extract
-it, enter its <code>mppi</code> directory, and run the same
-<code>uv</code> commands. Python 3.12 is selected by
-<code>.python-version</code>. The committed <code>uv.lock</code> records
-the dependency versions. The default JAX installation runs on the CPU;
-no GPU is required. Installation needs internet access, but the
-installed examples and playback pages do not.</p>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> sync <span class="at">--locked</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run mppi-demo <span class="at">--env</span> point_mass <span class="at">--seed</span> 0 <span class="at">--output</span> outputs/point_mass</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run mppi-demo <span class="at">--env</span> unicycle <span class="at">--seed</span> 0 <span class="at">--output</span> outputs/unicycle</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run mppi-demo <span class="at">--env</span> pendulum <span class="at">--seed</span> 0 <span class="at">--output</span> outputs/pendulum</span></code></pre></div>
+<p>If you have access to the <a
+href="https://github.com/kalebbennaveed/planning-algorithms-library">source
+repository</a>, you can instead clone it and enter
+<code>planning-algorithms-library/planning-algorithm-tutorial/mppi</code>
+before running the same commands. The public archive does not require
+repository access.</p>
+<p>Python 3.12 is selected by <code>.python-version</code>. The
+committed <code>uv.lock</code> records the dependency versions. The
+default JAX installation runs on the CPU; no GPU is required.
+Installation needs internet access, but the installed examples and
+playback pages do not.</p>
 <p>Each run writes four files:</p>
 <table>
 <colgroup>
