@@ -23,7 +23,7 @@ This implementation is written as a small standalone teaching package. It uses t
 - The cross term and the proposal covariance correction are retained. Batch-constant terms are omitted only after showing why normalized weights cancel them.
 - Actuator clipping is part of the physical action map. Gaussian density ratios and mean updates use raw coordinates.
 - No correlated-noise filter, incumbent acceptance, best-sample fallback, racing cost, learned dynamics, friction estimator, or gatekeeper safety certificate.
-- SMPPI stores both U and A. It uses the iteration-indexed action update in the supplied v8 paper, not a time-axis cumulative sum. Candidate action clipping is evaluated in the rollout and smoothness cost. The covariance-scaled extension and derivative-noise defaults are explicit teaching choices.
+- SMPPI stores both a derivative-coordinate mean and a physical control sequence (written as D-bar and U-bar in the tutorial). It uses the iteration-indexed action update in the supplied v8 paper, not a time-axis cumulative sum. Candidate action clipping is evaluated in the rollout and smoothness cost. The covariance-scaled extension and derivative-noise defaults are explicit teaching choices.
 - Dynamics and their coordinate conventions follow the double integrator, unicycle, and pendulum in Kaleb Notes. All numerical navigation costs, terminal weights, scenarios, success criteria, and validation runs are tutorial-specific.
 - CPU-only recorded results are not reproductions of the papers' reported experiments or hardware benchmarks.
 
