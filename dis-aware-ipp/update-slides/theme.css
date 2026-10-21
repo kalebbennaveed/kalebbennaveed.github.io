@@ -208,3 +208,30 @@
 .reveal .optimistic-equation .katex-display{margin:0;}
 .reveal #optimistic-walkthrough .mbd-controls{margin:4px 0;padding:8px 0;}
 .reveal .optimistic-explanation{font-size:24px;min-height:68px;}
+
+
+
+/* Current-method revision within the established Quarto template. */
+.reveal #current-algorithm li{font-size:25px;line-height:1.28;margin:12px 0;}
+.reveal #current-algorithm p{font-size:26px;}
+.reveal .method-flow{margin:20px 0 0;}
+.reveal .method-flow p{font-size:28px;line-height:1.22;margin:12px 0;}
+.reveal .method-flow .flow-down{font-size:25px;color:#2474bf;margin:6px 0;}
+.reveal .method-flow .flow-return{font-size:23px;color:#617386;margin:8px 0 20px 35px;}
+.reveal section[data-section^="6 ·"] table,
+.reveal section[data-section^="7 ·"] table{font-size:24px;line-height:1.25;margin:18px 0 22px;}
+.reveal section[data-section^="6 ·"] table th,
+.reveal section[data-section^="7 ·"] table th{font-size:24px;}
+.reveal section[data-section^="6 ·"] table td,
+.reveal section[data-section^="6 ·"] table th,
+.reveal section[data-section^="7 ·"] table td,
+.reveal section[data-section^="7 ·"] table th{padding:11px 15px;}
+.reveal #optimism-cost-example table{font-size:24px;}
+.reveal #optimism-cost-example table th{font-size:24px;}
+.reveal #implementation-source-map code{font-size:21px;}
+.reveal #implementation-source-map table td{padding:10px 13px;}
+.reveal #optimistic-mixture .katex-display{font-size:1em;}
+.reveal #implementation-clocks .key-line{font-size:27px;}
+.reveal #compute-controller table{margin:13px 0;}
+.reveal #compute-controller table td,.reveal #compute-controller table th{padding:9px 15px;}
+.reveal #optimistic-architecture .key-line{font-size:27px;margin-top:22px;}
