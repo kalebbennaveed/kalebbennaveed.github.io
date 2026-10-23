@@ -13,5 +13,10 @@
     "file": "unfiltered-mismatch-7-neural.json",
     "label": "Scenario 3 \u00b7 Without Gatekeeper, unknown dynamics",
     "mode": "unfiltered"
+  },
+  {
+    "file": "diffreach-7-neural.json",
+    "label": "Scenario 4 \u00b7 Gatekeeper + DiffReach \u2014 uncertain dynamics",
+    "mode": "diffreach"
   }
 ]

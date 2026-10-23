@@ -4,7 +4,7 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Safely racing at the limits of handling</title>
   <meta name="robots" content="noindex,nofollow">
-  <link rel="stylesheet" href="styles.css?v=12">
+  <link rel="stylesheet" href="styles.css?v=14">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/controls/OrbitControls.js":"./vendor/OrbitControls.js"}}</script>
 </head>
 <body>
@@ -22,7 +22,11 @@
   <div id="environment-content" role="tabpanel" aria-labelledby="environment-1-tab">
   <section class="scenario-panel" aria-labelledby="scenario-title">
     <div class="scenario-intro"><span class="eyebrow" id="scenario-number">SCENARIO 1</span><h2 id="scenario-title">With Gatekeeper and unknown dynamics</h2><p id="scenario-description">Loading the scenario description…</p><details class="scenario-settings"><summary>Course and MPCC settings</summary><p id="scenario-course-note"></p></details></div>
-    <div class="scenario-context"><div class="scenario-tags"><span id="scenario-checks">Gatekeeper on</span><span id="scenario-course">Oval course</span><span>Neural controller</span><span id="scenario-dynamics">Extra air resistance and acceleration bias</span></div><p id="scenario-observe"></p><p id="scenario-outcome" aria-live="polite"></p><button id="jump-outcome" hidden>Show collision</button><a href="#performance">Compare the three scenarios ↓</a><a href="#model-knowledge">Explore model uncertainty ↓</a></div>
+    <div class="scenario-context"><div class="scenario-tags"><span id="scenario-checks">Gatekeeper on</span><span id="scenario-course">Oval course</span><span>Neural controller</span><span id="scenario-dynamics">Extra air resistance and acceleration bias</span></div><p id="scenario-observe"></p><p id="scenario-outcome" aria-live="polite"></p><button id="jump-outcome" hidden>Show collision</button><a href="#performance">Compare the original three scenarios ↓</a><a href="#model-knowledge">Explore model uncertainty ↓</a></div>
+  </section>
+  <section id="diffreach-explanation" class="diffreach-explanation" hidden aria-labelledby="diffreach-title">
+    <div><span class="eyebrow">SCENARIO 4 · REACHABLE SETS</span><h2 id="diffreach-title">What these bounds establish</h2><p id="diffreach-outcome-note"></p></div>
+    <div><p>The nonlinear state equations and feedback controller are enclosed using affine arithmetic and Picard flow bounds. The model-error allowance must hold throughout each queried region, and the initial-state and measurement-error limits must hold.</p><p><strong>Finite horizon.</strong> Purple boxes bound position at control updates. Blue boxes bound motion between updates. Their centers come from the computed sets and need not lie on the candidate trajectory.</p><p><strong>Numerical limitation.</strong> This implementation uses floating-point calculations without a formal roundoff certificate. A successful finite-horizon check is not an infinite-time safety guarantee; a rejected check does not prove a collision will occur.</p></div>
   </section>
   <main>
     <section class="scene-panel" aria-label="Interactive 3D drone racing replay">
@@ -55,7 +59,16 @@
       </section>
       <section class="uncertainty-panel" aria-label="Uncertainty inspector">
         <div class="uncertainty-heading"><span>UNCERTAINTY</span><small id="uncertainty-mode">APPROXIMATE BOUNDS</small></div>
+        <div id="reachability-evolution" class="reachability-evolution" hidden>
+          <label for="reachability-time">Reachable-set time <strong id="reachability-clock">+0.0000 s</strong></label>
+          <input id="reachability-time" type="range" min="0" max="1" step="any" value="0" aria-label="Inspect reachable-set evolution along this candidate">
+          <div class="reachability-actions"><button id="play-reachability" aria-label="Play reachable-set evolution">▶ Evolve sets</button><button id="restart-reachability" aria-label="Restart reachable-set evolution">↺</button><select id="reachability-speed" aria-label="Reachable-set evolution speed"><option value=".1">0.1×</option><option value=".25" selected>0.25×</option><option value="1">1×</option></select></div>
+          <p id="reachability-status" aria-live="polite"></p>
+          <p class="reachability-key">White: current saved set. Purple: previous endpoint bounds. Blue: swept bounds. Red: rejected reference / failed region. Gray: unchecked reference.</p>
+          <p>This cursor inspects a prediction; it does not move the drone or advance the flight replay.</p>
+        </div>
         <div class="bounds-controls"><label><input type="checkbox" id="show-uncertainty" checked> Position bounds</label><select id="uncertainty-source" aria-label="Position uncertainty for"><option value="committed">Accepted</option><option value="candidate">Candidate</option></select></div>
+        <label id="swept-control" class="heatmap-control" hidden><input type="checkbox" id="show-swept" checked> Between-sample bounds (blue)</label>
         <p id="tube-detail">Translucent boxes show the recorded position envelope.</p>
         <p class="error-unit-caption" id="error-model-caption">Acceleration prediction error · m/s²</p><div class="uncertainty-values"><div><small>MODEL BOUND</small><strong id="error-bound-value">—</strong></div><div><small>MEASURED ERROR</small><strong id="error-value">—</strong></div><div><small>NETWORK SPREAD</small><strong id="spread-value">—</strong></div></div>
         <label class="heatmap-control"><input type="checkbox" id="color-uncertainty" checked> Color flight history by model error bound</label>
@@ -66,7 +79,7 @@
         <p id="bound-miss-detail" class="bound-miss-detail" hidden></p>
         <p class="uncertainty-note">Flight-history colors show the acceleration-error bound at each recorded state and command. Gray chart bands mark steps without recorded position bounds. Red ticks mark steps that exceeded a recorded state bound. Network spread measures disagreement between the three dynamics networks; it is not an error bound.</p>
       </section>
-      <details class="trajectory-help"><summary>What the trajectory lines mean</summary><div class="trajectory-key"><div><span class="line-icon candidate"></span><strong>Candidate</strong><p>A proposed trajectory: follow the MPPI racing plan for the selected time, then follow the course centerline at 2 m/s. Gatekeeper checks this proposal before accepting it.</p></div><div><span class="line-icon committed"></span><strong>Accepted</strong><p>The trajectory currently followed by the neural controller. It stays active when a new proposal is rejected.</p></div></div></details>
+      <details class="trajectory-help"><summary>What the trajectory lines mean</summary><div class="trajectory-key"><div><span class="line-icon candidate"></span><strong>Candidate</strong><p>A proposed trajectory: follow the MPPI racing plan for the selected time, then follow the course centerline at 2 m/s. Gatekeeper checks this proposal before accepting it.</p></div><div><span class="line-icon committed"></span><strong>Accepted</strong><p id="accepted-trajectory-explanation">The trajectory currently followed by the neural controller. It stays active when a new proposal is rejected.</p></div></div></details>
       <div class="stats"><div><small>MODEL UPDATES</small><strong id="model-value">—</strong></div><div><small>GATES PASSED</small><strong id="gates-value">—</strong></div><div><small>TIME TO BACKUP</small><strong id="switch-value">—</strong></div><div><small>PREDICTED CLEARANCE</small><strong id="margin-value">—</strong></div></div>
       <div class="chart-heading"><span>SPEED THROUGH THE COURSE</span><span id="peak-value">—</span></div>
       <canvas id="speed-chart" height="95" aria-label="Measured flight speed over time"></canvas>
@@ -85,18 +98,18 @@
     <div class="model-definitions">
       <p><strong>Base model</strong>Known equations for motion, orientation, thrust response and body-rate response.</p>
       <p><strong>Prediction model</strong>Base model + a neural network's learned acceleration correction. Used to predict future states.</p>
-      <p><strong>Ground-truth simulator</strong>The simulated drone that receives the applied commands. Scenarios 1 and 3 add drag and acceleration bias that are absent from the base model.</p>
+      <p><strong>Ground-truth simulator</strong>The simulated drone that receives the applied commands. Scenarios 1, 3 and 4 include drag and acceleration bias that are absent from the base model. Scenario 2 uses the base-model dynamics.</p>
     </div>
     <ol class="method-steps">
       <li><strong>MPPI generates the racing plan.</strong><p>It tries command sequences, predicts their motion with the prediction model, and scores forward progress, course error and control effort. Its output is a two-second sequence of reference states and thrust/body-rate commands.</p></li>
       <li><strong>With Gatekeeper: simulate a candidate.</strong><p>Starting at the measured state, simulate the neural tracker following the MPPI racing plan until a chosen switch time. Then simulate the backup controller, which follows the course centerline at 2 m/s. The prediction model produces every future state. The first candidate has <b>no racing segment</b>: backup starts immediately.</p></li>
-      <li><strong>Check the candidate, then keep an accepted reference.</strong><p>Propagate model error and measurement error along the candidate, using Jacobians of the prediction model together with the neural feedback policy. Check the resulting position bounds against the course, then check position, velocity and tilt error at the end of the candidate. An accepted candidate becomes the trajectory to follow. If a later candidate fails, the previously accepted trajectory stays active, including its moving backup.</p></li>
+      <li><strong>Check the candidate, then keep an accepted reference.</strong><p id="method-propagation-explanation">Propagate model error and measurement error along the candidate, using Jacobians of the prediction model together with the neural feedback policy. Check the resulting position bounds against the course, then check position, velocity and tilt error at the end of the candidate. An accepted candidate becomes the trajectory to follow. If a later candidate fails, the previously accepted trajectory stays active, including its moving backup.</p></li>
       <li><strong>The neural tracker generates applied commands.</strong><p>It receives the measured state, reference state/command and previous command. It outputs thrust and body rates, subject to magnitude and change-rate limits. It tracks the whole accepted reference, including the backup portion. The geometric backup generates that reference; it does not replace the executing neural tracker.</p></li>
     </ol>
-    <p class="method-direct"><strong>Startup:</strong> Base model + the declared bound on unknown drag and acceleration bias → simulate the moving backup immediately → verify → begin tracking. No preliminary data-collection flight is required. Dynamics learning and neural-controller adaptation then use measurements collected during flight.</p>
+    <p class="method-direct"><strong>Startup:</strong> Base model + the declared bound on unknown drag and acceleration bias → simulate the moving backup immediately → check the full candidate → begin tracking only if accepted. If that check rejects, flight does not start. No preliminary data-collection flight is required. Once flight begins, dynamics learning and neural-controller adaptation use the collected measurements.</p>
     <p class="method-direct"><strong>Without Gatekeeper:</strong> MPPI reference → neural tracker → ground-truth simulator. No candidate check, acceptance decision or backup switch is used. These are Scenarios 2 and 3 below.</p>
     <details><summary>Dynamics learning and controller learning</summary><p>The dynamics ensemble averages three networks to predict an acceleration correction from measured state changes and applied commands. The control-policy network learns how to track a reference. When the dynamics model changes, policy training simulates tracking with that model and updates the controller weights by backpropagation through time. No ATS is used. In a Gatekeeper run, a policy update enters execution only with an accepted candidate; without Gatekeeper, it enters after the training validation check.</p></details>
-    <p class="knowledge-note">Gatekeeper uses a local linear approximation (the Jacobian) to propagate uncertainty. A mathematical guarantee that these bounds contain every nonlinear motion, or that the moving backup remains safe indefinitely, has not been established. The force limit available at startup is an assumption about the possible drag and bias. It is not learned before measurements are collected. The ground-truth simulator is a 14-state body-rate/actuator model, not a rotor-resolved high-fidelity simulator.</p>
+    <p class="knowledge-note" id="method-limitations">Gatekeeper uses a local linear approximation (the Jacobian) to propagate uncertainty. A mathematical guarantee that these bounds contain every nonlinear motion, or that the moving backup remains safe indefinitely, has not been established. The force limit available at startup is an assumption about the possible drag and bias. It is not learned before measurements are collected. The ground-truth simulator is a 14-state body-rate/actuator model, not a rotor-resolved high-fidelity simulator.</p>
   </section>
   <section class="performance-panel" id="performance" aria-label="Neural controller with and without Gatekeeper">
     <div class="knowledge-title"><div><span class="eyebrow" id="performance-environment">ENVIRONMENT 1 · MATCHED SCENARIOS</span><h2>With and without Gatekeeper</h2><p id="performance-intro">Three scenarios for the selected environment, with the same starting state, pretrained neural controller and planner settings.</p></div></div>
@@ -118,7 +131,7 @@
   </section>
   </div>
   <footer><span>JAX MPPI <b>·</b> ONLINE RESIDUAL LEARNING <b>·</b> GATEKEEPER</span><span id="recording-note">Actual simulation recordings. No scripted flight animation.</span></footer>
-  <script type="module" src="app.js?v=12"></script>
+  <script type="module" src="app.js?v=14"></script>
   <script type="module" src="performance.js?v=6"></script>
 </body>
 </html>
