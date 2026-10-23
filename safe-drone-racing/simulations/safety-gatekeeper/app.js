@@ -1,4 +1,4 @@
-import { describeScenario, withDiffReachScenario } from './scenarios.js?v=5';
+import { describeScenario, withDiffReachScenario } from './scenarios.js?v=7';
 import { updateKnowledge } from './knowledge.js?v=5';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -8,7 +8,7 @@ import { reachabilityFrame, splitReference, referenceInterval } from './reachabi
 import { addRejectionBox, rejectionColor } from './rejection.js';
 
 const $=id=>document.getElementById(id);
-const originalMethodText={propagation:$('method-propagation-explanation').textContent,limitations:$('method-limitations').textContent,accepted:$('accepted-trajectory-explanation').textContent};
+const originalMethodText={propagation:$('method-propagation-explanation').textContent,limitations:$('method-limitations').textContent,accepted:$('accepted-trajectory-explanation').textContent,startup:$('startup-explanation').textContent};
 const colors={candidate:0xedba74,committed:0x71e2db,backup:0x9691ef,trail:0xd2d8e0,nominal:0x7688a7};
 let data,time=0,playing=false,view='overview',epochIndex=-1,selectedCandidate=0,manualCandidate=false,lastFrame=0,lastAnchor=null,loadRequest=0;
 let renderer,scene,camera,controls,course,paths,drone,rotors=[],trail,missMarkers;
@@ -98,6 +98,8 @@ function updateRejection(epoch,candidate){
     const offset=number(r.time_offset,' s'),absolute=number(epoch.time+r.time_offset,' s');
     if(data.mode==='diffreach'){
       detail=`The check failed during +${number(r.interval_offsets[0],'',4)}–${number(r.interval_offsets[1],' s',4)} of this candidate. ${humanReason(r.reason)}.`;
+      const failedBound=candidate.verification.reachability?.failure?.error;
+      if(r.reason==='trusted_domain'&&Number.isFinite(failedBound))detail+=` Queried-region bound: ${number(failedBound,'',3)} > ${number(data.trust_threshold,' m/s²',3)} allowed.`;
       if(r.boundary_margin!=null)detail+=` Boundary margin: ${number(r.boundary_margin,' m',3)}.`;
       note=r.position_box?'Red box: the position projection of the saved failed-check region, at its computed center. The crosshair marks that center; it is not an uncertainty radius.':'The saved failure interval is red. No failure box was saved, so no spatial region is invented.';
       if(r.position_box&&r.region_validated===false)note='Red box: the attempted region at which enclosure construction failed. This region is not a validated bound. The crosshair marks its center.';
@@ -156,6 +158,9 @@ function focusRejection(){
   document.querySelectorAll('[data-view]').forEach(button=>button.classList.remove('active'));
 }
 function updateInspector(epoch,candidate,com,index){
+  const timing=candidate?.verification.timing;
+  $('decision-timing').hidden=!timing;
+  $('decision-timing').textContent=timing?`Recorded computation for all ${timing.batch_size} candidates: ${number(timing.candidate_generation_ms,' ms',1)} to generate references; ${number(timing.total_ms,' ms',1)} to compute bounds and check the course. These are batch times. First use can include compilation.`:'';
   $('epoch-label').textContent=`UPDATE ${index+1}`;
   $('model-value').textContent=epoch.model_version;
   $('switch-value').textContent=com?number(com.switch_seconds,' s'):candidate?number(candidate.switch_seconds,' s'):'—';
@@ -175,6 +180,10 @@ function updateInspector(epoch,candidate,com,index){
     $('decision-label').textContent='NEURAL TRACKER · INITIAL BACKUP CHECK';$('decision-title').textContent='The backup candidate did not pass.';
     $('decision-detail').textContent=`No racing segment: the predicted trajectory follows the moving backup immediately at 2 m/s. ${humanReason(verification?.reason)}. Zero racing steps were executed; the red line is a prediction. Preliminary data collection is a separate simulation.`;
     if(data.mode==='diffreach')$('decision-detail').textContent=`${humanReason(verification?.reason)}. The initial candidate was rejected, so no flight was executed. The displayed route is the proposed motion; the boxes and red failed-check region are recorded calculations.`;
+  }else if(com.verification.assumed_initial_backup){
+    $('decision-label').textContent='INITIAL BACKUP ASSUMED SAFE';
+    $('decision-title').textContent='The drone follows the initial backup.';
+    $('decision-detail').textContent=`The zero-switch backup was committed under the stated startup assumption. The selected new candidate is ${candidate?.verification.accepted?'accepted':'rejected'}: ${humanReason(verification?.reason)}. Its reachable tube and failure location are shown independently of the flown backup.`;
   }else if(com.retained){
     $('decision-label').textContent='NEURAL TRACKER · PROPOSAL REJECTED';$('decision-title').textContent='The drone continues along its accepted trajectory.';
     $('decision-detail').textContent=`${humanReason(verification?.reason)}. The neural controller keeps following the previously accepted trajectory, using the controller and model used to check it.`;
@@ -189,7 +198,7 @@ function updateInspector(epoch,candidate,com,index){
     $('decision-detail').textContent=`The neural controller follows ${com.switch_seconds.toFixed(2)} s of the racing plan, then the moving backup at 2 m/s. The uncertainty calculation uses a local linear approximation of the dynamics and controller.`;
     if(data.mode==='diffreach')$('decision-detail').textContent=`The neural controller follows the accepted reference. DiffReach computed nonlinear state enclosures over the recorded finite horizon, subject to the stated uncertainty assumptions and numerical limitations.`;
   }
-  if(time<data.dt&&data.initialization?.verification.accepted)$('decision-detail').textContent+=' At startup, Gatekeeper first accepted a trajectory that used backup immediately. The first planner update then produced the proposal shown here.';
+  if(time<data.dt&&data.initialization?.verification.accepted&&!data.initialization.verification.assumed_initial_backup)$('decision-detail').textContent+=' At startup, Gatekeeper first accepted a trajectory that used backup immediately. The first planner update then produced the proposal shown here.';
 }
 function updateUncertaintyGeometry(epoch,candidate,com){
   const select=$('uncertainty-source');select.options[0].disabled=!com;select.options[1].disabled=!candidate;select.disabled=!com&&!candidate;
@@ -202,7 +211,7 @@ function updateUncertaintyGeometry(epoch,candidate,com){
   $('reachability-evolution').hidden=data.mode!=='diffreach';
   if(data.mode==='diffreach'&&source){
     const key=`${loadRequest}:${epoch.time}:${selectedCandidate}:${select.value}`;
-    if(key!==reachKey){reachKey=key;reachTime=0;setReachPlaying(false);}
+    if(key!==reachKey){reachKey=key;reachTime=Number.POSITIVE_INFINITY;setReachPlaying(false);}
     const referenceStart=source.reference_start_time??(select.value==='committed'?source.start_time:epoch.time);
     const originalStart=select.value==='committed'?source.start_time:epoch.time;
     const trace=source.verification.reachability;
@@ -350,15 +359,19 @@ async function loadRun(filename,directory=environment?.directory||''){
   document.querySelector('.bounds-controls').hidden=!hasGatekeeper;
   const scenario=describeScenario(data);
   const isDiffReach=data.mode==='diffreach';
+  const assumedStartup=Boolean(data.initialization?.verification.assumed_initial_backup);
+  if(isDiffReach)$('uncertainty-source').value='candidate';
   $('diffreach-explanation').hidden=!isDiffReach;
-  $('diffreach-outcome-note').textContent=data.samples.length<2?'The initial check rejected this candidate. The viewer displays its computed bounds and the saved failure region; the drone did not fly.':'This recording contains executed motion. Inspect each accepted interval and its bounds; regions outside the recorded horizon have no claimed enclosure.';
-  $('method-propagation-explanation').textContent=isDiffReach?'DiffReach encloses the nonlinear dynamics and neural feedback policy over the candidate, using the model-error allowance on each queried region. Gatekeeper checks the computed sets against the course and endpoint requirements. If the initial check fails, flight does not start. Later rejection retains only the previously accepted reference and its recorded bounds.':originalMethodText.propagation;
+  $('diffreach-outcome-note').textContent=data.samples.length<2?'The initial check rejected this candidate. The viewer displays its computed bounds and the saved failure region; the drone did not fly.':assumedStartup?'The initial zero-switch backup is assumed safe and committed at startup. Later candidates are checked with DiffReach. Select a switching time to inspect its tube and the red rejection location.':'This recording contains executed motion. Inspect each accepted interval and its bounds; regions outside the recorded horizon have no claimed enclosure.';
+  $('method-propagation-explanation').textContent=isDiffReach?'DiffReach encloses the nonlinear dynamics and neural feedback policy over the candidate, using the model-error allowance on each queried region. Gatekeeper checks the computed sets against the course and endpoint requirements. The initial backup may be committed under the explicitly stated startup assumption. Later rejection retains the previously committed reference; the displayed bounds cover only the computed portion.':originalMethodText.propagation;
   $('method-limitations').textContent=isDiffReach?'The construction has a conditional finite-horizon enclosure argument in real arithmetic. It assumes that the error allowance, initial-state limits and measurement-error limits hold. Floating-point rounding is not formally certified, and no indefinite backup-safety guarantee is established. The simulator remains the existing 14-state body-rate/actuator model.':originalMethodText.limitations;
-  $('accepted-trajectory-explanation').textContent=isDiffReach?'An accepted reference can remain active when a later proposal is rejected, but only through its checked finite horizon. Execution stops if that horizon expires without a new accepted candidate. No accepted trajectory exists when the initial check rejects.':originalMethodText.accepted;
+  $('startup-explanation').textContent=assumedStartup?'Startup assumption: the zero-switch moving backup and its continuation are safe. It is committed immediately. The numerical DiffReach result is retained as a diagnostic; later candidates must pass verification before replacing it.':originalMethodText.startup;
+  $('accepted-trajectory-explanation').textContent=assumedStartup?'The trajectory currently followed by the drone. The initial backup is committed by assumption. A later candidate replaces it only after passing verification.':isDiffReach?'An accepted reference can remain active when a later proposal is rejected, but only through its checked finite horizon. Execution stops if that horizon expires without a new accepted candidate. No accepted trajectory exists when the initial check rejects.':originalMethodText.accepted;
   $('assurance-text').textContent=scenario.limitation;
-  if(data.initialization?.verification.accepted)$('assurance-text').textContent+=' Startup accepted a moving-backup trajectory using assumed force limits before collecting measurements.';
+  if(assumedStartup)$('assurance-text').textContent+=' The initial backup is assumed safe; its acceptance is not a successful numerical verification.';
+  else if(data.initialization?.verification.accepted)$('assurance-text').textContent+=' Startup accepted a moving-backup trajectory using assumed force limits before collecting measurements.';
   if(hasGatekeeper&&data.metrics.duration){
-    $('assurance-text').textContent+=isDiffReach?` Recorded state bounds cover ${(data.metrics.tube_covered_steps*data.dt).toFixed(1)} s of this flight. Execution stops when the accepted finite horizon expires; it does not continue an unchecked backup.`:` Recorded state bounds cover ${(data.metrics.tube_covered_steps*data.dt).toFixed(1)} s of this flight; the backup continues for ${(data.metrics.continuation_steps*data.dt).toFixed(1)} s beyond the checked horizons.`;
+    $('assurance-text').textContent+=isDiffReach&&!assumedStartup?` Recorded state bounds cover ${(data.metrics.tube_covered_steps*data.dt).toFixed(2)} s of this flight. Execution stops when the accepted finite horizon expires; it does not continue an unchecked backup.`:` Recorded state bounds cover ${(data.metrics.tube_covered_steps*data.dt).toFixed(2)} s of this flight; the backup continues for ${(data.metrics.continuation_steps*data.dt).toFixed(2)} s beyond the checked horizons.`;
     if(data.metrics.continuation_terminal_violations)$('assurance-text').textContent+=` In that continuation, ${data.metrics.continuation_terminal_violations} recorded steps exceeded the position, velocity or tilt limits used at candidate endpoints.`;
   }
   document.querySelector('.rejection-panel').hidden=!hasGatekeeper;
@@ -410,6 +423,7 @@ $('show-uncertainty').onchange=()=>updatePaths(true);
 $('show-swept').onchange=()=>updatePaths(true);
 $('reachability-time').oninput=event=>{reachTime=Number(event.target.value);setReachPlaying(false);updatePaths(true);};
 $('play-reachability').onclick=()=>{if(!reachState)return;if(reachTime>=reachState.inspectionEnd)reachTime=0;setReachPlaying(!reachPlaying);updatePaths(true);};
+$('show-all-reachability').onclick=()=>{reachTime=Number.POSITIVE_INFINITY;setReachPlaying(false);updatePaths(true);};
 $('restart-reachability').onclick=()=>{reachTime=0;setReachPlaying(false);updatePaths(true);};
 $('show-rejected').onchange=()=>updatePaths(true);
 $('focus-rejection').onclick=focusRejection;

@@ -28,7 +28,7 @@ const scenarios = {
     title: 'Gatekeeper + DiffReach — uncertain dynamics', gatekeeper: true,
     dynamics: 'Unknown forces bounded by the stated assumptions',
     description: 'Gatekeeper checks the candidate with nonlinear reachable sets computed using DiffReach-style affine arithmetic and Picard flow enclosures. The uncertainty allowance uses available measurement data and assumed force limits; before measurements exist, only the force limits are available. The neural controller and unknown-force simulator keep their existing roles.',
-    observe: 'Purple boxes show position bounds at control-update times; blue boxes cover the motion between those times. Red marks the saved failed check. If the initial candidate is rejected, no flight is shown.',
+    observe: 'Purple boxes show position bounds at control-update times; blue boxes cover the motion between those times. Red marks the saved failed check. The initial zero-switch backup is committed under the stated safety assumption. Later candidates must pass verification.',
     limitation: 'The reachable-set construction is conditional on the stated model-error, measurement and initial-state bounds, over the recorded finite horizon. Floating-point arithmetic is not formally certified. It does not establish indefinite backup safety.'
   }
 };
@@ -55,7 +55,7 @@ export function describeScenario(record) {
   if(record.track.layout==='stacked')$('scenario-course-note').textContent=`Seven ${course.gate_width.toFixed(1)} × ${course.gate_height.toFixed(1)} m gates, with at least 6.4 m between non-stacked gate centers. Gates 4 and 5 form the left-hand stacked pair at 4.80 and 1.90 m. Gate 2 is on the right; Gates 3 and 6 are toward the front; Gates 1 and 7 are farther back. A short descending turn connects the stacked gates. The course follows a smooth curve through these explicit locations and connecting turns, reconstructed from the reference image. The simulator, planner and Gatekeeper use the same geometry. MPCC progress weight ${record.planner_settings.progress}; contouring-error weight ${record.planner_settings.contour}. All three scenarios use the same settings.`;
   if(record.mode==='diffreach')$('scenario-course-note').textContent=$('scenario-course-note').textContent.replaceAll('all three scenarios','the original three scenarios').replaceAll('All three scenarios','The original three scenarios');
   const outcome=record.outcome;
-  $('scenario-outcome').textContent=outcome?`${outcome.label} · ${outcome.time.toFixed(2)} s${outcome.kind==='completed'?` · ${record.metrics.gates_passed} gates passed`:''}`:'';
+  $('scenario-outcome').textContent=outcome?`${outcome.label} · ${outcome.time.toFixed(2)} s${outcome.kind==='completed'?` · ${record.metrics.gates_passed} ${record.metrics.gates_passed===1?'gate':'gates'} passed`:''}`:'';
   $('scenario-outcome').classList.toggle('contact',outcome?.kind==='gate_contact');
   $('scenario-outcome').classList.toggle('no-flight',outcome?.kind==='no_flight');
   if(record.mode==='diffreach'&&outcome?.kind==='no_flight')$('scenario-outcome').textContent='No flight · The initial candidate was rejected';

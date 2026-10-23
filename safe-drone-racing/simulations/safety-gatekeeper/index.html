@@ -49,7 +49,8 @@
     </section>
     <aside>
       <div class="aside-top"><span class="eyebrow">DECISION INSPECTOR</span><span id="epoch-label">UPDATE 1</span></div>
-      <div class="decision"><span id="decision-label">Loading</span><h2 id="decision-title">Candidate verification</h2><p id="decision-detail"></p></div>
+      <div class="decision"><span id="decision-label">Loading</span><h2 id="decision-title">Candidate verification</h2><p id="decision-timing" class="rejection-note" hidden></p>
+      <p id="decision-detail"></p></div>
       <section class="rejection-panel" aria-label="Rejected candidate inspector">
         <label class="candidate-picker">TIME BEFORE SWITCHING TO BACKUP<select id="candidate" aria-label="Choose time before switching to backup"></select></label>
         <div class="rejection-controls"><label><input type="checkbox" id="show-rejected" checked> Rejected trajectory + failure</label><button id="focus-rejection">Focus rejection</button></div>
@@ -63,6 +64,7 @@
           <label for="reachability-time">Reachable-set time <strong id="reachability-clock">+0.0000 s</strong></label>
           <input id="reachability-time" type="range" min="0" max="1" step="any" value="0" aria-label="Inspect reachable-set evolution along this candidate">
           <div class="reachability-actions"><button id="play-reachability" aria-label="Play reachable-set evolution">▶ Evolve sets</button><button id="restart-reachability" aria-label="Restart reachable-set evolution">↺</button><select id="reachability-speed" aria-label="Reachable-set evolution speed"><option value=".1">0.1×</option><option value=".25" selected>0.25×</option><option value="1">1×</option></select></div>
+          <button id="show-all-reachability" type="button">Show entire computed tube</button>
           <p id="reachability-status" aria-live="polite"></p>
           <p class="reachability-key">White: current saved set. Purple: previous endpoint bounds. Blue: swept bounds. Red: rejected reference / failed region. Gray: unchecked reference.</p>
           <p>This cursor inspects a prediction; it does not move the drone or advance the flight replay.</p>
@@ -106,7 +108,7 @@
       <li><strong>Check the candidate, then keep an accepted reference.</strong><p id="method-propagation-explanation">Propagate model error and measurement error along the candidate, using Jacobians of the prediction model together with the neural feedback policy. Check the resulting position bounds against the course, then check position, velocity and tilt error at the end of the candidate. An accepted candidate becomes the trajectory to follow. If a later candidate fails, the previously accepted trajectory stays active, including its moving backup.</p></li>
       <li><strong>The neural tracker generates applied commands.</strong><p>It receives the measured state, reference state/command and previous command. It outputs thrust and body rates, subject to magnitude and change-rate limits. It tracks the whole accepted reference, including the backup portion. The geometric backup generates that reference; it does not replace the executing neural tracker.</p></li>
     </ol>
-    <p class="method-direct"><strong>Startup:</strong> Base model + the declared bound on unknown drag and acceleration bias → simulate the moving backup immediately → check the full candidate → begin tracking only if accepted. If that check rejects, flight does not start. No preliminary data-collection flight is required. Once flight begins, dynamics learning and neural-controller adaptation use the collected measurements.</p>
+    <p class="method-direct" id="startup-explanation"><strong>Startup:</strong> Base model + the declared bound on unknown drag and acceleration bias → simulate the moving backup immediately → check the full candidate → begin tracking only if accepted. If that check rejects, flight does not start. No preliminary data-collection flight is required. Once flight begins, dynamics learning and neural-controller adaptation use the collected measurements.</p>
     <p class="method-direct"><strong>Without Gatekeeper:</strong> MPPI reference → neural tracker → ground-truth simulator. No candidate check, acceptance decision or backup switch is used. These are Scenarios 2 and 3 below.</p>
     <details><summary>Dynamics learning and controller learning</summary><p>The dynamics ensemble averages three networks to predict an acceleration correction from measured state changes and applied commands. The control-policy network learns how to track a reference. When the dynamics model changes, policy training simulates tracking with that model and updates the controller weights by backpropagation through time. No ATS is used. In a Gatekeeper run, a policy update enters execution only with an accepted candidate; without Gatekeeper, it enters after the training validation check.</p></details>
     <p class="knowledge-note" id="method-limitations">Gatekeeper uses a local linear approximation (the Jacobian) to propagate uncertainty. A mathematical guarantee that these bounds contain every nonlinear motion, or that the moving backup remains safe indefinitely, has not been established. The force limit available at startup is an assumption about the possible drag and bias. It is not learned before measurements are collected. The ground-truth simulator is a 14-state body-rate/actuator model, not a rotor-resolved high-fidelity simulator.</p>
@@ -131,7 +133,7 @@
   </section>
   </div>
   <footer><span>JAX MPPI <b>·</b> ONLINE RESIDUAL LEARNING <b>·</b> GATEKEEPER</span><span id="recording-note">Actual simulation recordings. No scripted flight animation.</span></footer>
-  <script type="module" src="app.js?v=14"></script>
+  <script type="module" src="app.js?v=16"></script>
   <script type="module" src="performance.js?v=6"></script>
 </body>
 </html>
