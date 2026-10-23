@@ -30,7 +30,7 @@ export function addCurrentBound(parent,box){
 function addBoxes(parent,centers,radii,{swept=false}={}){
   // Exact, world-axis-aligned recorded boxes. No inscribed ellipsoids, spatial
   // extrapolation, radius inflation, or invented intersample enclosure.
-  const material=new THREE.MeshBasicMaterial({color:swept?0x92c1ed:0xb4a0fb,transparent:true,opacity:swept ? .025 : .055,depthWrite:false,toneMapped:false});
+  const material=new THREE.MeshBasicMaterial({color:0xb4a0fb,transparent:true,opacity:swept ? .12 : .075,depthWrite:false,toneMapped:false});
   const boxes=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),material,radii.length),dummy=new THREE.Object3D();
   boxes.frustumCulled=false;boxes.renderOrder=1;
   const edgePoints=[];
@@ -41,5 +41,5 @@ function addBoxes(parent,centers,radii,{swept=false}={}){
     if(i%5===0||i===radii.length-1){const corners=signs.map(s=>new THREE.Vector3(...s.map((v,k)=>centers[i][k]+v*r[k])));for(const [a,b] of edges)edgePoints.push(corners[a],corners[b]);}
   });
   parent.add(boxes);
-  const outline=new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(edgePoints),new THREE.LineBasicMaterial({color:swept?0x92c1ed:0xc6b4ff,transparent:true,opacity:swept ? .25 : .38,depthWrite:false,toneMapped:false}));outline.renderOrder=2;parent.add(outline);
+  const outline=new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(edgePoints),new THREE.LineBasicMaterial({color:0xc6b4ff,transparent:true,opacity:swept ? .65 : .55,depthWrite:false,toneMapped:false}));outline.renderOrder=2;parent.add(outline);
 }

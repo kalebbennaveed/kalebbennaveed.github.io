@@ -4,7 +4,7 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Safely racing at the limits of handling</title>
   <meta name="robots" content="noindex,nofollow">
-  <link rel="stylesheet" href="styles.css?v=14">
+  <link rel="stylesheet" href="styles.css?v=15">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/controls/OrbitControls.js":"./vendor/OrbitControls.js"}}</script>
 </head>
 <body>
@@ -26,13 +26,13 @@
   </section>
   <section id="diffreach-explanation" class="diffreach-explanation" hidden aria-labelledby="diffreach-title">
     <div><span class="eyebrow">SCENARIO 4 · REACHABLE SETS</span><h2 id="diffreach-title">What these bounds establish</h2><p id="diffreach-outcome-note"></p></div>
-    <div><p>The nonlinear state equations and feedback controller are enclosed using affine arithmetic and Picard flow bounds. The model-error allowance must hold throughout each queried region, and the initial-state and measurement-error limits must hold.</p><p><strong>Finite horizon.</strong> Purple boxes bound position at control updates. Blue boxes bound motion between updates. Their centers come from the computed sets and need not lie on the candidate trajectory.</p><p><strong>Numerical limitation.</strong> This implementation uses floating-point calculations without a formal roundoff certificate. A successful finite-horizon check is not an infinite-time safety guarantee; a rejected check does not prove a collision will occur.</p></div>
+    <div><p>The nonlinear state equations and feedback controller are enclosed using affine arithmetic and Picard flow bounds. The model-error allowance must hold throughout each queried region, and the initial-state and measurement-error limits must hold.</p><p><strong>Reachable tube.</strong> Purple boxes bound position at and between control updates. Red marks the first failed check. The verifier stops there; the remaining reference is gray because it has no computed bound. Use <strong>View candidate tube</strong> to inspect these sets at their true scale.</p><p><strong>Numerical limitation.</strong> This implementation uses floating-point calculations without a formal roundoff certificate. A successful finite-horizon check is not an infinite-time safety guarantee; a rejected check does not prove a collision will occur.</p></div>
   </section>
   <main>
     <section class="scene-panel" aria-label="Interactive 3D drone racing replay">
       <canvas id="scene" aria-label="3D course showing the drone, candidates and committed trajectory"></canvas>
       <div class="scene-heading"><span class="eyebrow">LEARNED-DYNAMICS RACING</span><h1>Safely racing at the<br>limits of handling.</h1><p>Trajectory planning with learned dynamics and safety verification.</p></div>
-      <div class="camera-bar" role="group" aria-label="Camera views"><button data-view="overview" class="active">Orbit</button><button data-view="follow">Follow</button><button data-view="drone">Drone</button><button data-view="top">Top</button><button id="reset-camera" aria-label="Reset camera">↺</button></div>
+      <div class="camera-bar" role="group" aria-label="Camera views"><button data-view="overview" class="active">Orbit</button><button data-view="follow">Follow</button><button data-view="drone">Drone</button><button data-view="top">Top</button><button id="camera-tube" hidden aria-label="View selected candidate tube">Tube</button><button id="reset-camera" aria-label="Reset camera">↺</button></div>
       <div class="scene-help">DRAG TO ORBIT <span>·</span> SCROLL TO ZOOM</div>
       <div class="speed-hud"><span id="speed-value">0.0</span><span class="speed-unit">m/s<small>FLIGHT SPEED</small></span></div>
       <div id="contact-badge" hidden role="status"></div>
@@ -51,9 +51,10 @@
       <div class="aside-top"><span class="eyebrow">DECISION INSPECTOR</span><span id="epoch-label">UPDATE 1</span></div>
       <div class="decision"><span id="decision-label">Loading</span><h2 id="decision-title">Candidate verification</h2><p id="decision-timing" class="rejection-note" hidden></p>
       <p id="decision-detail"></p></div>
+      <details id="computation-details" class="computation-details" hidden><summary>Computation time for this update</summary><dl id="computation-values"></dl><p id="computation-switches"></p></details>
       <section class="rejection-panel" aria-label="Rejected candidate inspector">
         <label class="candidate-picker">TIME BEFORE SWITCHING TO BACKUP<select id="candidate" aria-label="Choose time before switching to backup"></select></label>
-        <div class="rejection-controls"><label><input type="checkbox" id="show-rejected" checked> Rejected trajectory + failure</label><button id="focus-rejection">Focus rejection</button></div>
+        <div class="rejection-controls"><label><input type="checkbox" id="show-rejected" checked> First failed check in red</label><button id="focus-rejection">Focus rejection</button></div>
         <strong id="rejection-title">Loading rejection…</strong>
         <p id="rejection-detail"></p>
         <p id="rejection-geometry-note" class="rejection-note"></p>
@@ -65,12 +66,13 @@
           <input id="reachability-time" type="range" min="0" max="1" step="any" value="0" aria-label="Inspect reachable-set evolution along this candidate">
           <div class="reachability-actions"><button id="play-reachability" aria-label="Play reachable-set evolution">▶ Evolve sets</button><button id="restart-reachability" aria-label="Restart reachable-set evolution">↺</button><select id="reachability-speed" aria-label="Reachable-set evolution speed"><option value=".1">0.1×</option><option value=".25" selected>0.25×</option><option value="1">1×</option></select></div>
           <button id="show-all-reachability" type="button">Show entire computed tube</button>
+          <button id="focus-tube" type="button">View candidate tube</button>
           <p id="reachability-status" aria-live="polite"></p>
-          <p class="reachability-key">White: current saved set. Purple: previous endpoint bounds. Blue: swept bounds. Red: rejected reference / failed region. Gray: unchecked reference.</p>
+          <p class="reachability-key">Purple: computed reachable tube. White: current set. Red: first failed check only. Gray: reference after verification stopped.</p>
           <p>This cursor inspects a prediction; it does not move the drone or advance the flight replay.</p>
         </div>
         <div class="bounds-controls"><label><input type="checkbox" id="show-uncertainty" checked> Position bounds</label><select id="uncertainty-source" aria-label="Position uncertainty for"><option value="committed">Accepted</option><option value="candidate">Candidate</option></select></div>
-        <label id="swept-control" class="heatmap-control" hidden><input type="checkbox" id="show-swept" checked> Between-sample bounds (blue)</label>
+        <label id="swept-control" class="heatmap-control" hidden><input type="checkbox" id="show-swept" checked> Between-sample bounds</label>
         <p id="tube-detail">Translucent boxes show the recorded position envelope.</p>
         <p class="error-unit-caption" id="error-model-caption">Acceleration prediction error · m/s²</p><div class="uncertainty-values"><div><small>MODEL BOUND</small><strong id="error-bound-value">—</strong></div><div><small>MEASURED ERROR</small><strong id="error-value">—</strong></div><div><small>NETWORK SPREAD</small><strong id="spread-value">—</strong></div></div>
         <label class="heatmap-control"><input type="checkbox" id="color-uncertainty" checked> Color flight history by model error bound</label>
@@ -133,7 +135,7 @@
   </section>
   </div>
   <footer><span>JAX MPPI <b>·</b> ONLINE RESIDUAL LEARNING <b>·</b> GATEKEEPER</span><span id="recording-note">Actual simulation recordings. No scripted flight animation.</span></footer>
-  <script type="module" src="app.js?v=16"></script>
+  <script type="module" src="app.js?v=17"></script>
   <script type="module" src="performance.js?v=6"></script>
 </body>
 </html>

@@ -1,9 +1,9 @@
-import { describeScenario, withDiffReachScenario } from './scenarios.js?v=7';
+import { describeScenario, withDiffReachScenario } from './scenarios.js?v=8';
 import { updateKnowledge } from './knowledge.js?v=5';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { createGate, createDrone } from './models.js?v=3';
-import { addPositionBounds, addSweptBounds, addCurrentBound, errorColor } from './uncertainty.js?v=3';
+import { addPositionBounds, addSweptBounds, addCurrentBound, errorColor } from './uncertainty.js?v=4';
 import { reachabilityFrame, splitReference, referenceInterval } from './reachability-view.js';
 import { addRejectionBox, rejectionColor } from './rejection.js';
 
@@ -37,7 +37,7 @@ function initScene(){
   new ResizeObserver(resize).observe($('scene').parentElement);resetCamera();resize();
 }
 function resetCamera(){
-  if(view==='rejection'||view==='event')view='overview';
+  if(['rejection','event','candidate-tube'].includes(view))view='overview';
   const point=drone?.position.clone()||new THREE.Vector3(0,0,3);lastAnchor=null;
   if(view==='follow'||view==='drone'){controls.target.copy(point);camera.position.copy(point).add(new THREE.Vector3(...(view==='drone'?[-.50,-.60,.36]:[-2.7,-3.3,1.8])));lastAnchor=point.clone();}
   else if(data?.track.layout==='stacked'){controls.target.set(0,0,2.8);camera.position.set(...(view==='top'?[0,-.01,37]:[13,-31,23]));}
@@ -71,17 +71,21 @@ function updatePaths(force=false){
   while(paths.children.length)dispose(paths.children[0]);
   const candidate=epoch.candidates[selectedCandidate],com=epoch.commitment;
   if($('show-nominal').checked)addLine(epoch.nominal,colors.nominal,{opacity:.7,width:.024});
-  if(candidate&&!($('show-rejected').checked&&!candidate.verification.accepted)){const split=Math.round(candidate.switch_seconds/data.dt);
-    if($('show-candidate').checked)addLine(candidate.points.slice(0,split+1),colors.candidate,{dashed:true,opacity:.9});
-    if($('show-backup').checked)addLine(candidate.points.slice(split),colors.backup,{dashed:true,opacity:com?.retained ? .45 : .75});
+  if(candidate){const split=Math.round(candidate.switch_seconds/data.dt);
+    const checked=data.mode==='diffreach'?splitReference(candidate.points,Math.max(0,(candidate.position_bounds?.validated_until??epoch.time)-epoch.time),data.dt):null;
+    const points=checked?checked.checked:candidate.points;
+    if($('show-candidate').checked)addLine(points.slice(0,split+1),colors.candidate,{dashed:true,opacity:.9});
+    if($('show-backup').checked)addLine(points.slice(split),colors.backup,{dashed:true,opacity:.85});
+    if(checked&&($('show-candidate').checked||$('show-backup').checked))addLine(checked.remaining,0x747d8c,{dashed:true,opacity:.45});
   }
   if(com&&$('show-committed').checked){const refStart=com.reference_start_time??com.start_time;const offset=Math.max(0,Math.floor((time-refStart)/data.dt));const split=Math.max(0,Math.round((com.start_time+com.switch_seconds-refStart)/data.dt));
-    addLine(com.points.slice(offset),colors.committed,{width:.035});
+    addLine(com.points.slice(offset),colors.committed,{width:data.mode==='diffreach'?.012:.035});
     if($('show-backup').checked)addLine(com.points.slice(Math.max(offset,split)),colors.backup,{opacity:.95,dashed:true});
   }
   updateUncertaintyGeometry(epoch,candidate,com);
   updateRejection(epoch,candidate);
   updateInspector(epoch,candidate,com,index);
+  if(changed&&view==='candidate-tube')fitCandidateTube(candidate);
 }
 function updateRejection(epoch,candidate){
   const rejected=candidate&&!candidate.verification.accepted,r=candidate?.rejection;
@@ -93,7 +97,7 @@ function updateRejection(epoch,candidate){
   }
   const names={trusted_domain:'Acceleration-error bound exceeds the allowed limit',reachable_tube_boundary:'Position uncertainty overlaps a gate or course boundary',terminal_recovery:'Position, velocity or tilt error is too large at the end',backup_invariance_unestablished:'Continued backup safety has not been proved',neural_policy_interval_bound_unimplemented:'No validated enclosure for the neural controller',flow_enclosure_failed:'A bound on the predicted motion could not be computed',picard_remainder_inclusion_failed:'A nonlinear flow enclosure could not be established',invalid_model_error_bound:'The model-error allowance was not finite or valid',finite_horizon_checks_passed:'The finite-horizon nonlinear checks passed'};
   $('rejection-title').textContent=names[r?.reason||candidate.verification.reason]||'Candidate rejected';
-  let detail='',note='Red dashed: rejected proposal. Solid red: failure location. Later steps were not checked.';
+  let detail='',note='Red marks the first failed check. Later steps were not checked.';
   if(r?.segment){
     const offset=number(r.time_offset,' s'),absolute=number(epoch.time+r.time_offset,' s');
     if(data.mode==='diffreach'){
@@ -105,7 +109,7 @@ function updateRejection(epoch,candidate){
       if(r.position_box&&r.region_validated===false)note='Red box: the attempted region at which enclosure construction failed. This region is not a validated bound. The crosshair marks its center.';
     }else if(data.mode==='strict'){
       detail=`Failed during +${number(r.interval_offsets[0])}–${number(r.interval_offsets[1],' s')}. Only the predicted segment can be located; the uncertainty set and error value were not saved.`;
-      note='The rejected reference and its failed-check interval are red. No failure box is invented.';
+      note='Only the first failed-check interval is red. No failure box is invented.';
     }else if(r.reason==='trusted_domain'){
       detail=`${number(r.error_bound)} > ${number(r.threshold)} m/s² at +${offset} (predicted time ${absolute}). The bound on acceleration prediction error is too large here, after accounting for uncertainty in states and commands.`;
       note+=' The red box is its position projection; the crosshair only marks its center.';
@@ -120,7 +124,7 @@ function updateRejection(epoch,candidate){
     }
   }else{
     detail='The log records the rejection reason but not enough information to locate its failed check.';
-    note='The full rejected reference is red; no failure location is invented.';
+    note='No failure location is recorded, so no red region is drawn.';
   }
   $('rejection-detail').textContent=detail;
   $('rejection-geometry-note').textContent=$('show-rejected').checked?note:'Red rejection overlay hidden.';
@@ -129,16 +133,12 @@ function updateRejection(epoch,candidate){
     ?referenceInterval(candidate.points,...r.interval_offsets,data.dt)
     :candidate.points.slice(r.segment[0],r.segment[1]+1)):null;
   if(data.mode==='diffreach'&&reachState&&$('uncertainty-source').value==='candidate'){
-    const split=splitReference(candidate.points,reachState.validated,data.dt);
-    addLine(split.checked,rejectionColor,{dashed:true,opacity:.7});
-    addLine(split.remaining,0x747d8c,{dashed:true,opacity:.45});
     if(reachState.failureVisible){
       if(failedReference)addLine(failedReference,rejectionColor,{width:.048});
       addRejectionBox(paths,r?.position_box);
     }else $('rejection-geometry-note').textContent=note+' Move the reachable-set cursor to the failed interval, or use Focus rejection, to display this region.';
     return;
   }
-  addLine(candidate.points,rejectionColor,{dashed:true,opacity:.7});
   if(failedReference)addLine(failedReference,rejectionColor,{width:.048});
   addRejectionBox(paths,r?.position_box);
 }
@@ -157,10 +157,46 @@ function focusRejection(){
   fitCameraAspect();camera.lookAt(controls.target);controls.update();
   document.querySelectorAll('[data-view]').forEach(button=>button.classList.remove('active'));
 }
+function focusCandidateTube(){
+  const candidate=getEpoch()?.epoch.candidates[selectedCandidate];
+  if(!candidate)return;
+  $('uncertainty-source').value='candidate';$('show-uncertainty').checked=true;$('show-swept').checked=true;
+  reachTime=Number.POSITIVE_INFINITY;setReachPlaying(false);updatePaths(true);
+  view='candidate-tube';lastAnchor=null;fitCandidateTube(candidate);
+}
+function fitCandidateTube(candidate){
+  if(!candidate)return;
+  const bounds=candidate.position_bounds,extent=new THREE.Box3();
+  const boxes=[...(bounds?.centers||[]).map((center,i)=>({center,radius:bounds.radii[i]})),...(bounds?.swept||[])];
+  if(candidate.rejection?.position_box)boxes.push(candidate.rejection.position_box);
+  for(const box of boxes)for(const sign of [-1,1])extent.expandByPoint(new THREE.Vector3(...box.center.map((v,i)=>v+sign*box.radius[i])));
+  if(extent.isEmpty())return;
+  extent.getCenter(controls.target);
+  const diameter=extent.getSize(new THREE.Vector3()).length();
+  const distance=Math.max(.8,diameter/(2*Math.tan(THREE.MathUtils.degToRad(camera.fov/2)))*1.35/Math.min(1,camera.aspect));
+  camera.position.copy(controls.target).add(new THREE.Vector3(1,-1,.65).normalize().multiplyScalar(distance));
+  fitCameraAspect();camera.lookAt(controls.target);controls.update();
+  document.querySelectorAll('[data-view]').forEach(button=>button.classList.remove('active'));
+}
 function updateInspector(epoch,candidate,com,index){
   const timing=candidate?.verification.timing;
   $('decision-timing').hidden=!timing;
-  $('decision-timing').textContent=timing?`Recorded computation for all ${timing.batch_size} candidates: ${number(timing.candidate_generation_ms,' ms',1)} to generate references; ${number(timing.total_ms,' ms',1)} to compute bounds and check the course. These are batch times. First use can include compilation.`:'';
+  $('decision-timing').textContent=timing?`Complete planning update: ${number(epoch.computation?.total_ms,' ms',1)}. Generation + verification of all ${timing.batch_size} switching candidates: ${number(timing.generation_and_verification_ms,' ms',1)}. Batch times, not per-candidate times.`:'';
+  $('computation-details').hidden=!timing;
+  const components=timing?[
+    ['MPPI racing plan',epoch.computation?.planner_ms],
+    ['Generate all switching candidates',timing.candidate_generation_ms],
+    ['Prepare inputs and shared prefixes',timing.pack_ms],
+    ['Propagate reachable sets',timing.kernel_ms],
+    ['Read JAX results',timing.transfer_ms],
+    ['Course checks and result assembly',timing.unpack_and_geometry_ms],
+    ['Decision results / terminal checks',timing.terminal_checks_ms],
+    ['Select / retain commitment',timing.selection_ms],
+    ['Verification subtotal',timing.verification_total_ms],
+    ['Complete planning update',epoch.computation?.total_ms],
+  ]:[];
+  $('computation-values').replaceChildren(...components.flatMap(([label,value])=>{const term=document.createElement('dt'),numberCell=document.createElement('dd');term.textContent=label;numberCell.textContent=number(value,' ms',1);return [term,numberCell];}));
+  $('computation-switches').textContent=timing?`Switch to backup after ${(timing.switch_seconds||epoch.candidates.map(c=>c.switch_seconds)).map(t=>number(t,'',1)).join(', ')} s. This candidate then has ${number((candidate.points.length-1)*data.dt-candidate.switch_seconds,' s',1)} of backup. The propagation time includes the feedback policy, model-error queries and nonlinear flow bounds in one compiled computation. Learning and simulated flight are outside this planning-update total. First use may include compilation.`:'';
   $('epoch-label').textContent=`UPDATE ${index+1}`;
   $('model-value').textContent=epoch.model_version;
   $('switch-value').textContent=com?number(com.switch_seconds,' s'):candidate?number(candidate.switch_seconds,' s'):'—';
@@ -209,6 +245,8 @@ function updateUncertaintyGeometry(epoch,candidate,com){
   const until=available?bounds.start_time+(available-1)*data.dt:null;
   const maxRadius=available?Math.max(...bounds.radii.flat()):null;
   $('reachability-evolution').hidden=data.mode!=='diffreach';
+  $('focus-tube').disabled=!candidate?.position_bounds?.swept?.length&&!candidate?.position_bounds?.radii?.length;
+  $('camera-tube').disabled=$('focus-tube').disabled;
   if(data.mode==='diffreach'&&source){
     const key=`${loadRequest}:${epoch.time}:${selectedCandidate}:${select.value}`;
     if(key!==reachKey){reachKey=key;reachTime=Number.POSITIVE_INFINITY;setReachPlaying(false);}
@@ -239,16 +277,20 @@ function updateUncertaintyGeometry(epoch,candidate,com){
   }
   $('swept-control').hidden=data.mode!=='diffreach';
   $('show-swept').disabled=!swept.length;
-  $('uncertainty-badge').classList.toggle('unavailable',!available);
-  $('bounds-label').textContent=!$('show-uncertainty').checked?'POSITION BOUNDS HIDDEN':available?`POSITION BOUNDS · ${name.toUpperCase()}`:'NO POSITION BOUND';
-  $('bounds-caption').textContent=available?`${number(maxRadius,' m')} max half-width · through ${until.toFixed(2)} s`:'No position bound is available at this time.';
+  const hasBounds=available||swept.length;
+  const visibleBounds=$('show-uncertainty').checked||(data.mode==='diffreach'&&$('show-swept').checked);
+  const maxTubeRadius=hasBounds?Math.max(maxRadius||0,...swept.flatMap(box=>box.radius)):null;
+  const tubeUntil=Math.max(until||0,bounds?.validated_until||0);
+  $('uncertainty-badge').classList.toggle('unavailable',!hasBounds);
+  $('bounds-label').textContent=!visibleBounds?'POSITION BOUNDS HIDDEN':hasBounds?`POSITION BOUNDS · ${name.toUpperCase()}`:'NO POSITION BOUND';
+  $('bounds-caption').textContent=hasBounds?`${number(maxTubeRadius,' m')} max half-width · through ${tubeUntil.toFixed(2)} s`:'No position bound is available at this time.';
   if(available){
     const partial=name==='Candidate'&&available<source.points.length-1;
     $('tube-detail').textContent=`${available} sampled position boxes, at true scale, through ${until.toFixed(2)} s. Maximum axis half-width ${number(maxRadius,' m')}. ${partial?'Verification stopped; the remaining candidate has no recorded bound.':'No bound is extrapolated beyond this horizon.'}`;
     if(data.mode==='diffreach')$('tube-detail').textContent=`${available} endpoint position boxes and ${swept.length} between-sample boxes. Endpoint bounds end at ${until.toFixed(2)} s; maximum endpoint half-width ${number(maxRadius,' m')}. Centers are computed from the absolute bounds, not placed on the candidate. ${partial?'The remaining candidate was not validated.':'No bound is extrapolated beyond this horizon.'}`;
   }else if(data.mode==='diffreach'){
     $('tube-detail').textContent=swept.length?`${swept.length} recorded between-sample boxes; no completed endpoint bound. The red region identifies the saved failed check. No flight is implied by this prediction.`:'No position enclosure was completed. Inspect the red failed-check region if the log contains one.';
-    $('bounds-caption').textContent=swept.length?'Between-sample bounds only':'No completed endpoint bound';
+    if(!swept.length)$('bounds-caption').textContent='No completed endpoint bound';
   }else if(data.mode==='nominal'){
     $('tube-detail').textContent='This direct-command recording has no trajectory uncertainty calculation.';
   }else if(data.mode==='unfiltered'){
@@ -344,6 +386,7 @@ async function loadRun(filename,directory=environment?.directory||''){
   }
   $('uncertainty-source').value=data.epochs[0]?.commitment?'committed':'candidate';
   $('uncertainty-mode').textContent=data.mode==='diffreach'?'CONDITIONAL NONLINEAR BOUNDS':data.gatekeeper_enabled?'APPROXIMATE BOUNDS':'MODEL ERROR ONLY';
+  $('camera-tube').hidden=data.mode!=='diffreach';
   $('color-uncertainty').disabled=!['experimental','unfiltered','diffreach'].includes(data.mode)||data.samples.length<2;
   $('next-bound-miss').disabled=!data.samples.some(s=>s.state_bound_exceeded);
   $('error-scale-max').textContent=number(data.trust_threshold,' m/s²',1);
@@ -403,7 +446,7 @@ function setReachPlaying(value){reachPlaying=value;$('play-reachability').textCo
 $('play').onclick=()=>{if(time>=(data.samples.at(-1)?.time||0))time=0;setPlaying(!playing);updateTime();};
 $('restart').onclick=()=>{time=0;setPlaying(false);epochIndex=-1;updateTime();};
 $('timeline').oninput=e=>{time=Number(e.target.value);setPlaying(false);updateTime();};
-$('candidate').onchange=e=>{manualCandidate=true;selectedCandidate=Number(e.target.value);updatePaths(true);};
+$('candidate').onchange=e=>{manualCandidate=true;selectedCandidate=Number(e.target.value);updatePaths(true);if(view==='candidate-tube')focusCandidateTube();};
 $('next-decision').onclick=()=>{const next=data.epochs.find(e=>e.time>time+.0001);if(next){time=next.time;setPlaying(false);updateTime();}};
 $('reset-camera').onclick=resetCamera;
 document.querySelectorAll('[data-view]').forEach(button=>button.onclick=()=>{view=button.dataset.view;resetCamera();});
@@ -427,6 +470,8 @@ $('show-all-reachability').onclick=()=>{reachTime=Number.POSITIVE_INFINITY;setRe
 $('restart-reachability').onclick=()=>{reachTime=0;setReachPlaying(false);updatePaths(true);};
 $('show-rejected').onchange=()=>updatePaths(true);
 $('focus-rejection').onclick=focusRejection;
+$('focus-tube').onclick=focusCandidateTube;
+$('camera-tube').onclick=focusCandidateTube;
 $('uncertainty-source').onchange=()=>updatePaths(true);
 $('color-uncertainty').onchange=updateTime;
 $('next-bound-miss').onclick=()=>{const misses=data.samples.filter(s=>s.state_bound_exceeded);const next=misses.find(s=>s.time>time+1e-6)||misses[0];if(next){time=next.time;setPlaying(false);updateTime();}};
