@@ -1,0 +1,47 @@
+[
+  {
+    "id": "oval-matching",
+    "title": "Oval \u00b7 matching base dynamics",
+    "file": "oval-matching.json"
+  },
+  {
+    "id": "oval-learned",
+    "title": "Oval \u00b7 learned smooth residual",
+    "file": "oval-learned.json"
+  },
+  {
+    "id": "oval-faster",
+    "title": "Oval \u00b7 faster approach",
+    "file": "oval-faster.json"
+  },
+  {
+    "id": "oval-stronger",
+    "title": "Oval \u00b7 stronger smooth residual",
+    "file": "oval-stronger.json"
+  },
+  {
+    "id": "stacked-linear",
+    "title": "Stacked course \u00b7 linear drag and bias",
+    "file": "stacked-linear.json"
+  },
+  {
+    "id": "stacked-narrow",
+    "title": "Stacked course \u00b7 narrow gates, faster approach",
+    "file": "stacked-narrow.json"
+  },
+  {
+    "id": "stacked-clearance",
+    "title": "Stacked course \u00b7 0.55 m gate-clearance stress test",
+    "file": "stacked-clearance.json"
+  },
+  {
+    "id": "clearance-uncertainty",
+    "title": "Same candidate \u00b7 0.50 m gate-clearance check",
+    "file": "clearance-uncertainty.json"
+  },
+  {
+    "id": "clearance-recheck",
+    "title": "Same candidate \u00b7 0.40 m gate-clearance check",
+    "file": "clearance-recheck.json"
+  }
+]

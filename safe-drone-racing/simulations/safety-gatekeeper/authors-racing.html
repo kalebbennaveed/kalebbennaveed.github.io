@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>DiffReach · racing candidate benchmark</title>
+  <link rel="stylesheet" href="authors-racing.css">
+  <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/controls/OrbitControls.js":"./vendor/OrbitControls.js"}}</script>
+</head>
+<body>
+  <header><a href="./">← Racing replay</a><span>DIFFREACH · CANDIDATE BENCHMARK</span><strong>Recorded candidate benchmark</strong></header>
+  <section class="intro"><div><p class="eyebrow">MATCHED NEURAL CONTROLLER AND DRONE MODEL</p><h1>From a racing plan to a reachable tube.</h1><p>One planning update. Six switching times. Every candidate is propagated for the full 2.5 seconds.</p></div>
+    <label>Test case<select id="case" aria-label="Choose benchmark case" disabled><option>Loading…</option></select></label>
+  </section>
+  <p id="error" role="alert" hidden></p>
+  <main inert aria-busy="true">
+    <section class="visual" aria-label="Candidate trajectory and complete reachable tube">
+      <canvas id="scene" aria-label="Interactive 3D reachable tube"></canvas>
+      <div class="view-buttons"><button id="course-view">Course</button><button id="tube-view">Full tube</button><button id="set-view">Current set</button></div>
+      <div class="caption"><strong id="scene-caption">Loading candidate…</strong><span>Drag to orbit · scroll to zoom · dimensions in metres</span></div>
+      <div class="legend"><span><i class="purple"></i>Position bounds</span><span><i class="cyan"></i>Predicted path</span><span><i class="orange"></i>Simulated paths</span><span><i class="red"></i>First failed check</span></div>
+    </section>
+    <aside>
+      <label>Time before switching to backup<select id="switch" aria-label="Choose switching time"></select></label>
+      <p id="decision" class="decision" aria-live="polite"></p><p id="reason"></p>
+      <p id="case-note"></p><p id="clearance" class="note"></p>
+      <details class="selection"><summary>Startup and next update</summary><p id="selection"></p><button id="show-startup">Inspect zero-switch startup</button></details>
+      <label for="time">Inspect a reachable set <strong id="clock">+0.00 s</strong></label>
+      <input id="time" type="range" min="0" max="2.5" step=".01" value="0" aria-label="Reachable set time">
+      <div class="play-controls"><button id="play">▶ Evolve sets</button><button id="failure">First failed check</button></div>
+      <p class="note">The full tube stays visible while the white box moves through it. Rejection does not truncate the calculation.</p>
+      <label class="check"><input id="samples" type="checkbox" checked> Show independent simulated trajectories</label>
+      <label class="check"><input id="slabs" type="checkbox" checked> Include bounds between samples</label>
+      <h2>Width of the current set</h2><p id="dimensions"></p>
+      <canvas id="section" aria-label="Position uncertainty cross-section at selected time"></canvas>
+      <p class="note">World y–z section of the endpoint box, centered on its midpoint. Axes show millimetres; orange points are simulations at the same time.</p>
+    </aside>
+  </main>
+  <section class="facts"><article><h2>Measured computation time</h2><p id="timing-scope">One update, including all six candidates. Warm CPU calls; initial compilation is reported separately in the saved report.</p><dl id="timing"></dl></article>
+    <article><h2>Containment check</h2><p id="containment"></p><p id="validity"></p><p class="note">Monte Carlo is a test for missed trajectories, not a proof. Failed Picard steps are shown in gray and are not called reachable bounds.</p></article>
+    <article><h2>What is being checked?</h2><p>MPPI chooses velocity commands using the base model plus learned acceleration residual. Each candidate follows those commands, then a slower course-following velocity schedule. The same neural feedback controller produces thrust and torque during prediction, verification and simulation.</p><p>The model-error bound is evaluated over each velocity region. Uncertainty is injected into acceleration and propagated through all 12 states.</p></article>
+  </section>
+  <details class="scope"><summary>Model, assumptions and limits</summary><p>The controller has the DiffReach authors’ architecture with locally trained weights. The matching 12-state plant uses position, velocity, Euler angles and body angular rates, with thrust and roll/pitch torque commands. It is a different model from the existing 14-state racing replay.</p><p>Initial state is exact. Position inputs to the network use a fixed origin at the start of the candidate. Velocity commands and that origin stay identical during verification and execution. The backup schedule is generated using predicted course-following motion; it is then followed by the neural controller.</p><p>The residual is learned from exact acceleration data. Its global smoothness bounds are known in this controlled experiment. Stronger residual cases scale the simulated residual, learned model and error bounds together.</p><p>These are finite-horizon numerical enclosures. Floating-point rounding is not formally certified, and no terminal invariant-set or indefinite backup-safety proof has been established. The zero-switch startup is available under the stated startup assumption even if its numerical check fails; later candidates get no such override. No closed-loop racing episode or online retraining is claimed by this page.</p></details>
+  <script type="module" src="authors-racing.js"></script>
+</body>
+</html>
