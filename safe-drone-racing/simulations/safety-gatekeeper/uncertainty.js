@@ -30,7 +30,7 @@ export function addCurrentBound(parent,box){
 function addBoxes(parent,centers,radii,{swept=false}={}){
   // Exact, world-axis-aligned recorded boxes. No inscribed ellipsoids, spatial
   // extrapolation, radius inflation, or invented intersample enclosure.
-  const material=new THREE.MeshBasicMaterial({color:0xb4a0fb,transparent:true,opacity:swept ? .12 : .075,depthWrite:false,toneMapped:false});
+  const material=new THREE.MeshBasicMaterial({color:0xb4a0fb,transparent:true,opacity:(swept ? .12 : .075)/Math.max(1,Math.sqrt(radii.length/8)),depthWrite:false,toneMapped:false});
   const boxes=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),material,radii.length),dummy=new THREE.Object3D();
   boxes.frustumCulled=false;boxes.renderOrder=1;
   const edgePoints=[];

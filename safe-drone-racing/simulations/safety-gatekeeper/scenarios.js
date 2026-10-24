@@ -28,7 +28,7 @@ const scenarios = {
     title: 'Gatekeeper + DiffReach — uncertain dynamics', gatekeeper: true,
     dynamics: 'Unknown forces bounded by the stated assumptions',
     description: 'Gatekeeper checks the candidate with nonlinear reachable sets computed using DiffReach-style affine arithmetic and Picard flow enclosures. The uncertainty allowance uses available measurement data and assumed force limits; before measurements exist, only the force limits are available. The neural controller and unknown-force simulator keep their existing roles.',
-    observe: 'Purple boxes show the computed reachable tube. Red marks only the first failed check; the remaining reference is gray. Use View candidate tube to inspect each switching candidate. The initial zero-switch backup is committed under the stated safety assumption. Later candidates must pass verification.',
+    observe: 'Purple boxes show position bounds through the whole candidate, including after rejection. Red marks the first failed online check. Use First 2 seconds or Entire candidate to inspect the bounds at their actual scale. The full continuation is computed offline and does not change the decision. The initial zero-switch backup is committed under the stated safety assumption.',
     limitation: 'The reachable-set construction is conditional on the stated model-error, measurement and initial-state bounds, over the recorded finite horizon. Floating-point arithmetic is not formally certified. It does not establish indefinite backup safety.'
   }
 };

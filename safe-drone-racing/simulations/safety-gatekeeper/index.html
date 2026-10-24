@@ -25,8 +25,8 @@
     <div class="scenario-context"><div class="scenario-tags"><span id="scenario-checks">Gatekeeper on</span><span id="scenario-course">Oval course</span><span>Neural controller</span><span id="scenario-dynamics">Extra air resistance and acceleration bias</span></div><p id="scenario-observe"></p><p id="scenario-outcome" aria-live="polite"></p><button id="jump-outcome" hidden>Show collision</button><a href="#performance">Compare the original three scenarios ↓</a><a href="#model-knowledge">Explore model uncertainty ↓</a></div>
   </section>
   <section id="diffreach-explanation" class="diffreach-explanation" hidden aria-labelledby="diffreach-title">
-    <div><span class="eyebrow">SCENARIO 4 · REACHABLE SETS</span><h2 id="diffreach-title">What these bounds establish</h2><p id="diffreach-outcome-note"></p></div>
-    <div><p>The nonlinear state equations and feedback controller are enclosed using affine arithmetic and Picard flow bounds. The model-error allowance must hold throughout each queried region, and the initial-state and measurement-error limits must hold.</p><p><strong>Reachable tube.</strong> Purple boxes bound position at and between control updates. Red marks the first failed check. The verifier stops there; the remaining reference is gray because it has no computed bound. Use <strong>View candidate tube</strong> to inspect these sets at their true scale.</p><p><strong>Numerical limitation.</strong> This implementation uses floating-point calculations without a formal roundoff certificate. A successful finite-horizon check is not an infinite-time safety guarantee; a rejected check does not prove a collision will occur.</p></div>
+    <div><span class="eyebrow">SCENARIO 4 · REACHABLE SETS</span><h2 id="diffreach-title">What these bounds establish</h2><p id="diffreach-outcome-note"></p><p id="recording-compute-summary"></p></div>
+    <div><p>The nonlinear state equations and feedback controller are enclosed using affine arithmetic and Picard flow bounds. The model-error allowance must hold throughout each queried region, and the initial-state and measurement-error limits must hold.</p><p><strong>Reachable tube.</strong> Purple boxes bound position at and between control updates. Red marks the first failed check. The default view continues the bound through the <strong>entire candidate</strong>, using a separate offline calculation. Rejection still occurs at the original red marker. The longest candidate has 2 seconds of racing followed by 3.5 seconds of backup. Use <strong>First 2 seconds</strong> or <strong>Entire candidate</strong> to inspect the actual scale; distant bounds can become much wider than the course.</p><p><strong>Numerical limitation.</strong> This implementation uses floating-point calculations without a formal roundoff certificate. The offline continuation uses the declared error-smoothness assumption beyond the rejected region; its validity there has not been established. A successful finite-horizon check is not an infinite-time safety guarantee; a rejected check does not prove a collision will occur.</p></div>
   </section>
   <main>
     <section class="scene-panel" aria-label="Interactive 3D drone racing replay">
@@ -62,13 +62,16 @@
       <section class="uncertainty-panel" aria-label="Uncertainty inspector">
         <div class="uncertainty-heading"><span>UNCERTAINTY</span><small id="uncertainty-mode">APPROXIMATE BOUNDS</small></div>
         <div id="reachability-evolution" class="reachability-evolution" hidden>
+          <label for="tube-extent">Which calculation</label><select id="tube-extent" aria-label="Reachable tube calculation"><option value="full">Full candidate · offline continuation</option><option value="online">Online check · stops at rejection</option></select>
+          <p id="full-tube-note" role="status"></p>
+          <button id="retry-full-tube" type="button" hidden>Retry loading full tube</button>
           <label for="reachability-time">Reachable-set time <strong id="reachability-clock">+0.0000 s</strong></label>
           <input id="reachability-time" type="range" min="0" max="1" step="any" value="0" aria-label="Inspect reachable-set evolution along this candidate">
           <div class="reachability-actions"><button id="play-reachability" aria-label="Play reachable-set evolution">▶ Evolve sets</button><button id="restart-reachability" aria-label="Restart reachable-set evolution">↺</button><select id="reachability-speed" aria-label="Reachable-set evolution speed"><option value=".1">0.1×</option><option value=".25" selected>0.25×</option><option value="1">1×</option></select></div>
-          <button id="show-all-reachability" type="button">Show entire computed tube</button>
+          <div class="reachability-actions"><button id="show-two-seconds" type="button">First 2 seconds</button><button id="show-all-reachability" type="button">Entire candidate</button></div>
           <button id="focus-tube" type="button">View candidate tube</button>
           <p id="reachability-status" aria-live="polite"></p>
-          <p class="reachability-key">Purple: computed reachable tube. White: current set. Red: first failed check only. Gray: reference after verification stopped.</p>
+          <p class="reachability-key">Purple: computed reachable tube. White: current set. Red: first failed check only. Gray: reference beyond the computed enclosure, if any.</p>
           <p>This cursor inspects a prediction; it does not move the drone or advance the flight replay.</p>
         </div>
         <div class="bounds-controls"><label><input type="checkbox" id="show-uncertainty" checked> Position bounds</label><select id="uncertainty-source" aria-label="Position uncertainty for"><option value="committed">Accepted</option><option value="candidate">Candidate</option></select></div>
@@ -135,7 +138,7 @@
   </section>
   </div>
   <footer><span>JAX MPPI <b>·</b> ONLINE RESIDUAL LEARNING <b>·</b> GATEKEEPER</span><span id="recording-note">Actual simulation recordings. No scripted flight animation.</span></footer>
-  <script type="module" src="app.js?v=17"></script>
+  <script type="module" src="app.js?v=19"></script>
   <script type="module" src="performance.js?v=6"></script>
 </body>
 </html>

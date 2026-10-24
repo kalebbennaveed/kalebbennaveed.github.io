@@ -1,11 +1,12 @@
-import { describeScenario, withDiffReachScenario } from './scenarios.js?v=8';
+import { describeScenario, withDiffReachScenario } from './scenarios.js?v=9';
 import { updateKnowledge } from './knowledge.js?v=5';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { createGate, createDrone } from './models.js?v=3';
-import { addPositionBounds, addSweptBounds, addCurrentBound, errorColor } from './uncertainty.js?v=4';
+import { addPositionBounds, addSweptBounds, addCurrentBound, errorColor } from './uncertainty.js?v=5';
 import { reachabilityFrame, splitReference, referenceInterval } from './reachability-view.js';
 import { addRejectionBox, rejectionColor } from './rejection.js';
+import { FullTubeStore, selectedBounds } from './full-tubes.js';
 
 const $=id=>document.getElementById(id);
 const originalMethodText={propagation:$('method-propagation-explanation').textContent,limitations:$('method-limitations').textContent,accepted:$('accepted-trajectory-explanation').textContent,startup:$('startup-explanation').textContent};
@@ -14,6 +15,7 @@ let data,time=0,playing=false,view='overview',epochIndex=-1,selectedCandidate=0,
 let renderer,scene,camera,controls,course,paths,drone,rotors=[],trail,missMarkers;
 let environment=null,environmentRequest=0,courseRoute=null;
 let reachTime=0,reachPlaying=false,reachKey=null,reachState=null,reachLastDraw=0;
+let fullTubeStore=null,fullTubeRow=null,fullTubeRequestKey=null,fullTubeStatus='idle',fullTubeError='';
 const clock=value=>`${String(Math.floor(value/60)).padStart(2,'0')}:${(value%60).toFixed(2).padStart(5,'0')}`;
 const number=(x,suffix='',digits=2)=>x==null||!Number.isFinite(x)?'—':x.toFixed(digits)+suffix;
 const dispose=object=>{object.traverse(child=>{if(child.isInstancedMesh)child.dispose();child.geometry?.dispose();const materials=Array.isArray(child.material)?child.material:[child.material];materials.forEach(m=>{m?.map?.dispose();m?.dispose();});});object.parent?.remove(object);};
@@ -37,6 +39,7 @@ function initScene(){
   new ResizeObserver(resize).observe($('scene').parentElement);resetCamera();resize();
 }
 function resetCamera(){
+  if(camera){camera.near=.05;camera.far=150;controls.maxDistance=55;scene.fog=new THREE.Fog('#1b1d20',42,90);}
   if(['rejection','event','candidate-tube'].includes(view))view='overview';
   const point=drone?.position.clone()||new THREE.Vector3(0,0,3);lastAnchor=null;
   if(view==='follow'||view==='drone'){controls.target.copy(point);camera.position.copy(point).add(new THREE.Vector3(...(view==='drone'?[-.50,-.60,.36]:[-2.7,-3.3,1.8])));lastAnchor=point.clone();}
@@ -62,6 +65,23 @@ function getEpoch(){
   if(!data?.epochs.length)return null;let i=0;while(i+1<data.epochs.length&&data.epochs[i+1].time<=time+1e-7)i++;
   return {epoch:data.epochs[i],index:i};
 }
+function candidateBounds(candidate){
+  return data.mode==='diffreach'?selectedBounds(candidate,fullTubeRow?.candidates[selectedCandidate],$('tube-extent').value):candidate?.position_bounds;
+}
+function requestFullTube(epoch,index){
+  if(data.mode!=='diffreach'||$('tube-extent').value!=='full'||!fullTubeStore)return;
+  const key=`${loadRequest}:${index}`;
+  if(fullTubeRequestKey===key)return;
+  fullTubeRequestKey=key;fullTubeRow=null;fullTubeStatus='loading';fullTubeError='';
+  fullTubeStore.load(index,epoch).then(row=>{
+    if(key!==fullTubeRequestKey)return;
+    fullTubeRow=row;fullTubeStatus='ready';reachKey=null;updatePaths(true);
+    if(view==='candidate-tube')fitCandidateTube(epoch.candidates[selectedCandidate]);
+  }).catch(error=>{
+    if(key!==fullTubeRequestKey)return;
+    fullTubeStatus='error';fullTubeError=error.message;updatePaths(true);
+  });
+}
 function updatePaths(force=false){
   const found=getEpoch();if(!found)return;const {epoch,index}=found;
   if(!force&&epochIndex===index)return;const changed=epochIndex!==index;epochIndex=index;
@@ -70,9 +90,10 @@ function updatePaths(force=false){
   $('candidate').disabled=!epoch.candidates.length;
   while(paths.children.length)dispose(paths.children[0]);
   const candidate=epoch.candidates[selectedCandidate],com=epoch.commitment;
+  requestFullTube(epoch,index);
   if($('show-nominal').checked)addLine(epoch.nominal,colors.nominal,{opacity:.7,width:.024});
   if(candidate){const split=Math.round(candidate.switch_seconds/data.dt);
-    const checked=data.mode==='diffreach'?splitReference(candidate.points,Math.max(0,(candidate.position_bounds?.validated_until??epoch.time)-epoch.time),data.dt):null;
+    const checked=data.mode==='diffreach'?splitReference(candidate.points,Math.max(0,(candidateBounds(candidate)?.validated_until??epoch.time)-epoch.time),data.dt):null;
     const points=checked?checked.checked:candidate.points;
     if($('show-candidate').checked)addLine(points.slice(0,split+1),colors.candidate,{dashed:true,opacity:.9});
     if($('show-backup').checked)addLine(points.slice(split),colors.backup,{dashed:true,opacity:.85});
@@ -85,7 +106,7 @@ function updatePaths(force=false){
   updateUncertaintyGeometry(epoch,candidate,com);
   updateRejection(epoch,candidate);
   updateInspector(epoch,candidate,com,index);
-  if(changed&&view==='candidate-tube')fitCandidateTube(candidate);
+  if((changed||reachPlaying)&&view==='candidate-tube')fitCandidateTube(candidate);
 }
 function updateRejection(epoch,candidate){
   const rejected=candidate&&!candidate.verification.accepted,r=candidate?.rejection;
@@ -147,7 +168,7 @@ function focusRejection(){
   if(!r?.segment)return;
   if(data.mode==='diffreach'){
     $('uncertainty-source').value='candidate';updatePaths(true);
-    if(reachState){reachTime=reachState.inspectionEnd;setReachPlaying(false);updatePaths(true);}
+    if(reachState){reachTime=r.interval_offsets?.[1]??reachState.inspectionEnd;setReachPlaying(false);updatePaths(true);}
   }
   const [a,b]=r.segment;
   const center=r.position_box?.center||candidate.points[a].map((v,i)=>(v+candidate.points[b][i])/2);
@@ -166,14 +187,16 @@ function focusCandidateTube(){
 }
 function fitCandidateTube(candidate){
   if(!candidate)return;
-  const bounds=candidate.position_bounds,extent=new THREE.Box3();
+  const bounds=$('uncertainty-source').value==='candidate'&&reachState?{...reachState.endpoints,swept:reachState.swept}:candidateBounds(candidate),extent=new THREE.Box3();
   const boxes=[...(bounds?.centers||[]).map((center,i)=>({center,radius:bounds.radii[i]})),...(bounds?.swept||[])];
-  if(candidate.rejection?.position_box)boxes.push(candidate.rejection.position_box);
+  if(candidate.rejection?.position_box&&(!reachState||reachState.failureVisible))boxes.push(candidate.rejection.position_box);
+  if(reachState?.current)boxes.push(reachState.current);
   for(const box of boxes)for(const sign of [-1,1])extent.expandByPoint(new THREE.Vector3(...box.center.map((v,i)=>v+sign*box.radius[i])));
   if(extent.isEmpty())return;
   extent.getCenter(controls.target);
   const diameter=extent.getSize(new THREE.Vector3()).length();
   const distance=Math.max(.8,diameter/(2*Math.tan(THREE.MathUtils.degToRad(camera.fov/2)))*1.35/Math.min(1,camera.aspect));
+  camera.near=Math.max(.01,distance/10000);camera.far=Math.max(150,distance*10);controls.maxDistance=Math.max(55,distance*2);scene.fog=null;
   camera.position.copy(controls.target).add(new THREE.Vector3(1,-1,.65).normalize().multiplyScalar(distance));
   fitCameraAspect();camera.lookAt(controls.target);controls.update();
   document.querySelectorAll('[data-view]').forEach(button=>button.classList.remove('active'));
@@ -240,15 +263,19 @@ function updateUncertaintyGeometry(epoch,candidate,com){
   const select=$('uncertainty-source');select.options[0].disabled=!com;select.options[1].disabled=!candidate;select.disabled=!com&&!candidate;
   if(select.value==='committed'&&!com)select.value='candidate';
   const source=select.value==='committed'?com:candidate,name=select.value==='committed'?'Accepted':'Candidate';
-  const bounds=source?.position_bounds,available=bounds?.radii.length||0;
+  const isFull=data.mode==='diffreach'&&select.value==='candidate'&&$('tube-extent').value==='full';
+  const bounds=select.value==='candidate'?candidateBounds(candidate):source?.position_bounds,available=bounds?.radii.length||0;
+  $('tube-extent').disabled=select.value!=='candidate';
+  $('retry-full-tube').hidden=!isFull||fullTubeStatus!=='error';
+  $('full-tube-note').textContent=isFull?(fullTubeStatus==='loading'?'Loading the full candidate tube…':fullTubeStatus==='error'?fullTubeError:`Full-horizon bounds computed offline after the recorded rejection. All six candidates took ${number(fullTubeRow?.wall_seconds,' s',2)} for this display calculation, separate from the online timing above. The original acceptance decision is unchanged.`):'Showing only the bounds computed before the online check stopped.';
   const swept=bounds?.swept||[];
   const until=available?bounds.start_time+(available-1)*data.dt:null;
   const maxRadius=available?Math.max(...bounds.radii.flat()):null;
   $('reachability-evolution').hidden=data.mode!=='diffreach';
-  $('focus-tube').disabled=!candidate?.position_bounds?.swept?.length&&!candidate?.position_bounds?.radii?.length;
+  $('focus-tube').disabled=!candidateBounds(candidate)?.swept?.length&&!candidateBounds(candidate)?.radii?.length;
   $('camera-tube').disabled=$('focus-tube').disabled;
   if(data.mode==='diffreach'&&source){
-    const key=`${loadRequest}:${epoch.time}:${selectedCandidate}:${select.value}`;
+    const key=`${loadRequest}:${epoch.time}:${selectedCandidate}:${select.value}:${$('tube-extent').value}:${isFull?fullTubeStatus:'online'}`;
     if(key!==reachKey){reachKey=key;reachTime=Number.POSITIVE_INFINITY;setReachPlaying(false);}
     const referenceStart=source.reference_start_time??(select.value==='committed'?source.start_time:epoch.time);
     const originalStart=select.value==='committed'?source.start_time:epoch.time;
@@ -267,7 +294,9 @@ function updateUncertaintyGeometry(epoch,candidate,com){
     $('reachability-clock').textContent=`+${reachTime.toFixed(4)} s / ${reachState.inspectionEnd.toFixed(4)} s`;
     const current=reachState.current;
     const currentText=current?current.kind==='initial'?'Initial-state set.':current.kind==='endpoint'?`Current endpoint at +${current.end.toFixed(4)} s.`:`${reachTime>reachState.validated+1e-9?'Last validated':'Current'} swept interval: +${current.start.toFixed(4)}–${current.end.toFixed(4)} s.`:'No completed set at this cursor time.';
-    $('reachability-status').textContent=`${currentText} Validated flow prefix: ${reachState.validated.toFixed(4)} s of the ${reachState.candidateDuration.toFixed(2)} s candidate. ${reachState.uncheckedSeconds.toFixed(4)} s remain unchecked.${reachState.attemptedFailureVisible?' The red trial region failed validation; it is not a reachable-set bound.':reachState.failureVisible?' The red region locates the saved rejected check.':''}`;
+    $('reachability-status').textContent=isFull&&fullTubeStatus!=='ready'?$('full-tube-note').textContent:`${currentText} ${isFull?'Offline enclosure':'Online enclosure'}: ${reachState.validated.toFixed(4)} s of the ${reachState.candidateDuration.toFixed(2)} s candidate. ${reachState.uncheckedSeconds>1e-8?`${reachState.uncheckedSeconds.toFixed(4)} s have no computed enclosure.`:'The entire candidate has a computed enclosure.'}${reachState.failureVisible?' Red marks the first failed check in the original Gatekeeper calculation.':''}`;
+    $('show-two-seconds').disabled=!bounds?.swept?.length;
+    $('show-all-reachability').disabled=!bounds?.swept?.length;
     if($('show-uncertainty').checked&&reachState.endpoints.radii.length)addPositionBounds(paths,source.points,reachState.endpoints,-Infinity,data.dt);
     if($('show-swept').checked)addSweptBounds(paths,{swept:reachState.swept},-Infinity);
     if($('show-uncertainty').checked||$('show-swept').checked)addCurrentBound(paths,reachState.current);
@@ -279,15 +308,16 @@ function updateUncertaintyGeometry(epoch,candidate,com){
   $('show-swept').disabled=!swept.length;
   const hasBounds=available||swept.length;
   const visibleBounds=$('show-uncertainty').checked||(data.mode==='diffreach'&&$('show-swept').checked);
-  const maxTubeRadius=hasBounds?Math.max(maxRadius||0,...swept.flatMap(box=>box.radius)):null;
-  const tubeUntil=Math.max(until||0,bounds?.validated_until||0);
+  const shown=data.mode==='diffreach'&&reachState?{radii:reachState.endpoints.radii,swept:reachState.swept}:bounds;
+  const maxTubeRadius=hasBounds?Math.max(0,...(shown?.radii||[]).flat(),...(shown?.swept||[]).flatMap(box=>box.radius)):null;
+  const tubeUntil=data.mode==='diffreach'&&reachState?reachState.selected:Math.max(until||0,bounds?.validated_until||0);
   $('uncertainty-badge').classList.toggle('unavailable',!hasBounds);
   $('bounds-label').textContent=!visibleBounds?'POSITION BOUNDS HIDDEN':hasBounds?`POSITION BOUNDS · ${name.toUpperCase()}`:'NO POSITION BOUND';
-  $('bounds-caption').textContent=hasBounds?`${number(maxTubeRadius,' m')} max half-width · through ${tubeUntil.toFixed(2)} s`:'No position bound is available at this time.';
+  $('bounds-caption').textContent=hasBounds?`${number(maxTubeRadius,' m')} shown half-width · through ${data.mode==='diffreach'?'+':''}${tubeUntil.toFixed(2)} s`:'No position bound is available at this time.';
   if(available){
     const partial=name==='Candidate'&&available<source.points.length-1;
     $('tube-detail').textContent=`${available} sampled position boxes, at true scale, through ${until.toFixed(2)} s. Maximum axis half-width ${number(maxRadius,' m')}. ${partial?'Verification stopped; the remaining candidate has no recorded bound.':'No bound is extrapolated beyond this horizon.'}`;
-    if(data.mode==='diffreach')$('tube-detail').textContent=`${available} endpoint position boxes and ${swept.length} between-sample boxes. Endpoint bounds end at ${until.toFixed(2)} s; maximum endpoint half-width ${number(maxRadius,' m')}. Centers are computed from the absolute bounds, not placed on the candidate. ${partial?'The remaining candidate was not validated.':'No bound is extrapolated beyond this horizon.'}`;
+    if(data.mode==='diffreach')$('tube-detail').textContent=`${available} endpoint position boxes and ${swept.length} between-sample boxes. Endpoint bounds end at ${until.toFixed(2)} s; maximum endpoint half-width ${number(maxRadius,' m')}. Centers are computed from the absolute bounds, not placed on the candidate. ${partial?'No enclosure is drawn beyond the computed horizon.':isFull?'The bound continues after rejection; it does not mean Gatekeeper accepted the candidate.':'No bound is extrapolated beyond this horizon.'}`;
   }else if(data.mode==='diffreach'){
     $('tube-detail').textContent=swept.length?`${swept.length} recorded between-sample boxes; no completed endpoint bound. The red region identifies the saved failed check. No flight is implied by this prediction.`:'No position enclosure was completed. Inspect the red failed-check region if the log contains one.';
     if(!swept.length)$('bounds-caption').textContent='No completed endpoint bound';
@@ -373,7 +403,7 @@ function drawChart(){
 async function loadRun(filename,directory=environment?.directory||''){
   $('environment-content').setAttribute('aria-busy','true');$('environment-content').inert=true;
   $('recording-loading').hidden=false;$('recording-loading').textContent=`Loading ${environment?.label||'the environment'} · ${$('run').selectedOptions[0]?.textContent||'selected scenario'}…`;
-  const request=++loadRequest;setPlaying(false);setReachPlaying(false);$('knowledge-time').disabled=true;$('knowledge-view').disabled=true;const response=await fetch(`./data/${directory}${filename}?v=12`,{cache:'no-cache'});if(!response.ok)throw new Error(`Recording could not be loaded (${response.status}).`);const recording=await response.json();if(request!==loadRequest)return;data=recording;time=0;epochIndex=-1;selectedCandidate=0;manualCandidate=false;
+  const request=++loadRequest;setPlaying(false);setReachPlaying(false);$('knowledge-time').disabled=true;$('knowledge-view').disabled=true;const response=await fetch(`./data/${directory}${filename}?v=13`,{cache:'no-cache'});if(!response.ok)throw new Error(`Recording could not be loaded (${response.status}).`);const recording=await response.json();if(request!==loadRequest)return;data=recording;time=0;epochIndex=-1;selectedCandidate=0;manualCandidate=false;
   $('scene-error').hidden=true;if(trail){dispose(trail);trail=null;}
   while(missMarkers.children.length)dispose(missMarkers.children[0]);
   data.samples.filter(s=>s.state_bound_exceeded).forEach(s=>{const marker=new THREE.Mesh(new THREE.SphereGeometry(.065,12,10),new THREE.MeshBasicMaterial({color:0xf0796d,toneMapped:false}));marker.position.set(...s.state.slice(0,3));marker.userData.time=s.time;missMarkers.add(marker);});
@@ -401,7 +431,16 @@ async function loadRun(filename,directory=environment?.directory||''){
   document.querySelector('.trajectory-help').hidden=!hasGatekeeper;
   document.querySelector('.bounds-controls').hidden=!hasGatekeeper;
   const scenario=describeScenario(data);
+  const scenarioUrl=new URL(location.href);scenarioUrl.searchParams.set('scenario',String(scenario.number));history.replaceState(null,'',scenarioUrl);
   const isDiffReach=data.mode==='diffreach';
+  fullTubeStore=isDiffReach?new FullTubeStore(`./data/${directory}full-tubes`,undefined,data.source_recording_sha256):null;fullTubeRow=null;fullTubeRequestKey=null;fullTubeStatus='idle';
+  $('tube-extent').value='full';reachKey=null;
+  const timedUpdates=data.epochs.filter(epoch=>Number.isFinite(epoch.computation?.total_ms));
+  const measured=timedUpdates.slice(1);
+  const mean=read=>measured.reduce((sum,epoch)=>sum+read(epoch),0)/measured.length;
+  const info=data.recording_info;
+  $('recording-compute-summary').textContent=isDiffReach&&measured.length&&info?
+    `Recorded ${new Date(info.generated_at).toLocaleDateString(undefined,{dateStyle:'medium'})} using JAX on ${info.backend.toUpperCase()}. After the first update, the mean across ${measured.length} updates is ${number(mean(e=>e.computation.total_ms),' ms',1)}: MPPI ${number(mean(e=>e.computation.planner_ms),' ms',1)}, generate six candidates ${number(mean(e=>e.candidates[0].verification.timing.candidate_generation_ms),' ms',1)}, and verify all six ${number(mean(e=>e.candidates[0].verification.timing.verification_total_ms),' ms',1)}. First update: ${number(timedUpdates[0].computation.total_ms,' ms',1)}. These are measured computation times; playback does not simulate processing delays. The target is 100 ms per complete update.`:'';
   const assumedStartup=Boolean(data.initialization?.verification.assumed_initial_backup);
   if(isDiffReach)$('uncertainty-source').value='candidate';
   $('diffreach-explanation').hidden=!isDiffReach;
@@ -419,7 +458,7 @@ async function loadRun(filename,directory=environment?.directory||''){
   }
   document.querySelector('.rejection-panel').hidden=!hasGatekeeper;
   $('recording-note').textContent=`${environment?.label||''} · Scenario ${scenario.number} · ${data.samples.length<2?'No flight: the initial trajectory did not pass the checks':`${number(data.metrics.duration,' s',1)} recorded flight`} · Simulation replay`;
-  updateTime();resetCamera();
+  updateTime();resetCamera();if(isDiffReach){view='candidate-tube';focusCandidateTube();}
   $('environment-content').setAttribute('aria-busy','false');$('environment-content').inert=false;$('recording-loading').hidden=true;
 }
 async function loadEnvironment(next){
@@ -427,14 +466,17 @@ async function loadEnvironment(next){
   $('environment-content').setAttribute('aria-busy','true');
   $('environment-content').inert=true;$('recording-loading').hidden=false;$('recording-loading').textContent=`Loading ${next.label}…`;
   $('recording-note').textContent=`Loading ${next.label}…`;
-  const response=await fetch(`./data/${next.directory}${next.index}?v=12`,{cache:'no-cache'});
+  const response=await fetch(`./data/${next.directory}${next.index}?v=13`,{cache:'no-cache'});
   if(!response.ok)throw new Error(`${next.label} recordings could not be loaded (${response.status}).`);
   const runs=withDiffReachScenario(await response.json());if(request!==environmentRequest)return;
   if(!runs.length)throw new Error(`${next.label} has no recordings.`);
   environment=next;
   $('run').replaceChildren(...runs.map(run=>{const option=document.createElement('option');option.value=run.file;option.textContent=run.label;return option;}));
   $('show-course').checked=next.id==='environment-2';
-  await loadRun(runs[0].file,next.directory);if(request!==environmentRequest)return;
+  const requestedScenario=new URLSearchParams(location.search).get('scenario');
+  const selectedRun=runs.find(run=>run.label.startsWith(`Scenario ${requestedScenario} ·`))||runs[0];
+  $('run').value=selectedRun.file;
+  await loadRun(selectedRun.file,next.directory);if(request!==environmentRequest)return;
   $('run').disabled=false;$('environment-description').textContent=next.description;
   $('environment-content').setAttribute('aria-labelledby',`${next.id}-tab`);$('environment-content').setAttribute('aria-busy','false');
   document.querySelectorAll('[data-environment]').forEach(button=>{const active=button.dataset.environment===next.id;button.setAttribute('aria-selected',String(active));button.tabIndex=active?0:-1;});
@@ -464,10 +506,13 @@ $('jump-outcome').onclick=()=>{
 };
 $('show-uncertainty').onchange=()=>updatePaths(true);
 $('show-swept').onchange=()=>updatePaths(true);
-$('reachability-time').oninput=event=>{reachTime=Number(event.target.value);setReachPlaying(false);updatePaths(true);};
+$('reachability-time').oninput=event=>{reachTime=Number(event.target.value);setReachPlaying(false);updatePaths(true);if(view==='candidate-tube')fitCandidateTube(getEpoch()?.epoch.candidates[selectedCandidate]);};
 $('play-reachability').onclick=()=>{if(!reachState)return;if(reachTime>=reachState.inspectionEnd)reachTime=0;setReachPlaying(!reachPlaying);updatePaths(true);};
-$('show-all-reachability').onclick=()=>{reachTime=Number.POSITIVE_INFINITY;setReachPlaying(false);updatePaths(true);};
-$('restart-reachability').onclick=()=>{reachTime=0;setReachPlaying(false);updatePaths(true);};
+$('show-all-reachability').onclick=()=>{reachTime=Number.POSITIVE_INFINITY;setReachPlaying(false);updatePaths(true);view='candidate-tube';fitCandidateTube(getEpoch()?.epoch.candidates[selectedCandidate]);};
+$('show-two-seconds').onclick=()=>{reachTime=2;setReachPlaying(false);updatePaths(true);view='candidate-tube';fitCandidateTube(getEpoch()?.epoch.candidates[selectedCandidate]);};
+$('retry-full-tube').onclick=()=>{fullTubeStore=new FullTubeStore(fullTubeStore.base,undefined,data.source_recording_sha256);fullTubeRequestKey=null;updatePaths(true);};
+$('tube-extent').onchange=()=>{reachKey=null;setReachPlaying(false);updatePaths(true);if(view==='candidate-tube')fitCandidateTube(getEpoch()?.epoch.candidates[selectedCandidate]);};
+$('restart-reachability').onclick=()=>{reachTime=0;setReachPlaying(false);updatePaths(true);if(view==='candidate-tube')fitCandidateTube(getEpoch()?.epoch.candidates[selectedCandidate]);};
 $('show-rejected').onchange=()=>updatePaths(true);
 $('focus-rejection').onclick=focusRejection;
 $('focus-tube').onclick=focusCandidateTube;
@@ -479,7 +524,7 @@ function showError(error){console.error(error);$('environment-content').setAttri
 function frame(now){requestAnimationFrame(frame);const delta=Math.min((now-lastFrame)/1000,.1);lastFrame=now;if(data&&playing){time+=delta*Number($('playback-speed').value);if(time>=data.samples.at(-1).time)setPlaying(false);updateTime();}if(data&&reachPlaying&&reachState){reachTime=Math.min(reachState.inspectionEnd,reachTime+delta*Number($('reachability-speed').value));const ended=reachTime>=reachState.inspectionEnd;if(ended)setReachPlaying(false);if(ended||now-reachLastDraw>=50){reachLastDraw=now;updatePaths(true);}}if(playing)rotors.forEach((r,i)=>r.rotation.z+=(i%2?1:-1)*delta*60);controls?.update();if(renderer)renderer.render(scene,camera);}
 try{
   initScene();requestAnimationFrame(frame);
-  const response=await fetch('./data/environments.json?v=12',{cache:'no-cache'});if(!response.ok)throw new Error('Environment recordings are unavailable.');
+  const response=await fetch('./data/environments.json?v=13',{cache:'no-cache'});if(!response.ok)throw new Error('Environment recordings are unavailable.');
   const environments=await response.json();
   $('environments').replaceChildren(...environments.map(item=>{
     const button=document.createElement('button');button.type='button';button.id=`${item.id}-tab`;button.dataset.environment=item.id;button.setAttribute('role','tab');button.setAttribute('aria-controls','environment-content');button.setAttribute('aria-selected','false');button.tabIndex=-1;
