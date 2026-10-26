@@ -36,6 +36,12 @@ export function withDiffReachScenario(runs) {
   return runs.some(run=>run.mode==='diffreach')?runs:[...runs,{file:'diffreach-7-neural.json',label:scenarios[4].label,mode:'diffreach'}];
 }
 export function scenarioFor(record) {
+  if(record.method==='diffreach-robotics-matched')return {...scenarios[4],
+    title:'Gatekeeper + matched DiffReach controller and dynamics',
+    dynamics:'12-state base model + velocity-dependent acceleration residual',
+    description:'MPPI chooses desired velocity commands. Six candidates combine racing and course-following backup commands, and DiffReach propagates the same neural feedback controller that actually flies the simulated drone. The prediction model is the base quadrotor model plus a learned acceleration residual; the ground-truth simulator uses the actual residual. The model and controller remain fixed during this flight.',
+    observe:'Use the flight timeline to inspect successive Gatekeeper updates, then select a switching time. Every candidate has a complete 2.5-second tube. Purple shows the reachable position sets; red marks the first failed check, if any. The width chart shows small bounds in millimetres without enlarging them in 3D.',
+    limitation:'Conditional finite-horizon numerical enclosures, with exact measured state and data/Lipschitz residual bounds. No formal floating-point or indefinite-safety certificate. Processing delays are measured but not simulated.'};
   if(record.mode==='diffreach')return scenarios[4];
   const enabled=record.gatekeeper_enabled??!['unfiltered','nominal'].includes(record.mode);
   return scenarios[enabled?1:record.plant_mode==='base'?2:3];
@@ -54,6 +60,7 @@ export function describeScenario(record) {
   if(course?.radial_modulation&&record.planner_settings)$('scenario-course-note').textContent+=` Faster MPCC setting: progress weight ${record.planner_settings.progress}, contouring-error weight ${record.planner_settings.contour}. This rewards more progress and penalizes distance from the course centerline less than the previous setting. All three scenarios use these weights.`;
   if(record.track.layout==='stacked')$('scenario-course-note').textContent=`Seven ${course.gate_width.toFixed(1)} × ${course.gate_height.toFixed(1)} m gates, with at least 6.4 m between non-stacked gate centers. Gates 4 and 5 form the left-hand stacked pair at 4.80 and 1.90 m. Gate 2 is on the right; Gates 3 and 6 are toward the front; Gates 1 and 7 are farther back. A short descending turn connects the stacked gates. The course follows a smooth curve through these explicit locations and connecting turns, reconstructed from the reference image. The simulator, planner and Gatekeeper use the same geometry. MPCC progress weight ${record.planner_settings.progress}; contouring-error weight ${record.planner_settings.contour}. All three scenarios use the same settings.`;
   if(record.mode==='diffreach')$('scenario-course-note').textContent=$('scenario-course-note').textContent.replaceAll('all three scenarios','the original three scenarios').replaceAll('All three scenarios','The original three scenarios');
+  if(record.method==='diffreach-robotics-matched')$('scenario-course-note').textContent=`${record.track.name}: the existing ${course.gate_count}-gate geometry is retained. Scenario 4 now uses the matched 12-state DiffReach method. Scenarios 1–3 retain the earlier 14-state recordings and are not a controlled comparison with this new method.`;
   const outcome=record.outcome;
   $('scenario-outcome').textContent=outcome?`${outcome.label} · ${outcome.time.toFixed(2)} s${outcome.kind==='completed'?` · ${record.metrics.gates_passed} ${record.metrics.gates_passed===1?'gate':'gates'} passed`:''}`:'';
   $('scenario-outcome').classList.toggle('contact',outcome?.kind==='gate_contact');

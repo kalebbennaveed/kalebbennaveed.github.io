@@ -4,20 +4,26 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <title>DiffReach · racing candidate benchmark</title>
-  <link rel="stylesheet" href="authors-racing.css">
+  <link rel="stylesheet" href="authors-racing.css?v=2">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/controls/OrbitControls.js":"./vendor/OrbitControls.js"}}</script>
 </head>
 <body>
-  <header><a href="./">← Racing replay</a><span>DIFFREACH · CANDIDATE BENCHMARK</span><strong>Recorded candidate benchmark</strong></header>
-  <section class="intro"><div><p class="eyebrow">MATCHED NEURAL CONTROLLER AND DRONE MODEL</p><h1>From a racing plan to a reachable tube.</h1><p>One planning update. Six switching times. Every candidate is propagated for the full 2.5 seconds.</p></div>
-    <label>Test case<select id="case" aria-label="Choose benchmark case" disabled><option>Loading…</option></select></label>
+  <header><a id="replays" href="index.html?scenario=4">45-second flight replay →</a><span>DIFFREACH · 12-STATE MODEL</span><strong>Current candidate tests</strong></header>
+  <section class="intro"><div><p class="eyebrow">MATCHED NEURAL CONTROLLER AND DRONE MODEL</p><h1>Safely racing at the limits of handling.</h1><p>Inspect one planning update with the updated neural controller. Six switching times; the complete 2.5-second tube for every candidate.</p></div>
+
   </section>
+  <section class="case-picker" aria-label="Course and scenario">
+    <div><span class="eyebrow">COURSE</span><div id="courses" role="tablist" aria-label="Choose candidate course"><button id="oval-tab" role="tab" data-course="oval" aria-selected="true">Oval course</button><button id="stacked-tab" role="tab" data-course="stacked" aria-selected="false" tabindex="-1">Stacked gates</button></div></div>
+    <label>Scenario<select id="case" aria-label="Choose benchmark case" disabled><option>Loading…</option></select></label>
+    <p id="course-note" class="note"></p>
+  </section>
+  <p class="scope-note">These are single-update experiments with a fixed learned model, not a new closed-loop flight recording. The integrated 45-second flights on both original courses are available above.</p>
   <p id="error" role="alert" hidden></p>
   <main inert aria-busy="true">
     <section class="visual" aria-label="Candidate trajectory and complete reachable tube">
       <canvas id="scene" aria-label="Interactive 3D reachable tube"></canvas>
       <div class="view-buttons"><button id="course-view">Course</button><button id="tube-view">Full tube</button><button id="set-view">Current set</button></div>
-      <div class="caption"><strong id="scene-caption">Loading candidate…</strong><span>Drag to orbit · scroll to zoom · dimensions in metres</span></div>
+      <div class="caption"><strong id="scene-caption">Loading candidate…</strong><span>Drag to orbit · scroll to zoom · true spatial scale</span></div>
       <div class="legend"><span><i class="purple"></i>Position bounds</span><span><i class="cyan"></i>Predicted path</span><span><i class="orange"></i>Simulated paths</span><span><i class="red"></i>First failed check</span></div>
     </section>
     <aside>
@@ -25,22 +31,30 @@
       <p id="decision" class="decision" aria-live="polite"></p><p id="reason"></p>
       <p id="case-note"></p><p id="clearance" class="note"></p>
       <details class="selection"><summary>Startup and next update</summary><p id="selection"></p><button id="show-startup">Inspect zero-switch startup</button></details>
+      <label class="check"><input id="show-drone" type="checkbox"> Show enlarged drone illustration</label>
+      <p class="note">The illustration is enlarged for visibility. Collision checks use a 0.16 m body radius. The purple position bounds are never enlarged.</p>
+    </aside>
+  </main>
+  <section class="evolution" aria-label="Reachable-set evolution">
+    <div class="time-panel">
       <label for="time">Inspect a reachable set <strong id="clock">+0.00 s</strong></label>
       <input id="time" type="range" min="0" max="2.5" step=".01" value="0" aria-label="Reachable set time">
       <div class="play-controls"><button id="play">▶ Evolve sets</button><button id="failure">First failed check</button></div>
       <p class="note">The full tube stays visible while the white box moves through it. Rejection does not truncate the calculation.</p>
       <label class="check"><input id="samples" type="checkbox" checked> Show independent simulated trajectories</label>
       <label class="check"><input id="slabs" type="checkbox" checked> Include bounds between samples</label>
-      <h2>Width of the current set</h2><p id="dimensions"></p>
+    </div>
+    <div class="width-panel"><h2>Position uncertainty through the whole candidate</h2><p id="width-summary"></p><canvas id="width-chart" aria-label="Full position-set widths versus candidate time"></canvas><p class="note">Full width = upper bound − lower bound. Blue: x · purple: y · gold: z. Red marks the first failed check; the curves continue to 2.5 s. Click the plot to inspect that time.</p></div>
+    <div class="section-panel"><h2>Width at the selected time</h2><p id="dimensions"></p>
       <canvas id="section" aria-label="Position uncertainty cross-section at selected time"></canvas>
       <p class="note">World y–z section of the endpoint box, centered on its midpoint. Axes show millimetres; orange points are simulations at the same time.</p>
-    </aside>
-  </main>
+    </div>
+  </section>
   <section class="facts"><article><h2>Measured computation time</h2><p id="timing-scope">One update, including all six candidates. Warm CPU calls; initial compilation is reported separately in the saved report.</p><dl id="timing"></dl></article>
     <article><h2>Containment check</h2><p id="containment"></p><p id="validity"></p><p class="note">Monte Carlo is a test for missed trajectories, not a proof. Failed Picard steps are shown in gray and are not called reachable bounds.</p></article>
-    <article><h2>What is being checked?</h2><p>MPPI chooses velocity commands using the base model plus learned acceleration residual. Each candidate follows those commands, then a slower course-following velocity schedule. The same neural feedback controller produces thrust and torque during prediction, verification and simulation.</p><p>The model-error bound is evaluated over each velocity region. Uncertainty is injected into acceleration and propagated through all 12 states.</p></article>
+    <article><h2>What is being checked?</h2><p>MPPI chooses velocity commands using the base model plus learned acceleration residual. Each candidate follows those commands, then a slower course-following velocity schedule. The same neural feedback controller produces thrust and torque during prediction, verification and simulation.</p><p>The model-error bound is evaluated over each velocity region. Uncertainty is injected into acceleration and propagated through all 12 states.</p><p id="bound-data"></p></article>
   </section>
   <details class="scope"><summary>Model, assumptions and limits</summary><p>The controller has the DiffReach authors’ architecture with locally trained weights. The matching 12-state plant uses position, velocity, Euler angles and body angular rates, with thrust and roll/pitch torque commands. It is a different model from the existing 14-state racing replay.</p><p>Initial state is exact. Position inputs to the network use a fixed origin at the start of the candidate. Velocity commands and that origin stay identical during verification and execution. The backup schedule is generated using predicted course-following motion; it is then followed by the neural controller.</p><p>The residual is learned from exact acceleration data. Its global smoothness bounds are known in this controlled experiment. Stronger residual cases scale the simulated residual, learned model and error bounds together.</p><p>These are finite-horizon numerical enclosures. Floating-point rounding is not formally certified, and no terminal invariant-set or indefinite backup-safety proof has been established. The zero-switch startup is available under the stated startup assumption even if its numerical check fails; later candidates get no such override. No closed-loop racing episode or online retraining is claimed by this page.</p></details>
-  <script type="module" src="authors-racing.js"></script>
+  <script type="module" src="authors-racing.js?v=2"></script>
 </body>
 </html>

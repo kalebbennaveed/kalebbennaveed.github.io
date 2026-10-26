@@ -4,7 +4,7 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Safely racing at the limits of handling</title>
   <meta name="robots" content="noindex,nofollow">
-  <link rel="stylesheet" href="styles.css?v=15">
+  <link rel="stylesheet" href="styles.css?v=matched-15">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/controls/OrbitControls.js":"./vendor/OrbitControls.js"}}</script>
 </head>
 <body>
@@ -29,6 +29,7 @@
     <div><span class="eyebrow">SCENARIO 4 · REACHABLE SETS</span><h2 id="diffreach-title">What these bounds establish</h2><p id="diffreach-outcome-note"></p><p id="recording-compute-summary"></p></div>
     <div><p>The nonlinear state equations and feedback controller are enclosed using affine arithmetic and Picard flow bounds. The model-error allowance must hold throughout each queried region, and the initial-state and measurement-error limits must hold.</p><p><strong>Reachable tube.</strong> Purple boxes bound position at and between control updates. Red marks the first failed check. The default view continues the bound through the <strong>entire candidate</strong>, using a separate offline calculation. Rejection still occurs at the original red marker. The longest candidate has 2 seconds of racing followed by 3.5 seconds of backup. Use <strong>First 2 seconds</strong> or <strong>Entire candidate</strong> to inspect the actual scale; distant bounds can become much wider than the course.</p><p><strong>Numerical limitation.</strong> This implementation uses floating-point calculations without a formal roundoff certificate. The offline continuation uses the declared error-smoothness assumption beyond the rejected region; its validity there has not been established. A successful finite-horizon check is not an infinite-time safety guarantee; a rejected check does not prove a collision will occur.</p></div>
   </section>
+  <p id="matched-run-summary" class="matched-run-summary" hidden></p>
   <main>
     <section class="scene-panel" aria-label="Interactive 3D drone racing replay">
       <canvas id="scene" aria-label="3D course showing the drone, candidates and committed trajectory"></canvas>
@@ -72,6 +73,7 @@
           <div class="reachability-actions"><button id="show-two-seconds" type="button">First 2 seconds</button><button id="show-all-reachability" type="button">Entire candidate</button></div>
           <button id="focus-tube" type="button">View candidate tube</button>
           <p id="reachability-status" aria-live="polite"></p>
+
           <p class="reachability-key">Purple: computed reachable tube. White: current set. Red: first failed check only. Gray: reference beyond the computed enclosure, if any.</p>
           <p>This cursor inspects a prediction; it does not move the drone or advance the flight replay.</p>
         </div>
@@ -93,6 +95,7 @@
       <canvas id="speed-chart" height="95" aria-label="Measured flight speed over time"></canvas>
       <div class="assurance"><span class="assurance-icon">i</span><p id="assurance-text">Loading verification status.</p></div>
     </aside>
+    <section id="tube-profile-panel" class="tube-profile-panel" aria-label="Candidate tube dimensions"><canvas id="tube-width-chart" style="width:100%;height:155px" aria-label="Position tube width along the full candidate"></canvas><p id="tube-width-caption"></p></section>
     <section class="playback" aria-label="Playback controls">
       <button id="play" class="play-button" aria-label="Play replay">▶</button><button id="restart" class="restart-button" aria-label="Restart replay">↺</button>
       <span id="clock">00:00.00 <em>/ 00:00.00</em></span>
@@ -101,6 +104,17 @@
       <button id="next-decision">Next decision →</button>
     </section>
   </main>
+  <section class="method-panel" id="matched-method" hidden aria-label="Matched DiffReach method">
+    <span class="eyebrow">METHOD USED BY THIS FLIGHT</span><h2>One controller and one prediction model throughout the calculation</h2>
+    <ol class="method-steps">
+      <li><strong>Base model and learned residual.</strong><p>The base model is the DiffReach-Robotics 12-state thrust/torque quadrotor: position, velocity, roll/pitch/yaw and body angular rates. A learned function of velocity supplies the acceleration correction. The ground-truth simulator uses the same base equations with the actual residual instead.</p></li>
+      <li><strong>MPPI and the candidate commands.</strong><p>MPPI searches over desired world-velocity commands. Each candidate follows those commands for 2, 1.5, 1, 0.5, 0.2 or 0 seconds, followed by course-following backup commands. Every candidate lasts 2.5 seconds. The command schedule is fixed once generated.</p></li>
+      <li><strong>Neural feedback and reachable sets.</strong><p>The controller takes the drone state and desired velocity and produces thrust and roll/pitch torque every 0.05 seconds. DiffReach encloses that same feedback network and the nonlinear dynamics. The data-and-distance error bound is queried over the entire velocity region and enters only the acceleration equations. There is no additional independent disturbance.</p></li>
+      <li><strong>Check, select and execute.</strong><p>Gatekeeper checks all 250 time intervals of each candidate against gate frames, floor and ceiling, including the drone’s 0.16 m collision radius. It selects the longest passing racing segment. A rejection retains the previous commitment, including its original controller coordinates and command schedule. The initial commitment uses zero switching time. The simulation ends if the finite commitment expires without a passing replacement; no emergency stopping manoeuvre is implied.</p></li>
+    </ol>
+    <p class="method-direct">The controller and residual were trained before these flights and remain fixed during them. The state at each planning update is known exactly. The simulator advances with a 0.001 s RK4 step, independently of the 0.01 s tube calculation.</p>
+    <p class="knowledge-note">These are finite-horizon numerical enclosures conditional on the measured-data and Lipschitz assumptions. There is no formal floating-point rounding certificate or invariant terminal-set proof. Planning runs synchronously in simulated time; measured processing delay is not inserted into the flight. Completing this replay does not establish a real-time or indefinite safety guarantee.</p>
+  </section>
   <section class="method-panel" id="method" aria-label="How the controller generates a flight">
     <span class="eyebrow">CURRENT IMPLEMENTATION</span><h2>How the flight is generated</h2>
     <div class="model-definitions">
@@ -139,7 +153,7 @@
   </section>
   </div>
   <footer><span>JAX MPPI <b>·</b> ONLINE RESIDUAL LEARNING <b>·</b> GATEKEEPER</span><span id="recording-note">Actual simulation recordings. No scripted flight animation.</span></footer>
-  <script type="module" src="app.js?v=19"></script>
+  <script type="module" src="app.js?v=21"></script>
   <script type="module" src="performance.js?v=6"></script>
 </body>
 </html>

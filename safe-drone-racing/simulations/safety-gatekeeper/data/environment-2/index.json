@@ -15,7 +15,7 @@
     "mode": "unfiltered"
   },
   {
-    "file": "diffreach-7-neural.json",
+    "file": "diffreach-matched.json",
     "label": "Scenario 4 \u00b7 Gatekeeper + DiffReach \u2014 uncertain dynamics",
     "mode": "diffreach"
   }
