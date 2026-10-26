@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dual-gatekeeper | Safe Dual Control with Active Exploration</title>
+  <meta name="description" content="Trajectory Planning for Safe Dual Control with Active Exploration. Dual-gatekeeper combines task execution, active uncertainty reduction, safety verification, and an explicit exploration budget.">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="canonical" href="https://kalebbennaveed.github.io/dual-gtk/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://kalebbennaveed.github.io/dual-gtk/">
+  <meta property="og:title" content="Trajectory Planning for Safe Dual Control with Active Exploration">
+  <meta property="og:description" content="Safe, budget-constrained active exploration for drone navigation and autonomous racing.">
+  <meta property="og:image" content="https://kalebbennaveed.github.io/dual-gtk/assets/racing-and-navigation.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <script src="page.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#overview">Skip to overview</a>
+  <main>
+    <header class="paper-header wrap" id="top">
+      <p class="project-name">Dual-gatekeeper</p>
+      <h1><span>Trajectory Planning for Safe Dual Control</span><span>with Active Exploration</span></h1>
+      <div class="authors" aria-label="Authors">
+        <span><a href="https://kalebbennaveed.github.io/">Kaleb Ben Naveed</a><sup>1</sup></span>
+        <span>Manveer Singh<sup>1</sup></span>
+        <span>Devansh R. Agrawal<sup>1</sup></span>
+        <span>Dimitra Panagou<sup>1,2</sup></span>
+      </div>
+      <p class="university">University of Michigan, Ann Arbor</p>
+      <p class="affiliations"><span><sup>1</sup> Department of Robotics</span><span><sup>2</sup> Department of Aerospace Engineering</span></p>
+      <nav class="resources" aria-label="Paper resources and demonstrations">
+        <a class="resource" href="https://arxiv.org/abs/2604.15507" target="_blank" rel="noopener" aria-label="Read the paper on arXiv">
+          <img src="assets/icons/arxiv.svg" width="22" height="22" alt="">
+          <span>arXiv</span>
+        </a>
+        <button class="resource pending" type="button" disabled aria-label="GitHub code, to appear">
+          <img src="assets/icons/github.svg" width="21" height="21" alt="">
+          <span>Code <small>To appear</small></span>
+        </button>
+        <a class="resource" href="#video">
+          <img src="assets/icons/youtube.svg" width="23" height="23" alt="">
+          <span>Video</span>
+        </a>
+        <a class="resource" href="https://kalebbennaveed.github.io/dual-gtk-carracing/" target="_blank" rel="noopener">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m5 10 2-5h10l2 5M4 17H3V11l2-1h14l2 1v6h-1M5 17h14M7 17v3H4v-3m16 0v3h-3v-3"/><path d="M6 13h3m6 0h3"/></svg>
+          <span>Autonomous racing</span>
+        </a>
+        <a class="resource" href="https://kalebbennaveed.github.io/dual-gtk-drone/" target="_blank" rel="noopener">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="9" y="9" width="6" height="6" rx="1"/><path d="m9 9-3-3m9 3 3-3m-9 9-3 3m9-3 3 3"/><ellipse cx="5" cy="5" rx="4" ry="2.5"/><ellipse cx="19" cy="5" rx="4" ry="2.5"/><ellipse cx="5" cy="19" rx="4" ry="2.5"/><ellipse cx="19" cy="19" rx="4" ry="2.5"/></svg>
+          <span>Drone navigation</span>
+        </a>
+      </nav>
+    </header>
+
+    <figure class="teaser wrap">
+      <a class="figure-zoom" href="assets/racing-and-navigation.webp" data-figure data-caption="Autonomous racing and drone navigation, with committed informative trajectories highlighted in the insets." aria-label="Enlarge the autonomous racing and drone navigation figure">
+        <img src="assets/racing-and-navigation.webp" width="2200" height="1983" fetchpriority="high" alt="Two simulation scenes: a racing car on a circuit above, and a drone navigating walls and columns below. Insets show informative trajectories in orange; mission motion is teal.">
+      </a>
+      <figcaption>Active exploration within the mission. Committed informative trajectories reduce tire-friction uncertainty in autonomous racing and aerodynamic-drag uncertainty in drone navigation.</figcaption>
+    </figure>
+
+    <section class="section wrap" id="video" aria-labelledby="video-title">
+      <div class="section-heading">
+        <div><p class="eyebrow">See the framework in motion</p><h2 id="video-title">Supplementary video</h2></div>
+        <a class="text-link" href="https://youtu.be/l-pxMYxoITU" target="_blank" rel="noopener"><img src="assets/icons/youtube.svg" width="20" height="20" alt=""> Watch on YouTube <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="video-frame">
+        <iframe src="https://www.youtube-nocookie.com/embed/l-pxMYxoITU?rel=0" title="Supplementary video: Trajectory Planning for Safe Dual Control with Active Exploration" width="1120" height="630" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+      <p class="video-note">Autonomous racing and drone navigation, including informative trajectories and comparisons with passive, weighted-information, and no-learning baselines.</p>
+    </section>
+
+    <section class="section overview" id="overview" aria-labelledby="overview-title">
+      <div class="reading-width">
+        <p class="eyebrow">The central idea</p>
+        <h2 id="overview-title">Learn the dynamics while completing the task.</h2>
+        <p class="lead">Uncertain dynamics can make safe motion conservative. Deliberately informative motion can reduce that uncertainty, but it also takes time and effort. When should a robot explore?</p>
+        <p><strong>Dual-gatekeeper</strong> treats exploration as a decision to verify before execution. The framework considers conservative and informative candidate trajectories, checks their safety and budget feasibility, and selects a feasible informative candidate using its predicted uncertainty reduction. Otherwise, it retains the backup policy.</p>
+        <p>Measurements collected during execution update the admissible model-parameter set through <strong>set-membership identification (SMID)</strong>. The robot then replans with the updated uncertainty set. The same decision framework supports both deterministic and probabilistic safety verification.</p>
+      </div>
+    </section>
+
+    <section class="section wrap" id="method" aria-labelledby="method-title">
+      <div class="section-heading"><div><p class="eyebrow">Method overview</p><h2 id="method-title">From candidate trajectories to a committed decision</h2></div></div>
+      <figure class="paper-figure">
+        <a class="figure-zoom" href="assets/framework-sequence.webp" data-figure data-caption="Illustrative trajectory-space view of candidate generation, verification, commitment, and replanning." aria-label="Enlarge the framework sequence figure"><img src="assets/framework-sequence.webp" width="2200" height="578" loading="lazy" alt="Five panels show a backup trajectory, conservative and informative candidates, rejected unsafe candidates, a selected candidate, and an updated backup plan."></a>
+        <figcaption>Candidate generation, rejection, commitment, and replanning. The physical scene is an illustration of trajectories in state space.</figcaption>
+      </figure>
+      <ol class="method-steps">
+        <li><span class="step-number">01</span><div><h3>Generate candidate pairs</h3><p>Construct conservative and informative alternatives over candidate horizons using the current model estimate and uncertainty set.</p></div></li>
+        <li><span class="step-number">02</span><div><h3>Verify safety and budget feasibility</h3><p>Check the prescribed safety conditions, including the transition to the backup or fallback policy, and reject candidates that exceed the remaining exploration budget.</p></div></li>
+        <li><span class="step-number">03</span><div><h3>Commit an informative trajectory</h3><p>Rank feasible informative candidates by predicted uncertainty reduction, discounted by horizon length. Retain the backup policy when no suitable informative candidate is available.</p></div></li>
+        <li><span class="step-number">04</span><div><h3>Update the uncertainty set</h3><p>Use the collected measurements to refine the SMID parameter set, update the plan, and repeat the decision process during the mission.</p></div></li>
+      </ol>
+      <aside class="budget-note"><span class="budget-mark" aria-hidden="true">B</span><div><h3>An explicit exploration budget</h3><p>The budget limits the cumulative additional <em>predicted</em> mission cost of informative motion relative to its paired conservative alternative. Feasible candidates can reduce uncertainty while respecting this mission-level allowance.</p></div></aside>
+    </section>
+
+    <section class="section safety-section" id="safety" aria-labelledby="safety-title">
+      <div class="wrap">
+        <div class="section-heading"><div><p class="eyebrow">Two safety instantiations</p><h2 id="safety-title">One decision framework, different verification methods</h2></div></div>
+        <div class="safety-columns">
+          <article><p class="case-label">Deterministic · Drone navigation</p><h3>Robust tube verification</h3><p>Robust tubes bound closed-loop trajectories for all model parameters and disturbances within the stated bounds. An informative candidate must satisfy the constraints throughout execution and safely rejoin the backup tube.</p></article>
+          <article><p class="case-label">Probabilistic · Autonomous racing</p><h3>Sampling-based verification</h3><p>Sampled closed-loop rollouts evaluate each candidate and its fallback transition. An exact binomial upper confidence bound is compared with the allowed failure tolerance under the assumed uncertainty distribution.</p></article>
+        </div>
+        <figure class="paper-figure">
+          <a class="figure-zoom" href="assets/safety-instantiations.webp" data-figure data-caption="Tube-based and sampled-rollout representations used by the two safety instantiations." aria-label="Enlarge the two safety instantiations figure"><img src="assets/safety-instantiations.webp" width="2200" height="490" loading="lazy" alt="Left: a nominal trajectory enclosed by a robust tube. Right: sampled closed-loop trajectories under uncertain dynamics."></a>
+          <figcaption>The tube-based representation and the sampled-rollout representation. Probabilistic safety allows a prescribed failure probability; it does not assert that every realization is safe.</figcaption>
+        </figure>
+        <details class="policy-details">
+          <summary>How racing candidates connect to the fallback policy <span aria-hidden="true">+</span></summary>
+          <p>Both conservative and informative racing candidates include their transition to a fallback policy. Each candidate policy is verified before commitment; nominal performance alone does not establish safety.</p>
+          <a class="figure-zoom" href="assets/racing-candidate-policies.webp" data-figure data-caption="Prerequisite, candidate, and committed policies in the probabilistic instantiation." aria-label="Enlarge the racing candidate policies figure"><img src="assets/racing-candidate-policies.webp" width="2200" height="338" loading="lazy" alt="Fallback and nominal policies generate conservative and informative candidates. Unsafe candidates are rejected, leaving verified candidates for commitment."></a>
+        </details>
+      </div>
+    </section>
+
+    <section class="section wrap demos" id="demonstrations" aria-labelledby="demos-title">
+      <div class="section-heading"><div><p class="eyebrow">Explore the simulations</p><h2 id="demos-title">Two tasks with uncertain dynamics</h2></div></div>
+      <figure class="paper-figure">
+        <a class="figure-zoom" href="assets/simulation-scenarios.webp" data-figure data-caption="Three drone navigation scenarios and racing trajectories from the paper. Orange highlights informative trajectory segments." aria-label="Enlarge the simulation scenarios figure"><img src="assets/simulation-scenarios.webp" width="2200" height="402" loading="lazy" alt="Three drone obstacle configurations alongside a racing circuit comparing proposed, passive, and weighted-information trajectories, with two track close-ups."></a>
+        <figcaption>Scenarios and trajectory comparisons from the paper. Orange highlights informative motion; teal shows mission motion.</figcaption>
+      </figure>
+      <div class="demo-columns">
+        <article><span class="demo-index">01 / Autonomous racing</span><h3>Learn tire–road friction on the circuit.</h3><p>Informative trajectories excite the vehicle dynamics to reduce friction uncertainty. The racing demo compares the proposed method with passive learning, different information weights, and no learning.</p><a class="demo-link" href="https://kalebbennaveed.github.io/dual-gtk-carracing/" target="_blank" rel="noopener">Open the racing demo <span aria-hidden="true">↗</span></a></article>
+        <article><span class="demo-index">02 / Drone navigation</span><h3>Learn aerodynamic drag around obstacles.</h3><p>A quadrotor navigates walls and columns while reducing drag uncertainty. Three scenarios show how informative trajectories and updated uncertainty bounds interact with the navigation task.</p><a class="demo-link" href="https://kalebbennaveed.github.io/dual-gtk-drone/" target="_blank" rel="noopener">Open the drone demo <span aria-hidden="true">↗</span></a></article>
+      </div>
+    </section>
+    <section class="section citation-section wrap" id="citation" aria-labelledby="citation-title">
+      <div class="section-heading"><div><p class="eyebrow">Reference</p><h2 id="citation-title">Citation</h2></div><button id="copy-citation" class="copy-button" type="button">Copy BibTeX</button></div>
+      <pre><code id="bibtex">@misc{naveed2026dualgtk,
+  title={Trajectory Planning for Safe Dual Control with Active Exploration},
+  author={Kaleb Ben Naveed and Manveer Singh and Devansh R. Agrawal and Dimitra Panagou},
+  year={2026},
+  eprint={2604.15507},
+  archivePrefix={arXiv},
+  primaryClass={cs.RO},
+  url={https://arxiv.org/abs/2604.15507}
+}</code></pre>
+      <span id="copy-status" class="copy-status" role="status" aria-live="polite"></span>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-content"><div><img class="michigan-logo" src="assets/michigan-robotics.svg" width="220" height="45" alt="Michigan Robotics"><p>Trajectory Planning for Safe Dual Control<br>with Active Exploration</p></div><a href="#top">Back to top <span aria-hidden="true">↑</span></a></div>
+    <p class="footer-credit wrap">Original figures from the paper. Resource icons: <a href="https://simpleicons.org/" target="_blank" rel="noopener">Simple Icons</a>.</p>
+  </footer>
+
+  <dialog id="figure-dialog" aria-labelledby="figure-caption">
+    <button id="close-figure" type="button" aria-label="Close enlarged figure">Close <span aria-hidden="true">×</span></button>
+    <div class="dialog-image"><img id="enlarged-figure" alt=""></div>
+    <p id="figure-caption"></p>
+  </dialog>
+</body>
+</html>
