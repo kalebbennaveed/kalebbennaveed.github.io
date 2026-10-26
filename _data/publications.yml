@@ -2,10 +2,11 @@
   title: "Trajectory Planning for Safe Dual Control with Active Exploration"
   authors: "<strong>Kaleb Ben Naveed</strong>, Manveer Singh, Devansh R. Agrawal, Dimitra Panagou"
   venue: "Under Review, 2026"
-  image: "/tro_dual_gtk/assets/dual_gatekeeper_tro_thumbnail.png"
+  image: "/dual-gtk/assets/publication-preview.gif"
   links:
     pdf: "https://arxiv.org/abs/2604.15507"
-    website: "/tro_dual_gtk/"
+    video: "https://youtu.be/l-pxMYxoITU"
+    website: "/dual-gtk/"
 
 - year: 2026
   title: "Provably Safe Stein Variational Clarity-Aware Informative Planning"
