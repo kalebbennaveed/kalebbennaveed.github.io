@@ -29,7 +29,7 @@ h1 span{display:block}
 .resource.pending img{filter:none;opacity:.7}
 .resource.pending:hover{transform:none;background:#edf0f2}
 .resource small{font-size:11px;display:inline-block;margin-left:5px;color:#626972}
-.teaser{max-width:1000px;margin-top:3px;margin-bottom:0}
+.teaser{max-width:640px;margin-top:3px;margin-bottom:0}
 .figure-zoom{display:block;cursor:zoom-in;border-radius:3px;overflow:hidden}
 .figure-zoom:hover{text-decoration:none}
 .figure-zoom img{display:block;width:100%}
