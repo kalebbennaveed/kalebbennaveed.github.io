@@ -4,7 +4,7 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Safely racing at the limits of handling</title>
   <meta name="robots" content="noindex,nofollow">
-  <link rel="stylesheet" href="styles.css?v=matched-15">
+  <link rel="stylesheet" href="styles.css?v=matched-16">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/controls/OrbitControls.js":"./vendor/OrbitControls.js"}}</script>
 </head>
 <body>
@@ -37,6 +37,7 @@
       <div class="camera-bar" role="group" aria-label="Camera views"><button data-view="overview" class="active">Orbit</button><button data-view="follow">Follow</button><button data-view="drone">Drone</button><button data-view="top">Top</button><button id="camera-tube" hidden aria-label="View selected candidate tube">Tube</button><button id="reset-camera" aria-label="Reset camera">↺</button></div>
       <div class="scene-help">DRAG TO ORBIT <span>·</span> SCROLL TO ZOOM</div>
       <div class="speed-hud"><span id="speed-value">0.0</span><span class="speed-unit">m/s<small>FLIGHT SPEED</small></span></div>
+      <div id="flight-readout" class="flight-readout" hidden></div>
       <div id="contact-badge" hidden role="status"></div>
       <div class="uncertainty-badge" id="uncertainty-badge"><strong id="bounds-label">POSITION UNCERTAINTY</strong><span id="bounds-caption">Loading recorded bounds…</span></div>
       <div class="scene-legend">
@@ -96,6 +97,10 @@
       <div class="assurance"><span class="assurance-icon">i</span><p id="assurance-text">Loading verification status.</p></div>
     </aside>
     <section id="tube-profile-panel" class="tube-profile-panel" aria-label="Candidate tube dimensions"><canvas id="tube-width-chart" style="width:100%;height:155px" aria-label="Position tube width along the full candidate"></canvas><p id="tube-width-caption"></p></section>
+    <section id="flight-diagnostics" class="flight-diagnostics" hidden aria-label="Measured motion and requested motion">
+      <div><h3>Requested and actual speed</h3><p>Desired velocity sent to the neural controller and measured speed. These are the commands that were accepted.</p><canvas id="command-speed-chart" aria-label="Requested and actual speed over the flight"></canvas></div>
+      <div><h3>Altitude through the course</h3><p>Measured altitude and the accepted candidate’s predicted altitude, both in world coordinates.</p><canvas id="altitude-chart" aria-label="Measured and predicted altitude over the flight"></canvas></div>
+    </section>
     <section class="playback" aria-label="Playback controls">
       <button id="play" class="play-button" aria-label="Play replay">▶</button><button id="restart" class="restart-button" aria-label="Restart replay">↺</button>
       <span id="clock">00:00.00 <em>/ 00:00.00</em></span>
@@ -153,7 +158,7 @@
   </section>
   </div>
   <footer><span>JAX MPPI <b>·</b> ONLINE RESIDUAL LEARNING <b>·</b> GATEKEEPER</span><span id="recording-note">Actual simulation recordings. No scripted flight animation.</span></footer>
-  <script type="module" src="app.js?v=21"></script>
+  <script type="module" src="app.js?v=22"></script>
   <script type="module" src="performance.js?v=6"></script>
 </body>
 </html>

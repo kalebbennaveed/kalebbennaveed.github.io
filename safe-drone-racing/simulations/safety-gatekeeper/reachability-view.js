@@ -5,7 +5,9 @@ export function reachabilityFrame({bounds,initialBox,failure,referenceStart,cand
   const validated=Math.max(0,Math.min(candidateDuration,(bounds?.validated_until??referenceStart)-referenceStart));
   const failureStart=failure?.interval_offsets?.[0]??null;
   const failureEnd=failure?.interval_offsets?.[1]??null;
-  const inspectionEnd=Math.max(validated,failureEnd??0);
+  // Inspect the whole proposed reference even when only its prefix is bounded.
+  // The suffix remains explicitly unenclosed; this adds no invented sets.
+  const inspectionEnd=candidateDuration;
   const selected=Math.max(0,Math.min(inspectionEnd,elapsed));
   const absoluteTime=referenceStart+selected;
   const count=(bounds?.radii||[]).filter((_,i)=>bounds.start_time+i*dt<=absoluteTime+1e-9).length;

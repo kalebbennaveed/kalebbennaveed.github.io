@@ -67,3 +67,8 @@
 .tube-profile-panel{grid-column:1/-1;background:#191d25;border:1px solid #343a46;padding:18px 24px;color:#becadc}.tube-profile-panel p{font-size:12px;line-height:1.6;margin:8px 0 0}.tube-focus .scene-heading h1{font-size:19px;letter-spacing:0}.tube-focus .scene-heading p,.tube-focus .scene-heading .eyebrow{display:none}.tube-profile-panel[hidden]{display:none}
 
 .matched-run-summary{font-size:12px;line-height:1.65;margin:16px 24px 0;color:#becadc;max-width:1100px}
+.flight-readout{position:absolute;left:28px;bottom:142px;max-width:calc(100% - 56px);font-size:12px;color:#dce6f3;background:#151a22dd;padding:8px 11px;border-radius:4px;pointer-events:none}
+.flight-diagnostics{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:28px;padding:24px;background:#191e26;border:1px solid #313844;border-radius:8px}
+.flight-diagnostics[hidden],.flight-readout[hidden]{display:none}
+.flight-diagnostics h3{font-size:17px;margin:0 0 8px}.flight-diagnostics p{font-size:13px;color:#aebbd0;margin:0 0 12px;line-height:1.5}.flight-diagnostics canvas{width:100%;height:180px}
+@media(max-width:760px){.flight-diagnostics{grid-template-columns:1fr}.flight-readout{left:12px;max-width:calc(100% - 24px);bottom:150px;font-size:11px}}

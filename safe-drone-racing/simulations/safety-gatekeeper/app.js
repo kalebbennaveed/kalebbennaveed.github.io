@@ -1,5 +1,6 @@
-import { describeScenario, withDiffReachScenario } from './scenarios.js?v=10';
+import { describeScenario, withDiffReachScenario } from './scenarios.js?v=11';
 import { drawTubeProfile } from './tube-profile.js';
+import { drawFlightDiagnostics } from './flight-diagnostics.js';
 import { updateKnowledge } from './knowledge.js?v=5';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -161,7 +162,7 @@ function updateRejection(epoch,candidate){
     note='No failure location is recorded, so no red region is drawn.';
   }
   $('rejection-detail').textContent=detail;
-  if(matched())note+=' All later intervals were also computed; only this first failed interval is red.';
+  if(matched())note+=r.region_validated===false?' Later steps were attempted, but no enclosure is established after this failure.':' Propagation continues after this geometry failure; only the first failed interval is red.';
   $('rejection-geometry-note').textContent=$('show-rejected').checked?note:'Red rejection overlay hidden.';
   if(!$('show-rejected').checked)return;
   const failedReference=r?.segment?(data.mode==='diffreach'&&r.interval_offsets
@@ -236,7 +237,7 @@ function updateInspector(epoch,candidate,com,index){
   if(matched())components.splice(0,components.length,
     ['MPPI: 256 samples × 3 iterations',epoch.computation.planner_ms],
     ['Generate all six candidates',epoch.computation.candidate_generation_ms],
-    ['Propagate all six full tubes',epoch.computation.reachable_tubes_ms],
+    ['Attempt all six full candidate tubes',epoch.computation.reachable_tubes_ms],
     ['Check every time interval',epoch.computation.geometry_checks_ms],
     ['Select and dispatch',epoch.computation.selection_and_dispatch_ms],
     ['Complete planning update',epoch.computation.total_ms]);
@@ -292,7 +293,7 @@ function updateUncertaintyGeometry(epoch,candidate,com){
   if(matched())$('tube-extent').disabled=true;
   $('retry-full-tube').hidden=!isFull||fullTubeStatus!=='error';
   $('full-tube-note').textContent=isFull?(fullTubeStatus==='loading'?'Loading the full candidate tube…':fullTubeStatus==='error'?fullTubeError:`Full-horizon bounds computed offline after the recorded rejection. All six candidates took ${number(fullTubeRow?.wall_seconds,' s',2)} for this display calculation, separate from the online timing above. The original acceptance decision is unchanged.`):'Showing only the bounds computed before the online check stopped.';
-  if(matched())$('full-tube-note').textContent='These full 2.5 s tubes are the calculations used for this decision. Propagation continues after a geometry failure. Tube view hides the enlarged drone illustration and fades the gates so millimetre-scale bounds remain visible.';
+  if(matched())$('full-tube-note').textContent='Each candidate lasts 2.5 s. Propagation continues after a geometry failure. If nonlinear enclosure construction fails, the remaining reference is gray and has no established tube. Tube view hides the enlarged drone illustration and fades the gates so millimetre-scale bounds remain visible.';
   const swept=bounds?.swept||[];
   const until=available?bounds.start_time+(available-1)*data.dt:null;
   const maxRadius=available?Math.max(...bounds.radii.flat()):null;
@@ -337,7 +338,7 @@ function updateUncertaintyGeometry(epoch,candidate,com){
   const visibleBounds=$('show-uncertainty').checked||(data.mode==='diffreach'&&$('show-swept').checked);
   const shown=data.mode==='diffreach'&&reachState?{radii:reachState.endpoints.radii,swept:reachState.swept}:bounds;
   const maxTubeRadius=hasBounds?Math.max(0,...(shown?.radii||[]).flat(),...(shown?.swept||[]).flatMap(box=>box.radius)):null;
-  const tubeUntil=data.mode==='diffreach'&&reachState?reachState.selected:Math.max(until||0,bounds?.validated_until||0);
+  const tubeUntil=data.mode==='diffreach'&&reachState?Math.min(reachState.selected,reachState.validated):Math.max(until||0,bounds?.validated_until||0);
   $('uncertainty-badge').classList.toggle('unavailable',!hasBounds);
   $('bounds-label').textContent=!visibleBounds?'POSITION BOUNDS HIDDEN':hasBounds?`POSITION BOUNDS · ${name.toUpperCase()}`:'NO POSITION BOUND';
   $('bounds-caption').textContent=hasBounds?`${matched()?number(maxTubeRadius*1000,' mm',2):number(maxTubeRadius,' m')} shown half-width · through ${data.mode==='diffreach'?'+':''}${tubeUntil.toFixed(2)} s`:'No position bound is available at this time.';
@@ -407,6 +408,11 @@ function updateTime(){
   if(!data)return;const end=data.samples.at(-1)?.time||0;time=THREE.MathUtils.clamp(time,0,end);
   $('timeline').value=time;$('clock').innerHTML=`${clock(time)} <em>/ ${clock(end)}</em>`;
   const sample=sampleAt(time);if(sample){drone.position.set(...sample.p);drone.quaternion.copy(sample.q);$('speed-value').textContent=sample.speed.toFixed(1);$('gates-value').textContent=String(sample.gates).padStart(2,'0');
+    if(matched()){
+      const epoch=data.epochs.findLast(e=>e.time<=time)||data.epochs[0];
+      $('flight-readout').textContent=`Altitude ${sample.p[2].toFixed(2)} m · Requested ${number(sample.desired_velocity?Math.hypot(...sample.desired_velocity):null,' m/s',2)} · MPPI planned peak ${number(epoch.nominal_peak_speed,' m/s',2)}`;
+      drawFlightDiagnostics(data,time);
+    }
     if(view==='follow'||view==='drone'){if(lastAnchor){const delta=drone.position.clone().sub(lastAnchor);camera.position.add(delta);controls.target.add(delta);}lastAnchor=drone.position.clone();}
     if(trail)dispose(trail);
     const past=data.samples.slice(0,sample.index+1).map(s=>new THREE.Vector3(...s.state.slice(0,3)));past.push(drone.position.clone());
@@ -490,6 +496,7 @@ async function loadRun(filename,directory=environment?.directory||''){
   $('recording-note').textContent=`${environment?.label||''} · Scenario ${scenario.number} · ${data.samples.length<2?'No flight: the initial trajectory did not pass the checks':`${number(data.metrics.duration,' s',1)} recorded flight`} · Simulation replay`;
   $('method').hidden=matched();$('matched-method').hidden=!matched();
   $('tube-profile-panel').hidden=!matched();
+  $('flight-diagnostics').hidden=!matched();$('flight-readout').hidden=!matched();
   $('performance').hidden=matched();$('model-knowledge').hidden=matched();
   document.querySelectorAll('a[href="#performance"],a[href="#model-knowledge"],.spread-key').forEach(node=>node.hidden=matched());
   $('spread-value').parentElement.hidden=matched();
@@ -499,11 +506,13 @@ async function loadRun(filename,directory=environment?.directory||''){
     $('diffreach-explanation').hidden=true;
     $('accepted-trajectory-explanation').textContent='The command schedule selected by Gatekeeper and executed by the same neural feedback controller used in the tube calculation.';
     $('assurance-text').textContent=scenario.limitation+` The recorded sets cover ${(data.metrics.tube_covered_steps*data.dt).toFixed(2)} s of this flight. No unchecked continuation was executed.`;
-    $('recording-compute-summary').textContent=measured.length?`Matched 12-state method · ${number(data.metrics.duration,' s',0)} flight · ${data.epochs.length} planning updates. Mean after the first call: ${number(mean(e=>e.computation.total_ms),' ms',1)} per update on ${info.backend.toUpperCase()}. Every update checks six complete 2.5 s tubes. The first calls include compilation. Computation delay is measured separately; this replay does not establish real-time operation. The model and controller were trained before the flight.`:'';
+    $('recording-compute-summary').textContent=measured.length?`Matched 12-state method · ${number(data.metrics.duration,' s',0)} flight · ${data.epochs.length} planning updates. Mean after the first call: ${number(mean(e=>e.computation.total_ms),' ms',1)} per update on ${info.backend.toUpperCase()}. Every update attempts all six 2.5 s candidate tubes. Acceptance requires a complete enclosure. The first calls include compilation. Computation delay is measured separately; this replay does not establish real-time operation. The model and controller were trained before the flight.`:'';
     $('matched-run-summary').textContent=$('recording-compute-summary').textContent;
+    const metrics=data.metrics;
+    $('matched-run-summary').textContent+=` Actual speed: mean ${number(metrics.mean_speed,' m/s',2)}, peak ${number(metrics.max_speed,' m/s',2)}. Altitude: ${number(metrics.min_altitude,'',2)}–${number(metrics.max_altitude,' m',2)}. ${metrics.passed_candidates??'—'} of ${metrics.total_candidates??'—'} candidates passed. ${metrics.passed_candidates===metrics.total_candidates?'Gatekeeper rejected none of these candidates; this recording does not demonstrate a safety-induced speed reduction.':''}`;
   }
   $('matched-run-summary').hidden=!matched();
-  updateTime();if(matched())view='follow';resetCamera();if(isDiffReach&&!matched()){view='candidate-tube';focusCandidateTube();}
+  updateTime();if(matched())view='overview';resetCamera();if(isDiffReach&&!matched()){view='candidate-tube';focusCandidateTube();}
   $('environment-content').setAttribute('aria-busy','false');$('environment-content').inert=false;$('recording-loading').hidden=true;
 }
 async function loadEnvironment(next){

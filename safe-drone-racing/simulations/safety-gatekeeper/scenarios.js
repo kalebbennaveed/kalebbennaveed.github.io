@@ -40,7 +40,7 @@ export function scenarioFor(record) {
     title:'Gatekeeper + matched DiffReach controller and dynamics',
     dynamics:'12-state base model + velocity-dependent acceleration residual',
     description:'MPPI chooses desired velocity commands. Six candidates combine racing and course-following backup commands, and DiffReach propagates the same neural feedback controller that actually flies the simulated drone. The prediction model is the base quadrotor model plus a learned acceleration residual; the ground-truth simulator uses the actual residual. The model and controller remain fixed during this flight.',
-    observe:'Use the flight timeline to inspect successive Gatekeeper updates, then select a switching time. Every candidate has a complete 2.5-second tube. Purple shows the reachable position sets; red marks the first failed check, if any. The width chart shows small bounds in millimetres without enlarging them in 3D.',
+    observe:'Use the flight timeline to inspect successive Gatekeeper updates, then select a switching time. Every candidate lasts 2.5 seconds. Purple shows established reachable position sets; red marks the first failed check. A geometry rejection does not truncate the tube. A failed enclosure calculation leaves the remaining reference gray. The width chart shows small bounds in millimetres without enlarging them in 3D.',
     limitation:'Conditional finite-horizon numerical enclosures, with exact measured state and data/Lipschitz residual bounds. No formal floating-point or indefinite-safety certificate. Processing delays are measured but not simulated.'};
   if(record.mode==='diffreach')return scenarios[4];
   const enabled=record.gatekeeper_enabled??!['unfiltered','nominal'].includes(record.mode);
