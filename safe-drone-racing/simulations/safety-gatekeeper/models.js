@@ -83,6 +83,7 @@ export function createDrone(){
   wire(drone,[[-.05,-.06,.19],[-.13,-.09,.17],[-.14,-.08,.09],[-.075,-.06,.065]],0x111317);
   part(drone,[.018,.014,.012],maize,[.12,.10,.055]);
   for(const y of [-.066,.066])part(drone,[.16,.008,.025],0xd9dbd7,[0,y,-.022]);
-  drone.scale.setScalar(.90); // 2x visual enlargement for visibility; simulation geometry is unchanged
+  drone.scale.setScalar(.90); // The matched recordings use a 0.33 m sphere enclosing this enlarged mesh.
+  // Legacy recordings keep their documented 0.16 m collision radius.
   drone.userData.rotors=rotors;return drone;
 }
