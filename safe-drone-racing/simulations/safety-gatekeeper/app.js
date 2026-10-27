@@ -1,5 +1,5 @@
 import {candidateDecision,activeCommitment} from './decision-state.js';
-import { describeScenario, withDiffReachScenario } from './scenarios.js?v=13';
+import { describeScenario, withDiffReachScenario } from './scenarios.js?v=14';
 import { createFlyLabRoom } from './flylab-room.js';
 import { drawTubeProfile } from './tube-profile.js';
 import { drawFlightDiagnostics } from './flight-diagnostics.js';
@@ -49,7 +49,11 @@ function resetCamera(){
   if(['rejection','event','candidate-tube'].includes(view))view='overview';
   const point=drone?.position.clone()||new THREE.Vector3(0,0,3);lastAnchor=null;
   if(view==='follow'||view==='drone'){controls.target.copy(point);camera.position.copy(point).add(new THREE.Vector3(...(view==='drone'?[-.50,-.60,.36]:[-2.7,-3.3,1.8])));lastAnchor=point.clone();}
-  else if(data?.track.layout==='flylab'){controls.target.set(-.6,1,4.5);camera.position.set(...(view==='top'?[-.6,1.01,24]:[10,16,10]));}
+  else if(data?.track.layout==='flylab'){
+    const spread=Math.max(...data.track.gates.map(g=>g.center[2]))>8;
+    controls.target.set(-.6,1,spread?6.5:4.5);
+    camera.position.set(...(view==='top'?[-.6,1.01,spread?27:24]:spread?[12,18,12.5]:[10,16,10]));
+  }
   else if(data?.track.layout==='stacked'){controls.target.set(0,0,2.8);camera.position.set(...(view==='top'?[0,-.01,37]:[13,-31,23]));}
   else {controls.target.set(0,0,1.8);camera.position.set(...(view==='top'?[0,-.01,31]:[18,-24,23]));}
   fitCameraAspect();
@@ -488,7 +492,7 @@ function drawChart(){
 async function loadRun(filename,directory=environment?.directory||''){
   $('environment-content').setAttribute('aria-busy','true');$('environment-content').inert=true;
   $('recording-loading').hidden=false;$('recording-loading').textContent=`Loading ${environment?.label||'the environment'} · ${$('run').selectedOptions[0]?.textContent||'selected scenario'}…`;
-  const request=++loadRequest;setPlaying(false);setReachPlaying(false);$('knowledge-time').disabled=true;$('knowledge-view').disabled=true;const response=await fetch(`./data/${directory}${filename}?v=15`,{cache:'no-cache'});if(!response.ok)throw new Error(`Recording could not be loaded (${response.status}).`);const recording=await response.json();if(request!==loadRequest)return;data=recording;time=0;epochIndex=-1;selectedCandidate=0;manualCandidate=false;
+  const request=++loadRequest;setPlaying(false);setReachPlaying(false);$('knowledge-time').disabled=true;$('knowledge-view').disabled=true;const response=await fetch(`./data/${directory}${filename}?v=16`,{cache:'no-cache'});if(!response.ok)throw new Error(`Recording could not be loaded (${response.status}).`);const recording=await response.json();if(request!==loadRequest)return;data=recording;time=0;epochIndex=-1;selectedCandidate=0;manualCandidate=false;
   $('scene-error').hidden=true;if(trail){dispose(trail);trail=null;}
   while(missMarkers.children.length)dispose(missMarkers.children[0]);
   data.samples.filter(s=>s.state_bound_exceeded).forEach(s=>{const marker=new THREE.Mesh(new THREE.SphereGeometry(.065,12,10),new THREE.MeshBasicMaterial({color:0xf0796d,toneMapped:false}));marker.position.set(...s.state.slice(0,3));marker.userData.time=s.time;missMarkers.add(marker);});
@@ -578,7 +582,7 @@ async function loadEnvironment(next){
   $('environment-content').setAttribute('aria-busy','true');
   $('environment-content').inert=true;$('recording-loading').hidden=false;$('recording-loading').textContent=`Loading ${next.label}…`;
   $('recording-note').textContent=`Loading ${next.label}…`;
-  const response=await fetch(`./data/${next.directory}${next.index}?v=15`,{cache:'no-cache'});
+  const response=await fetch(`./data/${next.directory}${next.index}?v=16`,{cache:'no-cache'});
   if(!response.ok)throw new Error(`${next.label} recordings could not be loaded (${response.status}).`);
   const runs=withDiffReachScenario(await response.json());if(request!==environmentRequest)return;
   if(!runs.length)throw new Error(`${next.label} has no recordings.`);
@@ -640,7 +644,7 @@ function showError(error){console.error(error);$('environment-content').setAttri
 function frame(now){requestAnimationFrame(frame);const delta=Math.min((now-lastFrame)/1000,.1);lastFrame=now;if(data&&playing){const next=time+delta*Number($('playback-speed').value);const decision=matched()&&$('pause-decisions').checked?data.epochs.find(e=>e.time>time+1e-7&&e.time<=next):null;time=decision?decision.time:next;if(decision||time>=data.samples.at(-1).time)setPlaying(false);updateTime();}if(data&&reachPlaying&&reachState){reachTime=Math.min(reachState.inspectionEnd,reachTime+delta*Number($('reachability-speed').value));const ended=reachTime>=reachState.inspectionEnd;if(ended)setReachPlaying(false);if(ended||now-reachLastDraw>=50){reachLastDraw=now;updatePaths(true);}}if(playing)rotors.forEach((r,i)=>r.rotation.z+=(i%2?1:-1)*delta*60);controls?.update();if(renderer)renderer.render(scene,camera);}
 try{
   initScene();requestAnimationFrame(frame);
-  const response=await fetch('./data/environments.json?v=15',{cache:'no-cache'});if(!response.ok)throw new Error('Environment recordings are unavailable.');
+  const response=await fetch('./data/environments.json?v=16',{cache:'no-cache'});if(!response.ok)throw new Error('Environment recordings are unavailable.');
   const environments=await response.json();
   $('environments').replaceChildren(...environments.map(item=>{
     const button=document.createElement('button');button.type='button';button.id=`${item.id}-tab`;button.dataset.environment=item.id;button.setAttribute('role','tab');button.setAttribute('aria-controls','environment-content');button.setAttribute('aria-selected','false');button.tabIndex=-1;

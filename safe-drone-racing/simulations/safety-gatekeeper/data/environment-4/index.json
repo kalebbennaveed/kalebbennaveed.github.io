@@ -1,0 +1,22 @@
+[
+  {
+    "file": "experimental-7-neural.json",
+    "label": "Scenario 1 \u00b7 With Gatekeeper, unknown dynamics",
+    "mode": "experimental"
+  },
+  {
+    "file": "unfiltered-base-7-neural.json",
+    "label": "Scenario 2 \u00b7 Without Gatekeeper, matching dynamics",
+    "mode": "unfiltered"
+  },
+  {
+    "file": "unfiltered-mismatch-7-neural.json",
+    "label": "Scenario 3 \u00b7 Without Gatekeeper, unknown dynamics",
+    "mode": "unfiltered"
+  },
+  {
+    "file": "diffreach-matched.json",
+    "label": "Scenario 4 \u00b7 Gatekeeper + DiffReach \u2014 uncertain dynamics",
+    "mode": "diffreach"
+  }
+]

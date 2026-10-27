@@ -1,4 +1,4 @@
-import { scenarioFor } from './scenarios.js?v=4';
+import { scenarioFor } from './scenarios.js?v=14';
 const $=id=>document.getElementById(id),fmt=(x,unit='',digits=2)=>x==null?'Not completed':`${x.toFixed(digits)}${unit}`;
 let comparison,comparisonRequest=0;
 function chart(){
@@ -27,7 +27,7 @@ async function loadComparison(environment){
   return;
  }
  try{
-  const response=await fetch(`./data/${environment.directory}${environment.comparison}?v=6`,{cache:'no-cache'});if(!response.ok)throw Error('Comparison unavailable');
+  const response=await fetch(`./data/${environment.directory}${environment.comparison}?v=7`,{cache:'no-cache'});if(!response.ok)throw Error('Comparison unavailable');
   const result=await response.json();if(request!==comparisonRequest)return;comparison=result;
   $('performance-intro').textContent=`Three scenarios in ${environment.label}, with the same starting state, pretrained neural controller and planner settings. Each runs for up to ${comparison.duration_limit||Math.max(...comparison.runs.map(r=>r.metrics.duration))} seconds and stops if it violates the course constraints.`;
   $('performance-cards').replaceChildren(...comparison.runs.map(run=>{
