@@ -1,0 +1,7 @@
+[
+  {
+    "file": "diffreach-matched.json",
+    "label": "Scenario 4 · Gatekeeper + DiffReach — uncertain dynamics",
+    "mode": "diffreach"
+  }
+]

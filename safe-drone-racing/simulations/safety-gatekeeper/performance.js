@@ -21,6 +21,11 @@ async function loadComparison(environment){
  $('performance-environment').textContent=`${environment.label.toUpperCase()} · MATCHED SCENARIOS`;
  $('performance-cards').textContent='Loading this environment’s results…';$('force-search').hidden=true;
  $('comparison-chart').getContext('2d').clearRect(0,0,$('comparison-chart').width,$('comparison-chart').height);
+ if(!environment.comparison){
+  $('performance-intro').textContent='This environment currently has only the matched DiffReach recording.';
+  $('performance-cards').replaceChildren();$('performance-protocol').textContent='';
+  return;
+ }
  try{
   const response=await fetch(`./data/${environment.directory}${environment.comparison}?v=6`,{cache:'no-cache'});if(!response.ok)throw Error('Comparison unavailable');
   const result=await response.json();if(request!==comparisonRequest)return;comparison=result;

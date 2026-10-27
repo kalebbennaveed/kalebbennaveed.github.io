@@ -16,5 +16,14 @@
     "directory": "environment-2/",
     "index": "index.json",
     "comparison": "comparison.json"
+  },
+  {
+    "id": "environment-3",
+    "label": "Environment 3",
+    "name": "Fly Lab · three-gate climb and hairpins",
+    "description": "The Fly Lab room with three repositioned 0.6 × 0.6 m gates. An asymmetric route climbs above the control-room roof and returns through a descending hairpin. This environment uses a smaller drone with a 0.16 m collision radius.",
+    "directory": "environment-3/",
+    "index": "index.json",
+    "comparison": null
   }
 ]

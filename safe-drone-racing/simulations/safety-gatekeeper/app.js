@@ -1,11 +1,12 @@
 import {candidateDecision,activeCommitment} from './decision-state.js';
-import { describeScenario, withDiffReachScenario } from './scenarios.js?v=11';
+import { describeScenario, withDiffReachScenario } from './scenarios.js?v=13';
+import { createFlyLabRoom } from './flylab-room.js';
 import { drawTubeProfile } from './tube-profile.js';
 import { drawFlightDiagnostics } from './flight-diagnostics.js';
 import { updateKnowledge } from './knowledge.js?v=5';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { createGate, createDrone } from './models.js?v=4';
+import { createGate, createDrone } from './models.js?v=5';
 import { addPositionBounds, addSweptBounds, addCurrentBound, addDroneEnvelope, errorColor } from './uncertainty.js?v=7';
 import { reachabilityFrame, splitReference, referenceInterval } from './reachability-view.js';
 import { addRejectionBox, rejectionColor } from './rejection.js';
@@ -16,7 +17,7 @@ const originalMethodText={propagation:$('method-propagation-explanation').textCo
 const colors={candidate:0xc6b4ff,committed:0x71e2db,backup:0x9691ef,trail:0xd2d8e0,nominal:0xedba74};
 let data,time=0,playing=false,view='overview',epochIndex=-1,selectedCandidate=0,manualCandidate=false,lastFrame=0,lastAnchor=null,loadRequest=0;
 let renderer,scene,camera,controls,course,paths,drone,rotors=[],trail,missMarkers;
-let environment=null,environmentRequest=0,courseRoute=null;
+let environment=null,environmentRequest=0,courseRoute=null,roomModel=null;
 let reachTime=0,reachPlaying=false,reachKey=null,reachState=null,reachLastDraw=0;
 let fullTubeStore=null,fullTubeRow=null,fullTubeRequestKey=null,fullTubeStatus='idle',fullTubeError='';
 const clock=value=>`${String(Math.floor(value/60)).padStart(2,'0')}:${(value%60).toFixed(2).padStart(5,'0')}`;
@@ -48,6 +49,7 @@ function resetCamera(){
   if(['rejection','event','candidate-tube'].includes(view))view='overview';
   const point=drone?.position.clone()||new THREE.Vector3(0,0,3);lastAnchor=null;
   if(view==='follow'||view==='drone'){controls.target.copy(point);camera.position.copy(point).add(new THREE.Vector3(...(view==='drone'?[-.50,-.60,.36]:[-2.7,-3.3,1.8])));lastAnchor=point.clone();}
+  else if(data?.track.layout==='flylab'){controls.target.set(-.6,1,4.5);camera.position.set(...(view==='top'?[-.6,1.01,24]:[10,16,10]));}
   else if(data?.track.layout==='stacked'){controls.target.set(0,0,2.8);camera.position.set(...(view==='top'?[0,-.01,37]:[13,-31,23]));}
   else {controls.target.set(0,0,1.8);camera.position.set(...(view==='top'?[0,-.01,31]:[18,-24,23]));}
   fitCameraAspect();
@@ -336,7 +338,7 @@ function updateUncertaintyGeometry(epoch,candidate,com){
   if(matched())$('tube-extent').disabled=true;
   $('retry-full-tube').hidden=!isFull||fullTubeStatus!=='error';
   $('full-tube-note').textContent=isFull?(fullTubeStatus==='loading'?'Loading the full candidate tube…':fullTubeStatus==='error'?fullTubeError:`Full-horizon bounds computed offline after the recorded rejection. All six candidates took ${number(fullTubeRow?.wall_seconds,' s',2)} for this display calculation, separate from the online timing above. The original acceptance decision is unchanged.`):'Showing only the bounds computed before the online check stopped.';
-  if(matched())$('full-tube-note').textContent='Each candidate lasts 2.5 s. Propagation continues after a geometry failure. If nonlinear enclosure construction fails, the remaining reference is gray and has no established tube. Tube view hides the enlarged drone illustration and fades the gates so millimetre-scale bounds remain visible.';
+  if(matched())$('full-tube-note').textContent='Each candidate lasts 2.5 s. Propagation continues after a geometry failure. If nonlinear enclosure construction fails, the remaining reference is gray and has no established tube. Tube view hides the drone model and fades the gates so millimetre-scale bounds remain visible.';
   const swept=bounds?.swept||[];
   const until=available?bounds.start_time+(available-1)*data.dt:null;
   const maxRadius=available?Math.max(...bounds.radii.flat()):null;
@@ -486,7 +488,7 @@ function drawChart(){
 async function loadRun(filename,directory=environment?.directory||''){
   $('environment-content').setAttribute('aria-busy','true');$('environment-content').inert=true;
   $('recording-loading').hidden=false;$('recording-loading').textContent=`Loading ${environment?.label||'the environment'} · ${$('run').selectedOptions[0]?.textContent||'selected scenario'}…`;
-  const request=++loadRequest;setPlaying(false);setReachPlaying(false);$('knowledge-time').disabled=true;$('knowledge-view').disabled=true;const response=await fetch(`./data/${directory}${filename}?v=14`,{cache:'no-cache'});if(!response.ok)throw new Error(`Recording could not be loaded (${response.status}).`);const recording=await response.json();if(request!==loadRequest)return;data=recording;time=0;epochIndex=-1;selectedCandidate=0;manualCandidate=false;
+  const request=++loadRequest;setPlaying(false);setReachPlaying(false);$('knowledge-time').disabled=true;$('knowledge-view').disabled=true;const response=await fetch(`./data/${directory}${filename}?v=15`,{cache:'no-cache'});if(!response.ok)throw new Error(`Recording could not be loaded (${response.status}).`);const recording=await response.json();if(request!==loadRequest)return;data=recording;time=0;epochIndex=-1;selectedCandidate=0;manualCandidate=false;
   $('scene-error').hidden=true;if(trail){dispose(trail);trail=null;}
   while(missMarkers.children.length)dispose(missMarkers.children[0]);
   data.samples.filter(s=>s.state_bound_exceeded).forEach(s=>{const marker=new THREE.Mesh(new THREE.SphereGeometry(.065,12,10),new THREE.MeshBasicMaterial({color:0xf0796d,toneMapped:false}));marker.position.set(...s.state.slice(0,3));marker.userData.time=s.time;missMarkers.add(marker);});
@@ -503,7 +505,10 @@ async function loadRun(filename,directory=environment?.directory||''){
   $('color-uncertainty').disabled=!['experimental','unfiltered','diffreach'].includes(data.mode)||data.samples.length<2;
   $('next-bound-miss').disabled=!data.samples.some(s=>s.state_bound_exceeded);
   $('error-scale-max').textContent=number(data.trust_threshold,' m/s²',matched()?3:1);
-  while(course.children.length)dispose(course.children[0]);data.track.gates.forEach((g,i)=>course.add(createGate(g,i,data.track.layout==='stacked')));
+  while(course.children.length)dispose(course.children[0]);data.track.gates.forEach((g,i)=>course.add(createGate(g,i,Boolean(data.track.layout))));
+  roomModel=data.track.room?createFlyLabRoom(data.track.room):null;if(roomModel)course.add(roomModel);
+  $('show-room').parentElement.hidden=!roomModel;$('show-room').checked=true;
+  drone.scale.setScalar(data.track.layout==='flylab'?.45:.90);
   courseRoute=new THREE.Line(new THREE.BufferGeometry().setFromPoints(data.track.centerline.map(p=>new THREE.Vector3(...p))),new THREE.LineBasicMaterial({color:0xa0aebe,transparent:true,opacity:.6,toneMapped:false}));
   course.add(courseRoute);courseRoute.visible=$('show-course').checked;
   $('timeline').max=data.samples.at(-1)?.time||0;$('timeline').disabled=data.samples.length<2;$('play').disabled=data.samples.length<2;
@@ -555,7 +560,7 @@ async function loadRun(filename,directory=environment?.directory||''){
   document.querySelector('footer span').textContent=matched()?'JAX MPPI · LEARNED RESIDUAL · DIFFREACH · GATEKEEPER':'JAX MPPI · ONLINE RESIDUAL LEARNING · GATEKEEPER';
   if(matched()){
     $('diffreach-explanation').hidden=true;
-    $('matched-collision-description').textContent=`Every 0.01 s interval of each candidate must have an established reachable set that stays clear of gate frames${data.collision_model?.geometry==='frames_posts_and_feet'?', support posts and feet':''}, floor and ceiling, including the drone’s ${(data.collision_model?.radius??.16).toFixed(2)} m radius. Touching is rejected: the separation must be strictly positive. A small position tube does not remove the drone’s physical size.`;
+    $('matched-collision-description').textContent=`Every 0.01 s interval of each candidate must have an established reachable set that stays clear of gate frames${data.collision_model?.geometry?.includes('posts')?', support posts and feet':''}${data.track.room?', room walls, the control-room roof, walkways, pipes and suspension cables':''}, floor and ceiling, including the drone’s ${(data.collision_model?.radius??.16).toFixed(2)} m radius. Touching is rejected: the separation must be strictly positive. A small position tube does not remove the drone’s physical size.`;
     $('candidate-trajectory-explanation').textContent=`A proposed trajectory: follow the MPPI racing commands for the selected time, then follow backup commands along the course at ${data.nominal_settings?.backup_speed??1.5} m/s. Gatekeeper checks the complete proposal before commitment.`;
     $('accepted-trajectory-explanation').textContent='The command schedule selected by Gatekeeper and executed by the same neural feedback controller used in the tube calculation.';
     $('assurance-text').textContent=scenario.limitation+` The recorded sets cover ${(data.metrics.tube_covered_steps*data.dt).toFixed(2)} s of this flight. No unchecked continuation was executed.`;
@@ -565,7 +570,7 @@ async function loadRun(filename,directory=environment?.directory||''){
     $('matched-run-summary').textContent+=` Actual speed: mean ${number(metrics.mean_speed,' m/s',2)}, peak ${number(metrics.max_speed,' m/s',2)}. Altitude: ${number(metrics.min_altitude,'',2)}–${number(metrics.max_altitude,' m',2)}. ${metrics.passed_candidates??'—'} of ${metrics.total_candidates??'—'} candidates passed. ${metrics.passed_candidates===metrics.total_candidates?'Gatekeeper rejected none of these candidates; this recording does not demonstrate a safety-induced speed reduction.':''}`;
   }
   $('matched-run-summary').hidden=!matched();
-  updateTime();view=matched()?'decision':view==='decision'?'overview':view;resetCamera();if(isDiffReach&&!matched()){view='candidate-tube';focusCandidateTube();}
+  updateTime();view=data.track.room?'overview':matched()?'decision':view==='decision'?'overview':view;resetCamera();if(isDiffReach&&!matched()){view='candidate-tube';focusCandidateTube();}
   $('environment-content').setAttribute('aria-busy','false');$('environment-content').inert=false;$('recording-loading').hidden=true;
 }
 async function loadEnvironment(next){
@@ -573,13 +578,13 @@ async function loadEnvironment(next){
   $('environment-content').setAttribute('aria-busy','true');
   $('environment-content').inert=true;$('recording-loading').hidden=false;$('recording-loading').textContent=`Loading ${next.label}…`;
   $('recording-note').textContent=`Loading ${next.label}…`;
-  const response=await fetch(`./data/${next.directory}${next.index}?v=14`,{cache:'no-cache'});
+  const response=await fetch(`./data/${next.directory}${next.index}?v=15`,{cache:'no-cache'});
   if(!response.ok)throw new Error(`${next.label} recordings could not be loaded (${response.status}).`);
   const runs=withDiffReachScenario(await response.json());if(request!==environmentRequest)return;
   if(!runs.length)throw new Error(`${next.label} has no recordings.`);
   environment=next;
   $('run').replaceChildren(...runs.map(run=>{const option=document.createElement('option');option.value=run.file;option.textContent=run.label;return option;}));
-  $('show-course').checked=next.id==='environment-2';
+  $('show-course').checked=next.id!=='environment-1';
   const requestedScenario=new URLSearchParams(location.search).get('scenario');
   const selectedRun=runs.find(run=>run.label.startsWith(`Scenario ${requestedScenario} ·`))||runs.find(run=>run.file==='diffreach-matched.json')||runs[0];
   $('run').value=selectedRun.file;
@@ -605,6 +610,7 @@ document.querySelectorAll('[data-view]').forEach(button=>button.onclick=()=>{vie
 window.addEventListener('knowledge-seek',event=>{if(!data)return;time=Math.max(0,Math.min(event.detail,data.samples.at(-1).time));setPlaying(false);updateTime();});
 $('run').onchange=e=>loadRun(e.target.value).catch(showError);
 $('show-course').onchange=()=>{if(courseRoute)courseRoute.visible=$('show-course').checked;};
+$('show-room').onchange=()=>{if(roomModel)roomModel.visible=$('show-room').checked;};
 $('jump-outcome').onclick=()=>{
   const event=data?.outcome;if(event?.kind!=='gate_contact')return;
   time=event.time;setPlaying(false);updateTime();view='event';lastAnchor=null;
@@ -634,7 +640,7 @@ function showError(error){console.error(error);$('environment-content').setAttri
 function frame(now){requestAnimationFrame(frame);const delta=Math.min((now-lastFrame)/1000,.1);lastFrame=now;if(data&&playing){const next=time+delta*Number($('playback-speed').value);const decision=matched()&&$('pause-decisions').checked?data.epochs.find(e=>e.time>time+1e-7&&e.time<=next):null;time=decision?decision.time:next;if(decision||time>=data.samples.at(-1).time)setPlaying(false);updateTime();}if(data&&reachPlaying&&reachState){reachTime=Math.min(reachState.inspectionEnd,reachTime+delta*Number($('reachability-speed').value));const ended=reachTime>=reachState.inspectionEnd;if(ended)setReachPlaying(false);if(ended||now-reachLastDraw>=50){reachLastDraw=now;updatePaths(true);}}if(playing)rotors.forEach((r,i)=>r.rotation.z+=(i%2?1:-1)*delta*60);controls?.update();if(renderer)renderer.render(scene,camera);}
 try{
   initScene();requestAnimationFrame(frame);
-  const response=await fetch('./data/environments.json?v=14',{cache:'no-cache'});if(!response.ok)throw new Error('Environment recordings are unavailable.');
+  const response=await fetch('./data/environments.json?v=15',{cache:'no-cache'});if(!response.ok)throw new Error('Environment recordings are unavailable.');
   const environments=await response.json();
   $('environments').replaceChildren(...environments.map(item=>{
     const button=document.createElement('button');button.type='button';button.id=`${item.id}-tab`;button.dataset.environment=item.id;button.setAttribute('role','tab');button.setAttribute('aria-controls','environment-content');button.setAttribute('aria-selected','false');button.tabIndex=-1;

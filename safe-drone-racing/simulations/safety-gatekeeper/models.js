@@ -36,15 +36,17 @@ export function createGate(g,index,showLabel=false){
     const x=sign*(w/2+bar/2),side=gateTexture('side');
     part(group,[bar,depth,h],maize,[x,0,0]);
     panel(group,bar,h,side,-depth/2-.001,0,x);panel(group,bar,h,side,depth/2+.001,0,x);
-    const length=Math.max(.1,g.center[2]-h/2-bar);
-    cylinder(group,.022,length,0xe2dfd4,[x,0,-h/2-bar-length/2]);
-    part(group,[.22,.64,.055],0xcecec5,[x,0,-g.center[2]+.028]);
+    if(g.mount!=='suspended'){
+      const length=Math.max(.1,g.center[2]-h/2-bar);
+      cylinder(group,.022,length,0xe2dfd4,[x,0,-h/2-bar-length/2]);
+      part(group,[.22,.64,.055],0xcecec5,[x,0,-g.center[2]+.028]);
+    }
   }
   if(showLabel){
     const canvas=document.createElement('canvas');canvas.width=256;canvas.height=64;
     const ctx=canvas.getContext('2d');ctx.font='500 34px system-ui';ctx.fillStyle='#f0f3fa';ctx.shadowColor='#101217';ctx.shadowBlur=8;ctx.fillText(`Gate ${index+1}`,12,44);
     const map=new THREE.CanvasTexture(canvas);map.colorSpace=THREE.SRGBColorSpace;
-    const label=new THREE.Sprite(new THREE.SpriteMaterial({map,transparent:true,depthTest:false,toneMapped:false}));label.scale.set(2.7,.9,1);label.center.set(0,.5);label.position.set(w/2+.2,0,h/2+.3);group.add(label);
+    const label=new THREE.Sprite(new THREE.SpriteMaterial({map,transparent:true,depthTest:false,toneMapped:false}));const labelScale=Math.max(.6,Math.min(1,w/2.2));label.scale.set(2.7*labelScale,.9*labelScale,1);label.center.set(0,.5);label.position.set(w/2+.2,0,h/2+.3);group.add(label);
   }
   return group;
 }
