@@ -52,20 +52,20 @@
     "label": "Method 1 \u00b7 DiffReach + Gatekeeper",
     "mode": "diffreach",
     "metrics": {
-      "duration": 8.500000000000002,
-      "gates_passed": 0,
-      "progress": 11.321895890199352,
-      "mean_speed": 1.6089010370177461,
-      "max_speed": 2.8722189102815494,
-      "tube_covered_steps": 850,
+      "duration": 45.0,
+      "gates_passed": 5,
+      "progress": 68.84383051711374,
+      "mean_speed": 1.5776151983247477,
+      "max_speed": 2.8958228648342788,
+      "tube_covered_steps": 4500,
       "continuation_steps": 0,
       "continuation_terminal_violations": 0,
-      "min_clearance": 0.8984090856108831,
-      "min_altitude": 3.492656888718885,
-      "max_altitude": 3.710892863485512,
-      "passed_candidates": 14,
-      "total_candidates": 108
+      "min_clearance": 0.3543973056284742,
+      "min_altitude": 1.3948241835417894,
+      "max_altitude": 5.1563644317886475,
+      "passed_candidates": 113,
+      "total_candidates": 540
     },
-    "status": "commitment_expired"
+    "status": "completed"
   }
 ]

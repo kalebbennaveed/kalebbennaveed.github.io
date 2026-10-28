@@ -12,7 +12,7 @@ import { addRejectionBox, addEventMarker } from "./rejection.js?v=contact-2";
 import { candidateDecision, activeCommitment } from "./decision-state.js";
 import { drawTubeProfile } from "./tube-profile.js";
 import { drawFlightDiagnostics } from "./flight-diagnostics.js?v=devquad-flight-2";
-import { scenarios, scenarioFor } from "./scenarios.js?v=comparison-1";
+import { scenarios, scenarioFor } from "./scenarios.js?v=devquad-full-45";
 
 const $ = (id) => document.getElementById(id),
   num = (x, n = 2) => (Number.isFinite(x) ? x.toFixed(n) : "—");
@@ -486,7 +486,7 @@ async function loadVariant(variant) {
   $("content").inert = true;
   $("error").hidden = true;
   const response = await fetch(
-    `./data/${environment.directory}${variant}.json?v=comparison-1`,
+    `./data/${environment.directory}${variant}.json?v=devquad-full-45`,
     { cache: "no-cache" },
   );
   if (!response.ok) throw Error(`Recording not available (${response.status})`);
@@ -533,7 +533,7 @@ async function loadVariant(variant) {
 async function loadEnvironment(env, variant) {
   environment = env;
   const response = await fetch(
-    `./data/${env.directory}index.json?v=comparison-1`,
+    `./data/${env.directory}index.json?v=devquad-full-45`,
     { cache: "no-cache" },
   );
   if (!response.ok) throw Error("Environment recordings unavailable");
@@ -687,7 +687,7 @@ function frame(now) {
 }
 async function start() {
   await drone.userData.ready;
-  const response = await fetch("./data/environments.json?v=comparison-1", {
+  const response = await fetch("./data/environments.json?v=devquad-full-45", {
     cache: "no-cache",
   });
   const envs = await response.json();
