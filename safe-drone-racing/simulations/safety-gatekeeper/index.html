@@ -76,8 +76,13 @@
               path</label
             ><label id="room-control"
               ><input id="show-room" type="checkbox" checked />Lab room</label
+            ><label id="contact-control" hidden
+              ><input id="show-contact" type="checkbox" checked />Contact point
+              in red</label
             >
           </div>
+          <p id="contact-detail" class="muted"></p>
+          <button id="focus-contact" hidden>Go to contact</button>
           <div class="playback">
             <button id="play" aria-label="Play replay">▶</button
             ><button id="restart">↺</button
@@ -230,6 +235,6 @@
     <footer>
       JAX MPPI · NEURAL CONTROL · LEARNED RESIDUAL · DIFFREACH · GATEKEEPER
     </footer>
-    <script type="module" src="app.js?v=comparison-1"></script>
+    <script type="module" src="app.js?v=contact-2"></script>
   </body>
 </html>

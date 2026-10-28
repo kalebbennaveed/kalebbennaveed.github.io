@@ -8,7 +8,7 @@ import {
   addDroneEnvelope,
   addCurrentBound,
 } from "./uncertainty.js";
-import { addRejectionBox } from "./rejection.js";
+import { addRejectionBox, addEventMarker } from "./rejection.js?v=contact-2";
 import { candidateDecision, activeCommitment } from "./decision-state.js";
 import { drawTubeProfile } from "./tube-profile.js";
 import { drawFlightDiagnostics } from "./flight-diagnostics.js";
@@ -282,7 +282,7 @@ function decisions(e, index) {
   $("failure-detail").textContent = failure
     ? failure.region_validated
       ? `At +${num(failure.time_offset)} s: clearance from ${failure.obstacle || "an obstacle"} was not established.`
-      : `At +${num(failure.time_offset)} s: propagation could not establish the next set. The red trial box is not a verified enclosure.`
+      : `At +${num(failure.time_offset)} s: propagation could not establish the next set. The red cross marks the predicted position at that time; it is not a collision or an uncertainty boundary.`
     : "The complete candidate tube passed the recorded checks.";
 }
 function drawPaths() {
@@ -350,8 +350,11 @@ function drawPaths() {
       $("show-rejected").checked &&
       c.rejection &&
       tubeTime >= c.rejection.time_offset
-    )
-      addRejectionBox(paths, c.rejection.position_box);
+    ) {
+      if (c.rejection.region_validated)
+        addRejectionBox(paths, c.rejection.position_box);
+      else addEventMarker(paths, c.rejection.marker_position);
+    }
     $("tube-time").max = horizon;
     $("tube-time").value = tubeTime;
     $("tube-clock").textContent = `+${num(tubeTime)} s`;
@@ -397,6 +400,8 @@ function update() {
     anchor = s.p.clone();
   }
   clear(trailGroup);
+  if (record.outcome.position && $("show-contact").checked)
+    addEventMarker(trailGroup, record.outcome.position, 0.3);
   if ($("show-flown").checked)
     line(
       trailGroup,
@@ -422,6 +427,11 @@ function showSummary() {
     ? epochs.reduce((a, e) => a + e.computation.total_ms, 0) / epochs.length
     : null;
   $("scenario-label").textContent = info.label;
+  $("contact-control").hidden = !record.outcome.position;
+  $("focus-contact").hidden = !record.outcome.position;
+  $("contact-detail").textContent = record.outcome.position
+    ? `Red cross: first recorded contact/boundary violation at ${num(record.outcome.time)} s. Location is the drone’s center at that sample.`
+    : "No recorded collision. A rejected candidate or an expired reference is not a crash.";
   $("scenario-title").textContent = info.subtitle;
   $("scenario-description").textContent = info.description;
   $("scenario-observe").textContent = info.observe;
@@ -601,6 +611,15 @@ $("show-room").onchange = () => {
   if (room) room.visible = $("show-room").checked;
 };
 $("show-flown").onchange = update;
+$("show-contact").onchange = update;
+$("focus-contact").onclick = () => {
+  if (!record.outcome.position) return;
+  play(false);
+  time = record.outcome.time;
+  update();
+  cameraMode = "tube";
+  fit([record.outcome.position]);
+};
 $("focus-tube").onclick = () => {
   play(false);
   cameraMode = "tube";
@@ -612,12 +631,14 @@ $("focus-failure").onclick = () => {
   play(false);
   cameraMode = "tube";
   const [e] = currentEpoch(),
-    box = e.candidates[selected].rejection?.position_box;
+    failure = e.candidates[selected].rejection,
+    box = failure?.region_validated ? failure.position_box : null;
   if (box)
     fit([
       box.center.map((v, i) => v - box.radius[i]),
       box.center.map((v, i) => v + box.radius[i]),
     ]);
+  else if (failure?.marker_position) fit([failure.marker_position]);
 };
 $("focus-drone").onclick = () => {
   play(false);
