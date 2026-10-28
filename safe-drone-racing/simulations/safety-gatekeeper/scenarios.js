@@ -1,73 +1,32 @@
-const scenarios = {
-  1: {
-    number: 1, label: 'Scenario 1 · With Gatekeeper, unknown dynamics',
-    title: 'With Gatekeeper and unknown dynamics', gatekeeper: true,
-    dynamics: 'Extra air resistance and acceleration bias',
-    description: 'The simulated drone has extra air resistance and a constant acceleration bias that the base model does not include. Model learning and neural-controller training continue during flight. Gatekeeper checks each proposed trajectory; if it rejects a proposal, the drone continues along its previously accepted trajectory and moving backup.',
-    observe: 'Watch how rejected proposals affect speed and the distance to the gates. Compare with Scenario 3, which uses the same simulated drone without Gatekeeper.',
-    limitation: 'The checks approximate how model error spreads along a trajectory. They have not established a mathematical safety guarantee. The page marks where the recorded position bounds end.'
+export const scenarios = {
+  "baseline-1": {
+    number: 1,
+    label: "Baseline 1",
+    subtitle: "Matching dynamics · no Gatekeeper",
+    description:
+      "MPPI plans desired velocities and the neural controller applies thrust and torque. The ground-truth simulator and prediction model use the same base dynamics, with no residual acceleration. Gatekeeper and reachable-set calculation are disabled.",
+    observe:
+      "This isolates the performance of MPPI and the neural controller when the dynamics model matches the simulated drone.",
   },
-  2: {
-    number: 2, label: 'Scenario 2 · Without Gatekeeper, matching dynamics',
-    title: 'Without Gatekeeper, with matching dynamics', gatekeeper: false,
-    dynamics: 'Simulator matches the base model',
-    description: 'The ground-truth simulator uses the same dynamics equations and parameters as the base model, with no extra drag or acceleration bias. MPPI plans the racing trajectory, and the neural controller follows it without Gatekeeper checking or rejecting proposals. Model learning and controller adaptation remain enabled.',
-    observe: 'Use this as the comparison with Scenario 3: what changes when the simulator includes forces that the base model does not?',
-    limitation: 'Gatekeeper is off. Model-error bounds are displayed for inspection, but they do not restrict the flight.'
+  "baseline-2": {
+    number: 2,
+    label: "Baseline 2",
+    subtitle: "Model mismatch · no Gatekeeper",
+    description:
+      "The simulated drone has additional velocity-dependent acceleration. The prediction model uses a learned approximation of that acceleration. MPPI and the neural controller execute directly, with no Gatekeeper or reachable-set calculation.",
+    observe:
+      "Compare with Method 1: the ground-truth dynamics, learned residual, neural controller and planner settings are identical. Only Gatekeeper is added in Method 1.",
   },
-  3: {
-    number: 3, label: 'Scenario 3 · Without Gatekeeper, unknown dynamics',
-    title: 'Without Gatekeeper, with unknown dynamics', gatekeeper: false,
-    dynamics: 'Same extra forces as Scenario 1',
-    description: 'The simulated drone has the same extra air resistance and acceleration bias as Scenario 1. MPPI plans the racing trajectory, and the neural controller follows it directly. Model learning and controller adaptation remain enabled, but Gatekeeper does not check or reject the trajectory.',
-    observe: 'Compare this flight with Scenario 1 to see the effect of Gatekeeper under the same unknown forces, and with Scenario 2 to see the effect of those forces without Gatekeeper.',
-    limitation: 'Gatekeeper is off. Model-error bounds are displayed for inspection, but they do not restrict the flight.'
+  "method-1": {
+    number: 3,
+    label: "Method 1",
+    subtitle: "Model mismatch · DiffReach + Gatekeeper",
+    description:
+      "The same MPPI planner proposes a racing reference. Six candidates switch from that reference to a course-following backup at different times. DiffReach propagates the same neural feedback controller, using the learned-residual error bound. Gatekeeper commits a candidate only when the complete tube passes the checks, except for the stated initial backup assumption.",
+    observe:
+      "Select a switching time to inspect its full recorded tube and decision. Purple shows established position sets. Red locates the first failed check; a rejected candidate is never labeled as a collision.",
   },
-  4: {
-    number: 4, label: 'Scenario 4 · Gatekeeper + DiffReach — uncertain dynamics',
-    title: 'Gatekeeper + DiffReach — uncertain dynamics', gatekeeper: true,
-    dynamics: 'Unknown forces bounded by the stated assumptions',
-    description: 'Gatekeeper checks the candidate with nonlinear reachable sets computed using DiffReach-style affine arithmetic and Picard flow enclosures. The uncertainty allowance uses available measurement data and assumed force limits; before measurements exist, only the force limits are available. The neural controller and unknown-force simulator keep their existing roles.',
-    observe: 'Purple boxes show position bounds through the whole candidate, including after rejection. Red marks the first failed online check. Use First 2 seconds or Entire candidate to inspect the bounds at their actual scale. The full continuation is computed offline and does not change the decision. The initial zero-switch backup is committed under the stated safety assumption.',
-    limitation: 'The reachable-set construction is conditional on the stated model-error, measurement and initial-state bounds, over the recorded finite horizon. Floating-point arithmetic is not formally certified. It does not establish indefinite backup safety.'
-  }
 };
-export function withDiffReachScenario(runs) {
-  return runs.some(run=>run.mode==='diffreach')?runs:[...runs,{file:'diffreach-7-neural.json',label:scenarios[4].label,mode:'diffreach'}];
-}
 export function scenarioFor(record) {
-  if(record.method==='diffreach-robotics-matched')return {...scenarios[4],
-    title:'Gatekeeper + matched DiffReach controller and dynamics',
-    dynamics:'12-state base model + velocity-dependent acceleration residual',
-    description:'MPPI chooses desired velocity commands. Six candidates combine racing and course-following backup commands, and DiffReach propagates the same neural feedback controller that actually flies the simulated drone. The prediction model is the base quadrotor model plus a learned acceleration residual; the ground-truth simulator uses the actual residual. The model and controller remain fixed during this flight.',
-    observe:'Use the flight timeline to inspect successive Gatekeeper updates, then select a switching time. Every candidate lasts 2.5 seconds. Purple shows established reachable position sets; red marks the first failed check. A geometry rejection does not truncate the tube. A failed enclosure calculation leaves the remaining reference gray. The width chart shows small bounds in millimetres without enlarging them in 3D.',
-    limitation:'Conditional finite-horizon numerical enclosures, with exact measured state and data/Lipschitz residual bounds. No formal floating-point or indefinite-safety certificate. Processing delays are measured but not simulated.'};
-  if(record.mode==='diffreach')return scenarios[4];
-  const enabled=record.gatekeeper_enabled??!['unfiltered','nominal'].includes(record.mode);
-  return scenarios[enabled?1:record.plant_mode==='base'?2:3];
-}
-export function describeScenario(record) {
-  const scenario=scenarioFor(record), $=id=>document.getElementById(id);
-  $('scenario-number').textContent=`SCENARIO ${scenario.number}`;
-  $('scenario-title').textContent=scenario.title;
-  $('scenario-description').textContent=scenario.description;
-  $('scenario-observe').textContent=scenario.observe;
-  $('scenario-checks').textContent=`Gatekeeper ${scenario.gatekeeper?'on':'off'}`;
-  $('scenario-dynamics').textContent=scenario.dynamics;
-  $('scenario-course').textContent=record.track.name||'Oval course';
-  const course=record.track.parameters;
-  $('scenario-course-note').textContent=course?.radial_modulation?`${course.gate_count} gates with ${course.gate_width.toFixed(1)} × ${course.gate_height.toFixed(1)} m openings. Alternating sharper and gentler turns, with gate centers between ${(course.height-course.elevation).toFixed(2)} and ${(course.height+course.elevation).toFixed(2)} m high. The same course is used in all three scenarios.`:'';
-  if(course?.radial_modulation&&record.planner_settings)$('scenario-course-note').textContent+=` Faster MPCC setting: progress weight ${record.planner_settings.progress}, contouring-error weight ${record.planner_settings.contour}. This rewards more progress and penalizes distance from the course centerline less than the previous setting. All three scenarios use these weights.`;
-  if(record.track.layout==='stacked')$('scenario-course-note').textContent=`Seven ${course.gate_width.toFixed(1)} × ${course.gate_height.toFixed(1)} m gates, with at least 6.4 m between non-stacked gate centers. Gates 4 and 5 form the left-hand stacked pair at 4.80 and 1.90 m. Gate 2 is on the right; Gates 3 and 6 are toward the front; Gates 1 and 7 are farther back. A short descending turn connects the stacked gates. The course follows a smooth curve through these explicit locations and connecting turns, reconstructed from the reference image. The simulator, planner and Gatekeeper use the same geometry. MPCC progress weight ${record.planner_settings.progress}; contouring-error weight ${record.planner_settings.contour}. All three scenarios use the same settings.`;
-  if(record.mode==='diffreach')$('scenario-course-note').textContent=$('scenario-course-note').textContent.replaceAll('all three scenarios','the original three scenarios').replaceAll('All three scenarios','The original three scenarios');
-  if(record.method==='diffreach-robotics-matched')$('scenario-course-note').textContent=`${record.track.name}: the existing ${course.gate_count}-gate geometry is retained. Scenario 4 now uses the matched 12-state DiffReach method. Scenarios 1–3 retain the earlier 14-state recordings and are not a controlled comparison with this new method.`;
-  if(record.track.layout==='flylab')$('scenario-course-note').textContent=`Three 0.6 × 0.6 m openings, matching the source Fly Lab environment. Gate centers are ${record.track.gates.map(g=>g.center[2].toFixed(1)).join(', ')} m high. The ${course.route_length.toFixed(1)} m route uses the source repository’s periodic cubic-spline and arc-length sampling method with new gate locations and turn points. The drone’s collision radius is ${record.collision_model.radius.toFixed(2)} m; its visible propellers fit inside that radius. Gate frames, supports, cables and room obstacles are included in the checks. Scenarios 1–3 share the earlier 14-state drone, neural tracker and planner settings. Scenario 4 uses the matched 12-state DiffReach controller and dynamics, so it is a separate experiment.`;
-  const outcome=record.outcome;
-  $('scenario-outcome').textContent=outcome?`${outcome.label} · ${outcome.time.toFixed(2)} s${outcome.kind==='completed'?` · ${record.metrics.gates_passed} ${record.metrics.gates_passed===1?'gate':'gates'} passed`:''}`:'';
-  $('scenario-outcome').classList.toggle('contact',outcome?.kind==='gate_contact');
-  $('scenario-outcome').classList.toggle('no-flight',outcome?.kind==='no_flight');
-  if(record.mode==='diffreach'&&outcome?.kind==='no_flight')$('scenario-outcome').textContent='No flight · The initial candidate was rejected';
-  $('jump-outcome').hidden=outcome?.kind!=='gate_contact';
-  $('jump-outcome').textContent=outcome?.kind==='gate_contact'?`Show collision at ${outcome.time.toFixed(2)} s`:'Show collision';
-  return scenario;
+  return scenarios[record.variant];
 }

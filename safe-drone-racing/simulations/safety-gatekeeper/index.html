@@ -1,172 +1,235 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Safely racing at the limits of handling</title>
-  <meta name="robots" content="noindex,nofollow">
-  <link rel="stylesheet" href="styles.css?v=matched-18">
-  <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/controls/OrbitControls.js":"./vendor/OrbitControls.js"}}</script>
-</head>
-<body>
-  <header>
-    <a class="brand" href="./"><span class="brand-icon" aria-hidden="true">⊓</span><span>GATEKEEPER<small>DRONE RACING LAB</small></span></a>
-    <a class="slides-link" href="https://kalebbennaveed.github.io/safe-drone-racing/update-slides/">Research slides ↗</a>
-    <a class="slides-link" href="authors-racing.html">DiffReach controller benchmark</a>
-    <div class="run-status"><span class="status-dot"></span> RECORDED SIMULATION</div>
-    <label class="run-picker">SCENARIO <select id="run" aria-label="Choose scenario"><option>Loading recordings…</option></select></label>
-  </header>
-  <section class="environment-picker" aria-label="Environments">
-    <div id="environments" role="tablist" aria-label="Choose environment"></div>
-    <p id="environment-description"></p>
-  </section>
-  <p id="recording-loading" role="status" hidden>Loading the selected recording…</p>
-  <div id="environment-content" role="tabpanel" aria-labelledby="environment-1-tab">
-  <section class="scenario-panel" aria-labelledby="scenario-title">
-    <div class="scenario-intro"><span class="eyebrow" id="scenario-number">SCENARIO 1</span><h2 id="scenario-title">With Gatekeeper and unknown dynamics</h2><p id="scenario-description">Loading the scenario description…</p><details class="scenario-settings"><summary>Course and MPCC settings</summary><p id="scenario-course-note"></p></details></div>
-    <div class="scenario-context"><div class="scenario-tags"><span id="scenario-checks">Gatekeeper on</span><span id="scenario-course">Oval course</span><span>Neural controller</span><span id="scenario-dynamics">Extra air resistance and acceleration bias</span></div><p id="scenario-observe"></p><p id="scenario-outcome" aria-live="polite"></p><button id="jump-outcome" hidden>Show collision</button><a href="#performance">Compare the original three scenarios ↓</a><a href="#model-knowledge">Explore model uncertainty ↓</a></div>
-  </section>
-  <section id="diffreach-explanation" class="diffreach-explanation" hidden aria-labelledby="diffreach-title">
-    <div><span class="eyebrow">SCENARIO 4 · REACHABLE SETS</span><h2 id="diffreach-title">What these bounds establish</h2><p id="diffreach-outcome-note"></p><p id="recording-compute-summary"></p></div>
-    <div><p>The nonlinear state equations and feedback controller are enclosed using affine arithmetic and Picard flow bounds. The model-error allowance must hold throughout each queried region, and the initial-state and measurement-error limits must hold.</p><p><strong>Reachable tube.</strong> Purple boxes bound position at and between control updates. Red marks the first failed check. The default view continues the bound through the <strong>entire candidate</strong>, using a separate offline calculation. Rejection still occurs at the original red marker. The longest candidate has 2 seconds of racing followed by 3.5 seconds of backup. Use <strong>First 2 seconds</strong> or <strong>Entire candidate</strong> to inspect the actual scale; distant bounds can become much wider than the course.</p><p><strong>Numerical limitation.</strong> This implementation uses floating-point calculations without a formal roundoff certificate. The offline continuation uses the declared error-smoothness assumption beyond the rejected region; its validity there has not been established. A successful finite-horizon check is not an infinite-time safety guarantee; a rejected check does not prove a collision will occur.</p></div>
-  </section>
-  <p id="matched-run-summary" class="matched-run-summary" hidden></p>
-  <section id="decision-board" class="decision-board" hidden aria-label="Candidate decisions and active commitment">
-    <div class="decision-board-heading"><div><span class="eyebrow" id="decision-update-time"></span><h2 id="commitment-summary"></h2><p id="commitment-clock"></p></div><div class="decision-actions"><button id="inspect-fastest">Inspect longest racing candidate</button><button id="inspect-committed">Inspect committed tube</button><label><input id="pause-decisions" type="checkbox" checked> Pause at each decision</label></div></div>
-    <div id="candidate-decisions" class="candidate-decisions" role="group" aria-label="Results for all six candidates"></div>
-    <p id="inspected-candidate-status" role="status"></p>
-    <p class="decision-key"><span>Gold: MPPI plan</span><span>Purple: inspected trajectory and reachable tube</span><span>Cyan: committed trajectory the drone executes</span><span>Red: first failed check</span></p>
-  </section>
-  <main>
-    <section class="scene-panel" aria-label="Interactive 3D drone racing replay">
-      <canvas id="scene" aria-label="3D course showing the drone, candidates and committed trajectory"></canvas>
-      <div class="scene-heading"><span class="eyebrow">LEARNED-DYNAMICS RACING</span><h1>Safely racing at the<br>limits of handling.</h1><p>Trajectory planning with learned dynamics and safety verification.</p></div>
-      <div class="camera-bar" role="group" aria-label="Camera views"><button data-view="decision" id="camera-decision" hidden>Decision</button><button data-view="overview" class="active">Orbit</button><button data-view="follow">Follow</button><button data-view="drone">Drone</button><button data-view="top">Top</button><button id="camera-tube" hidden aria-label="View selected candidate tube">Tube</button><button id="reset-camera" aria-label="Reset camera">↺</button></div>
-      <div class="scene-help">DRAG TO ORBIT <span>·</span> SCROLL TO ZOOM</div>
-      <div class="speed-hud"><span id="speed-value">0.0</span><span class="speed-unit">m/s<small>FLIGHT SPEED</small></span></div>
-      <div id="flight-readout" class="flight-readout" hidden></div>
-      <div id="contact-badge" hidden role="status"></div>
-      <div class="uncertainty-badge" id="uncertainty-badge"><strong id="bounds-label">POSITION UNCERTAINTY</strong><span id="bounds-caption">Loading recorded bounds…</span></div>
-      <div class="scene-legend">
-        <label><input id="show-candidate" type="checkbox" checked><i class="candidate"></i>Candidate</label>
-        <label><input id="show-committed" type="checkbox" checked><i class="committed"></i>Committed</label>
-        <label><input id="show-backup" type="checkbox" checked><i class="backup"></i>Backup</label>
-        <label><input id="show-trail" type="checkbox" checked><i class="trail"></i>Flown</label>
-        <label><input id="show-nominal" type="checkbox"><i class="nominal"></i>MPPI plan</label>
-        <label><input id="show-course" type="checkbox"><i class="route"></i>Course route</label>
-        <label hidden><input id="show-room" type="checkbox" checked>Lab room</label>
-      </div>
-      <div id="scene-error" hidden></div>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Safely racing at the limits of handling</title>
+    <link rel="stylesheet" href="styles.css?v=comparison-1" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./vendor/three.module.js",
+          "three/addons/controls/OrbitControls.js": "./vendor/OrbitControls.js"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="./">DRONE RACING <span>Gatekeeper</span></a
+      ><a href="../../update-slides/">Research slides ↗</a
+      ><span class="recorded">Recorded simulation</span>
+    </header>
+    <section class="selection">
+      <div id="environments" role="tablist" aria-label="Environment"></div>
+      <p id="environment-description"></p>
+      <div id="variants" role="tablist" aria-label="Comparison"></div>
     </section>
-    <aside>
-      <div class="aside-top"><span class="eyebrow">DECISION INSPECTOR</span><span id="epoch-label">UPDATE 1</span></div>
-      <div class="decision"><span id="decision-label">Loading</span><h2 id="decision-title">Candidate verification</h2><p id="decision-timing" class="rejection-note" hidden></p>
-      <p id="decision-detail"></p></div>
-      <details id="computation-details" class="computation-details" hidden><summary>Computation time for this update</summary><dl id="computation-values"></dl><p id="computation-switches"></p></details>
-      <section class="rejection-panel" aria-label="Rejected candidate inspector">
-        <label class="candidate-picker">TIME BEFORE SWITCHING TO BACKUP<select id="candidate" aria-label="Choose time before switching to backup"></select></label>
-        <div class="rejection-controls"><label><input type="checkbox" id="show-rejected" checked> First failed check in red</label><button id="focus-rejection">Focus rejection</button></div>
-        <strong id="rejection-title">Loading rejection…</strong>
-        <p id="rejection-detail"></p>
-        <p id="rejection-geometry-note" class="rejection-note"></p>
-      </section>
-      <section class="uncertainty-panel" aria-label="Uncertainty inspector">
-        <div class="uncertainty-heading"><span>UNCERTAINTY</span><small id="uncertainty-mode">APPROXIMATE BOUNDS</small></div>
-        <div id="reachability-evolution" class="reachability-evolution" hidden>
-          <label for="tube-extent">Which calculation</label><select id="tube-extent" aria-label="Reachable tube calculation"><option value="full">Full candidate · offline continuation</option><option value="online">Online check · stops at rejection</option></select>
-          <p id="full-tube-note" role="status"></p>
-          <button id="retry-full-tube" type="button" hidden>Retry loading full tube</button>
-          <label for="reachability-time">Reachable-set time <strong id="reachability-clock">+0.0000 s</strong></label>
-          <input id="reachability-time" type="range" min="0" max="1" step="any" value="0" aria-label="Inspect reachable-set evolution along this candidate">
-          <div class="reachability-actions"><button id="play-reachability" aria-label="Play reachable-set evolution">▶ Evolve sets</button><button id="restart-reachability" aria-label="Restart reachable-set evolution">↺</button><select id="reachability-speed" aria-label="Reachable-set evolution speed"><option value=".1">0.1×</option><option value=".25" selected>0.25×</option><option value="1">1×</option></select></div>
-          <div class="reachability-actions"><button id="show-two-seconds" type="button">First 2 seconds</button><button id="show-all-reachability" type="button">Entire candidate</button></div>
-          <button id="focus-tube" type="button">View candidate tube</button>
-          <p id="reachability-status" aria-live="polite"></p>
-
-          <p class="reachability-key">Purple: computed reachable tube. White: current set. Red: first failed check only. Gray: reference beyond the computed enclosure, if any.</p>
-          <p>This cursor inspects a prediction; it does not move the drone or advance the flight replay.</p>
+    <p id="loading" role="status">Loading recordings…</p>
+    <p id="error" role="alert" hidden></p>
+    <div id="content" hidden>
+      <section class="intro">
+        <div>
+          <span id="scenario-label" class="eyebrow"></span>
+          <h1 id="scenario-title"></h1>
+          <p id="scenario-description"></p>
+          <p id="scenario-observe" class="muted"></p>
         </div>
-        <div class="bounds-controls"><label><input type="checkbox" id="show-uncertainty" checked> Position bounds</label><select id="uncertainty-source" aria-label="Position uncertainty for"><option value="committed">Committed</option><option value="candidate">Candidate</option></select></div>
-        <label id="swept-control" class="heatmap-control" hidden><input type="checkbox" id="show-swept" checked> Between-sample bounds</label>
-        <label id="body-envelope-control" hidden><input id="show-body-envelope" type="checkbox" checked> Include drone size in the tube view</label><p id="body-envelope-note" hidden></p><p id="tube-detail">Translucent boxes show the recorded position envelope.</p>
-        <p class="error-unit-caption" id="error-model-caption">Acceleration prediction error · m/s²</p><div class="uncertainty-values"><div><small>MODEL BOUND</small><strong id="error-bound-value">—</strong></div><div><small>MEASURED ERROR</small><strong id="error-value">—</strong></div><div><small>NETWORK SPREAD</small><strong id="spread-value">—</strong></div></div>
-        <label class="heatmap-control"><input type="checkbox" id="color-uncertainty" checked> Color flight history by model error bound</label>
-        <div class="error-scale"><i></i><span>0</span><span id="error-scale-max">4.5 m/s²</span></div>
-        <div class="error-chart-key"><span class="bound-key">Bound</span><span class="actual-key">Measured error</span><span class="spread-key">Network spread</span></div>
-        <canvas id="uncertainty-chart" aria-label="Acceleration-error bound, measured simulator error and network disagreement over time"></canvas>
-        <div class="coverage-row"><span id="coverage-detail">Checking coverage…</span><button id="next-bound-miss">Next bound miss →</button></div>
-        <p id="bound-miss-detail" class="bound-miss-detail" hidden></p>
-        <p class="uncertainty-note">Flight-history colors show the acceleration-error bound at each recorded state and command. Gray chart bands mark steps without recorded position bounds. Red ticks mark steps that exceeded a recorded state bound. Network spread measures disagreement between the three dynamics networks; it is not an error bound.</p>
+        <div id="run-summary" class="summary"></div>
       </section>
-      <details class="trajectory-help"><summary>What the trajectory lines mean</summary><div class="trajectory-key"><div><span class="line-icon candidate"></span><strong>Candidate</strong><p id="candidate-trajectory-explanation">A proposed trajectory: follow the MPPI racing plan for the selected time, then follow the course centerline at 2 m/s. Gatekeeper checks this proposal before accepting it.</p></div><div><span class="line-icon committed"></span><strong>Committed</strong><p id="accepted-trajectory-explanation">The trajectory currently followed by the neural controller. It stays active when a new proposal is rejected.</p></div></div></details>
-      <div class="stats"><div><small>MODEL UPDATES</small><strong id="model-value">—</strong></div><div><small>GATES PASSED</small><strong id="gates-value">—</strong></div><div><small>TIME TO BACKUP</small><strong id="switch-value">—</strong></div><div><small>PREDICTED CLEARANCE</small><strong id="margin-value">—</strong></div></div>
-      <div class="chart-heading"><span>SPEED THROUGH THE COURSE</span><span id="peak-value">—</span></div>
-      <canvas id="speed-chart" height="95" aria-label="Measured flight speed over time"></canvas>
-      <div class="assurance"><span class="assurance-icon">i</span><p id="assurance-text">Loading verification status.</p></div>
-    </aside>
-    <section id="tube-profile-panel" class="tube-profile-panel" aria-label="Candidate tube dimensions"><canvas id="tube-width-chart" style="width:100%;height:155px" aria-label="Position tube width along the full candidate"></canvas><p id="tube-width-caption"></p></section>
-    <section id="flight-diagnostics" class="flight-diagnostics" hidden aria-label="Measured motion and requested motion">
-      <div><h3>Requested and actual speed</h3><p>Desired velocity sent to the neural controller and measured speed. These are the commands that were accepted.</p><canvas id="command-speed-chart" aria-label="Requested and actual speed over the flight"></canvas></div>
-      <div><h3>Altitude through the course</h3><p>Measured altitude and the accepted candidate’s predicted altitude, both in world coordinates.</p><canvas id="altitude-chart" aria-label="Measured and predicted altitude over the flight"></canvas></div>
-    </section>
-    <section class="playback" aria-label="Playback controls">
-      <button id="play" class="play-button" aria-label="Play replay">▶</button><button id="restart" class="restart-button" aria-label="Restart replay">↺</button>
-      <span id="clock">00:00.00 <em>/ 00:00.00</em></span>
-      <input id="timeline" type="range" min="0" max="1" step=".01" value="0" aria-label="Replay time">
-      <select id="playback-speed" aria-label="Playback speed"><option value=".5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select>
-      <button id="next-decision">Next decision →</button>
-    </section>
-  </main>
-  <section class="method-panel" id="matched-method" hidden aria-label="Matched DiffReach method">
-    <span class="eyebrow">METHOD USED BY THIS FLIGHT</span><h2>One controller and one prediction model throughout the calculation</h2>
-    <ol class="method-steps">
-      <li><strong>Base model and learned residual.</strong><p>The base model is the DiffReach-Robotics 12-state thrust/torque quadrotor: position, velocity, roll/pitch/yaw and body angular rates. A learned function of velocity supplies the acceleration correction. The ground-truth simulator uses the same base equations with the actual residual instead.</p></li>
-      <li><strong>MPPI and the candidate commands.</strong><p>MPPI searches over desired world-velocity commands. Each candidate follows those commands for 2, 1.5, 1, 0.5, 0.2 or 0 seconds, followed by course-following backup commands. Every candidate lasts 2.5 seconds. The command schedule is fixed once generated.</p></li>
-      <li><strong>Neural feedback and reachable sets.</strong><p>The controller takes the drone state and desired velocity and produces thrust and roll/pitch torque every 0.05 seconds. DiffReach encloses that same feedback network and the nonlinear dynamics. The data-and-distance error bound is queried over the entire velocity region and enters only the acceleration equations. There is no additional independent disturbance.</p></li>
-      <li><strong>Check, select and execute.</strong><p><span id="matched-collision-description"></span> It selects the longest passing racing segment. A rejection retains the previous commitment, including its original controller coordinates and command schedule. The initial commitment uses zero switching time. The simulation ends if the finite commitment expires without a passing replacement; no emergency stopping manoeuvre is implied.</p></li>
-    </ol>
-    <p class="method-direct">The current quadrotor has a mass of 1.4 kg and a maximum thrust of 15 N; hovering requires 13.734 N. Its neural controller was trained with velocity commands limited to ±2 m/s per axis. Faster MPPI proposals can exceed that training range. A broader search does not train a controller for faster flight.</p>
-    <p class="method-direct">The controller and residual were trained before these flights and remain fixed during them. The state at each planning update is known exactly. The simulator advances with a 0.001 s RK4 step, independently of the 0.01 s tube calculation.</p>
-    <p class="knowledge-note">These are finite-horizon numerical enclosures conditional on the measured-data and Lipschitz assumptions. There is no formal floating-point rounding certificate or invariant terminal-set proof. Planning runs synchronously in simulated time; measured processing delay is not inserted into the flight. Completing this replay does not establish a real-time or indefinite safety guarantee.</p>
-  </section>
-  <section class="method-panel" id="method" aria-label="How the controller generates a flight">
-    <span class="eyebrow">CURRENT IMPLEMENTATION</span><h2>How the flight is generated</h2>
-    <div class="model-definitions">
-      <p><strong>Base model</strong>Known equations for motion, orientation, thrust response and body-rate response.</p>
-      <p><strong>Prediction model</strong>Base model + a neural network's learned acceleration correction. Used to predict future states.</p>
-      <p><strong>Ground-truth simulator</strong>The simulated drone that receives the applied commands. Scenarios 1, 3 and 4 include drag and acceleration bias that are absent from the base model. Scenario 2 uses the base-model dynamics.</p>
+      <section class="workspace">
+        <div class="visual">
+          <div class="scene-wrap">
+            <canvas id="scene" aria-label="Drone racing replay"></canvas>
+            <div class="scene-title">
+              Safely racing at the<br />limits of handling.
+            </div>
+            <div class="camera-controls">
+              <button data-camera="orbit">Orbit</button
+              ><button data-camera="follow">Follow</button
+              ><button data-camera="top">Top</button
+              ><button id="focus-tube">Fit tube</button
+              ><button id="focus-drone">Inspect drone</button>
+            </div>
+            <div class="speed">
+              <strong id="speed">0.0</strong> m/s <span id="gate-count"></span>
+            </div>
+            <div id="scene-status"></div>
+            <span class="orbit-help">Drag to orbit · Scroll to zoom</span>
+          </div>
+          <div class="layers">
+            <label
+              ><input id="show-route" type="checkbox" checked />Course</label
+            ><label
+              ><input id="show-nominal" type="checkbox" checked /><i
+                class="gold"
+              ></i
+              >MPPI plan</label
+            ><label
+              ><input id="show-active" type="checkbox" checked /><i
+                class="cyan"
+              ></i
+              >Executed reference</label
+            ><label
+              ><input id="show-flown" type="checkbox" checked />Flown
+              path</label
+            ><label id="room-control"
+              ><input id="show-room" type="checkbox" checked />Lab room</label
+            >
+          </div>
+          <div class="playback">
+            <button id="play" aria-label="Play replay">▶</button
+            ><button id="restart">↺</button
+            ><span id="clock">0.00 / 45.00 s</span
+            ><input
+              id="timeline"
+              type="range"
+              min="0"
+              step="0.01"
+              value="0"
+              aria-label="Flight time"
+            /><select id="playback-speed" aria-label="Playback speed">
+              <option value=".5">0.5×</option>
+              <option value="1" selected>1×</option>
+              <option value="2">2×</option>
+            </select>
+          </div>
+          <div class="plots">
+            <div>
+              <h3>Speed</h3>
+              <canvas id="command-speed-chart"></canvas>
+            </div>
+            <div>
+              <h3>Altitude</h3>
+              <canvas id="altitude-chart"></canvas>
+            </div>
+          </div>
+        </div>
+        <aside>
+          <span class="eyebrow" id="update-time"></span>
+          <h2 id="active-title"></h2>
+          <p id="active-detail"></p>
+          <div id="gatekeeper-controls">
+            <h3>Candidate switching time</h3>
+            <div id="candidate-buttons"></div>
+            <p id="candidate-status"></p>
+            <div class="layers vertical">
+              <label
+                ><input id="show-tube" type="checkbox" checked />Reachable
+                tube</label
+              ><label
+                ><input id="show-rejected" type="checkbox" checked />First
+                failed check in red</label
+              ><label
+                ><input id="show-body" type="checkbox" />Include the drone’s
+                physical size</label
+              >
+            </div>
+            <p id="failure-detail"></p>
+            <button id="focus-failure">Focus failed check</button>
+            <h3>Reachable-set evolution</h3>
+            <div class="evolution">
+              <button id="evolve">▶ Evolve</button
+              ><button id="full-tube">Full tube</button
+              ><span id="tube-clock"></span>
+            </div>
+            <input
+              id="tube-time"
+              type="range"
+              min="0"
+              max="2.5"
+              step=".01"
+              value="2.5"
+              aria-label="Time within candidate"
+            />
+            <p id="tube-note" class="muted"></p>
+            <canvas id="tube-width-chart"></canvas>
+            <p id="tube-width-caption" class="muted"></p>
+          </div>
+          <div id="baseline-note" hidden>
+            <p>
+              No reachable tube is calculated in this baseline. The gold line is
+              the MPPI prediction; the cyan line is the reference currently
+              executed by the neural controller.
+            </p>
+            <p>
+              If the optimizer fails, the previous feasible MPPI reference is
+              retained until its horizon expires. No safety verification or
+              backup controller is used.
+            </p>
+          </div>
+          <details open>
+            <summary>Computation for this update</summary>
+            <dl id="timing"></dl>
+            <p class="muted">
+              Measured elapsed time, including synchronization. The simulation
+              does not advance while planning runs.
+            </p>
+          </details>
+        </aside>
+      </section>
+      <section class="comparison">
+        <h2>Same controller, three comparisons</h2>
+        <p>
+          All recordings request 45 seconds. Contact, a missed gate or an
+          expired reference stops the simulation; the actual duration is shown.
+        </p>
+        <div id="comparison-results"></div>
+      </section>
+      <section class="method">
+        <h2>What is shared, and what changes</h2>
+        <div class="method-grid">
+          <div>
+            <h3>Shared system</h3>
+            <p>
+              The same 12-state rigid-body base model, neural-controller
+              checkpoint, command limits, 20 Hz controller, 1 ms ground-truth
+              integration, course, body size and MPPI settings are used within
+              each environment. The model and controller remain fixed during
+              each recording.
+            </p>
+            <p>
+              The DevQuad v2 visual uses the lab’s CAD components and documented
+              motor spacing, with 5-inch tri-blade propellers. Its 0.19 m
+              collision sphere encloses the visual at every rotor angle. The
+              visual does not make these dynamics a calibrated hardware model.
+            </p>
+          </div>
+          <div>
+            <h3>Dynamics comparison</h3>
+            <p>
+              Baseline 1 has no residual in either the prediction model or
+              ground-truth simulator. Baseline 2 and Method 1 share the same
+              true velocity-dependent residual and its learned approximation.
+              Their mismatch is the difference between those functions, not a
+              change in the low-level controller.
+            </p>
+            <p id="course-details"></p>
+          </div>
+          <div>
+            <h3>Method 1 verification</h3>
+            <p>
+              Each of six candidates lasts 2.5 seconds, with switching times 2,
+              1.5, 1, 0.5, 0.2 and 0 seconds. The whole-state flowpipe accounts
+              for the neural controller and the residual-error bound. Position
+              sets plus the physical drone size must avoid gates, supports, room
+              obstacles, floor and ceiling.
+            </p>
+            <p>
+              A geometry failure does not truncate the tube. If propagation
+              itself fails, only its established prefix is drawn; the remaining
+              reference is gray. Floating-point arithmetic is not formally
+              certified, and finite-horizon checks do not prove indefinite
+              safety.
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
-    <ol class="method-steps">
-      <li><strong>MPPI generates the racing plan.</strong><p>It tries command sequences, predicts their motion with the prediction model, and scores forward progress, course error and control effort. Its output is a two-second sequence of reference states and thrust/body-rate commands.</p></li>
-      <li><strong>With Gatekeeper: simulate a candidate.</strong><p>Starting at the measured state, simulate the neural tracker following the MPPI racing plan until a chosen switch time. Then simulate the backup controller, which follows the course centerline at 2 m/s. The prediction model produces every future state. The first candidate has <b>no racing segment</b>: backup starts immediately.</p></li>
-      <li><strong>Check the candidate, then keep an accepted reference.</strong><p id="method-propagation-explanation">Propagate model error and measurement error along the candidate, using Jacobians of the prediction model together with the neural feedback policy. Check the resulting position bounds against the course, then check position, velocity and tilt error at the end of the candidate. An accepted candidate becomes the trajectory to follow. If a later candidate fails, the previously accepted trajectory stays active, including its moving backup.</p></li>
-      <li><strong>The neural tracker generates applied commands.</strong><p>It receives the measured state, reference state/command and previous command. It outputs thrust and body rates, subject to magnitude and change-rate limits. It tracks the whole accepted reference, including the backup portion. The geometric backup generates that reference; it does not replace the executing neural tracker.</p></li>
-    </ol>
-    <p class="method-direct" id="startup-explanation"><strong>Startup:</strong> Base model + the declared bound on unknown drag and acceleration bias → simulate the moving backup immediately → check the full candidate → begin tracking only if accepted. If that check rejects, flight does not start. No preliminary data-collection flight is required. Once flight begins, dynamics learning and neural-controller adaptation use the collected measurements.</p>
-    <p class="method-direct"><strong>Without Gatekeeper:</strong> MPPI reference → neural tracker → ground-truth simulator. No candidate check, acceptance decision or backup switch is used. These are Scenarios 2 and 3 below.</p>
-    <details><summary>Dynamics learning and controller learning</summary><p>The dynamics ensemble averages three networks to predict an acceleration correction from measured state changes and applied commands. The control-policy network learns how to track a reference. When the dynamics model changes, policy training simulates tracking with that model and updates the controller weights by backpropagation through time. No ATS is used. In a Gatekeeper run, a policy update enters execution only with an accepted candidate; without Gatekeeper, it enters after the training validation check.</p></details>
-    <p class="knowledge-note" id="method-limitations">Gatekeeper uses a local linear approximation (the Jacobian) to propagate uncertainty. A mathematical guarantee that these bounds contain every nonlinear motion, or that the moving backup remains safe indefinitely, has not been established. The force limit available at startup is an assumption about the possible drag and bias. It is not learned before measurements are collected. The ground-truth simulator is a 14-state body-rate/actuator model, not a rotor-resolved high-fidelity simulator.</p>
-  </section>
-  <section class="performance-panel" id="performance" aria-label="Neural controller with and without Gatekeeper">
-    <div class="knowledge-title"><div><span class="eyebrow" id="performance-environment">ENVIRONMENT 1 · MATCHED SCENARIOS</span><h2>With and without Gatekeeper</h2><p id="performance-intro">Three scenarios for the selected environment, with the same starting state, pretrained neural controller and planner settings.</p></div></div>
-    <div id="performance-cards" class="performance-cards"><p>Loading measured results…</p></div>
-    <canvas id="comparison-chart" aria-label="Flight speed comparison over time"></canvas>
-    <p class="knowledge-note" id="performance-protocol"></p><details id="force-search" hidden><summary>How this example was selected</summary><p id="force-search-description"></p><ul id="force-search-trials"></ul><p>The collision check uses the simulated drone’s 0.16 m radius and the gate-frame geometry. The drone is drawn larger to make it easier to see; the red sphere shows its collision radius.</p></details>
-  </section>
-  <section id="model-knowledge" class="knowledge-panel" aria-label="Dynamics knowledge in state space">
-    <div class="knowledge-title"><div><span class="eyebrow">LEARNED DYNAMICS</span><h2>How does model uncertainty change during flight?</h2><p>Choose which state or command inputs to vary. Color shows the bound on acceleration prediction error at those inputs, in m/s².</p></div>
-    <div class="knowledge-selects"><label>INPUTS TO VARY<select id="knowledge-view" disabled aria-label="Choose state or command inputs"><option value="position_xy">Position · x and y</option></select></label><label>DATA SOURCE<select id="knowledge-source" aria-label="Choose map data source"><option value="replay">Selected recording</option><option value="live">Live local run</option></select></label><label>ERROR BOUND<select id="knowledge-bound" aria-label="Choose error bound source"><option value="data">Measurements only</option><option value="combined">Measurements + assumed force limits</option></select></label></div></div>
-    <div class="knowledge-playback"><label for="knowledge-time">Flight time <strong id="knowledge-time-label">0.0 s</strong></label><input id="knowledge-time" disabled type="range" min="0" max="30" step=".05" value="0" aria-label="Model uncertainty flight time"></div>
-    <p class="knowledge-status" id="knowledge-status" aria-live="polite"></p><p class="knowledge-note" id="knowledge-view-note"></p>
-    <div class="knowledge-maps"><figure id="knowledge-baseline-panel"><figcaption id="knowledge-baseline-title">At start</figcaption><canvas id="knowledge-baseline" aria-label="Initial acceleration-error bound for the selected inputs"></canvas></figure><figure><figcaption id="knowledge-current-title">Current model</figcaption><canvas id="knowledge-map" aria-label="Current acceleration-error bound for the selected inputs"></canvas></figure></div>
-    <div class="knowledge-legend"><span>Smaller error bound</span><i></i><span>Larger error bound</span><strong>0 → <span id="knowledge-scale-max">4.5+ m/s²</span></strong><span>White dots: nearby measurements</span></div>
-    <div class="knowledge-readout"><span id="knowledge-count"></span><span id="knowledge-hover">Move over a map to inspect a state.</span></div>
-    <p id="knowledge-policy"></p>
-    <p class="knowledge-note">Each map changes only the two selected inputs. All remaining inputs use the same starting values in both maps. The colors are <strong>acceleration-error bounds</strong>, not position or velocity error. Gray means no finite bound is available from the selected source; it does not mean zero uncertainty. The measurements-only bound grows with distance from the collected data under an assumed smoothness limit. The other option also uses an assumed limit on unknown forces. Both depend on those assumptions. A smaller bound does not by itself establish safe flight.</p>
-    <details><summary>Fixed state and command values</summary><p id="knowledge-anchor-note"></p><dl id="knowledge-anchor"></dl></details>
-  </section>
-  </div>
-  <footer><span>JAX MPPI <b>·</b> ONLINE RESIDUAL LEARNING <b>·</b> GATEKEEPER</span><span id="recording-note">Actual simulation recordings. No scripted flight animation.</span></footer>
-  <script type="module" src="app.js?v=27"></script>
-  <script type="module" src="performance.js?v=8"></script>
-</body>
+    <footer>
+      JAX MPPI · NEURAL CONTROL · LEARNED RESIDUAL · DIFFREACH · GATEKEEPER
+    </footer>
+    <script type="module" src="app.js?v=comparison-1"></script>
+  </body>
 </html>

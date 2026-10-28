@@ -5,8 +5,7 @@
     "name": "Chicane course",
     "description": "Eight gates with changing turn curvature and height.",
     "directory": "",
-    "index": "index.json",
-    "comparison": "comparison.json"
+    "index": "index.json"
   },
   {
     "id": "environment-2",
@@ -14,25 +13,22 @@
     "name": "Stacked gates and crossing routes",
     "description": "Seven spaced gates arranged from your reference: a stacked pair on the left, a broad turn on the right, front and back gates, and crossing routes at different heights.",
     "directory": "environment-2/",
-    "index": "index.json",
-    "comparison": "comparison.json"
+    "index": "index.json"
   },
   {
     "id": "environment-3",
     "label": "Environment 3",
     "name": "Fly Lab \u00b7 three-gate climb and hairpins",
-    "description": "The Fly Lab room with three repositioned 0.6 \u00d7 0.6 m gates. An asymmetric route climbs above the control-room roof and returns through a descending hairpin. This environment uses a smaller drone with a 0.16 m collision radius.",
+    "description": "The Fly Lab room with three repositioned 0.8 \u00d7 0.8 m gates. An asymmetric route climbs above the control-room roof and returns through a descending hairpin. The DevQuad visual uses a 0.19 m collision radius.",
     "directory": "environment-3/",
-    "index": "index.json",
-    "comparison": "comparison.json"
+    "index": "index.json"
   },
   {
     "id": "environment-4",
     "label": "Environment 4",
     "name": "Fly Lab \u00b7 widely spaced gates",
-    "description": "Three 0.6 \u00d7 0.6 m gates spread across the lab at heights of 2.2, 6.2 and 10.9 m. A rising traverse and high roof pass lead to a descending hairpin. The drone has a 0.16 m collision radius.",
+    "description": "Three 0.8 \u00d7 0.8 m gates spread across the lab at heights of 2.2, 6.2 and 10.9 m. A rising traverse and high roof pass lead to a descending hairpin. The DevQuad visual uses a 0.19 m collision radius.",
     "directory": "environment-4/",
-    "index": "index.json",
-    "comparison": "comparison.json"
+    "index": "index.json"
   }
 ]

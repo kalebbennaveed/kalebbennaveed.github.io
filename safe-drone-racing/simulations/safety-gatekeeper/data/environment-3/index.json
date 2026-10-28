@@ -1,22 +1,71 @@
 [
   {
-    "file": "experimental-7-neural.json",
-    "label": "Scenario 1 \u00b7 With Gatekeeper, unknown dynamics",
-    "mode": "experimental"
+    "file": "baseline-1.json",
+    "variant": "baseline-1",
+    "number": 1,
+    "label": "Baseline 1 \u00b7 Matching dynamics, no Gatekeeper",
+    "mode": "unfiltered",
+    "metrics": {
+      "duration": 45.0,
+      "gates_passed": 5,
+      "progress": 55.24468253508508,
+      "mean_speed": 1.2547666090338934,
+      "max_speed": 2.400424062186937,
+      "tube_covered_steps": 0,
+      "continuation_steps": 0,
+      "continuation_terminal_violations": 0,
+      "min_clearance": 0.08009574649569823,
+      "min_altitude": 2.1188743272056887,
+      "max_altitude": 7.225091120183237,
+      "passed_candidates": 0,
+      "total_candidates": 0
+    },
+    "status": "completed"
   },
   {
-    "file": "unfiltered-base-7-neural.json",
-    "label": "Scenario 2 \u00b7 Without Gatekeeper, matching dynamics",
-    "mode": "unfiltered"
+    "file": "baseline-2.json",
+    "variant": "baseline-2",
+    "number": 2,
+    "label": "Baseline 2 \u00b7 Model mismatch, no Gatekeeper",
+    "mode": "unfiltered",
+    "metrics": {
+      "duration": 45.0,
+      "gates_passed": 5,
+      "progress": 57.033026813455656,
+      "mean_speed": 1.288934648611009,
+      "max_speed": 3.5861764196647297,
+      "tube_covered_steps": 0,
+      "continuation_steps": 0,
+      "continuation_terminal_violations": 0,
+      "min_clearance": 0.08975824421840384,
+      "min_altitude": 2.087557509355099,
+      "max_altitude": 7.161298762691985,
+      "passed_candidates": 0,
+      "total_candidates": 0
+    },
+    "status": "completed"
   },
   {
-    "file": "unfiltered-mismatch-7-neural.json",
-    "label": "Scenario 3 \u00b7 Without Gatekeeper, unknown dynamics",
-    "mode": "unfiltered"
-  },
-  {
-    "file": "diffreach-matched.json",
-    "label": "Scenario 4 \u00b7 Gatekeeper + DiffReach \u2014 uncertain dynamics",
-    "mode": "diffreach"
+    "file": "method-1.json",
+    "variant": "method-1",
+    "number": 3,
+    "label": "Method 1 \u00b7 DiffReach + Gatekeeper",
+    "mode": "diffreach",
+    "metrics": {
+      "duration": 45.0,
+      "gates_passed": 4,
+      "progress": 45.700712908189,
+      "mean_speed": 1.0538296557438653,
+      "max_speed": 2.2574973456425917,
+      "tube_covered_steps": 4500,
+      "continuation_steps": 0,
+      "continuation_terminal_violations": 0,
+      "min_clearance": 0.042348380625394505,
+      "min_altitude": 2.0103991768198264,
+      "max_altitude": 6.951023214036788,
+      "passed_candidates": 250,
+      "total_candidates": 270
+    },
+    "status": "completed"
   }
 ]
