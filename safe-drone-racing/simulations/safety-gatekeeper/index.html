@@ -198,7 +198,10 @@
               The DevQuad v2 visual uses the lab’s CAD components and documented
               motor spacing, with 5-inch tri-blade propellers. Its 0.19 m
               collision sphere encloses the visual at every rotor angle. The
-              visual does not make these dynamics a calibrated hardware model.
+              simulation uses the documented 0.680 kg mass and inertia, a
+              retrained neural controller and a 34.8 N total thrust limit. It
+              models rigid-body motion without motor lag; it is not a calibrated
+              hardware model.
             </p>
           </div>
           <div>
@@ -235,6 +238,6 @@
     <footer>
       JAX MPPI · NEURAL CONTROL · LEARNED RESIDUAL · DIFFREACH · GATEKEEPER
     </footer>
-    <script type="module" src="app.js?v=contact-2"></script>
+    <script type="module" src="app.js?v=devquad-3"></script>
   </body>
 </html>

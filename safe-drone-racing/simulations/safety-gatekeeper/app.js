@@ -11,7 +11,7 @@ import {
 import { addRejectionBox, addEventMarker } from "./rejection.js?v=contact-2";
 import { candidateDecision, activeCommitment } from "./decision-state.js";
 import { drawTubeProfile } from "./tube-profile.js";
-import { drawFlightDiagnostics } from "./flight-diagnostics.js";
+import { drawFlightDiagnostics } from "./flight-diagnostics.js?v=devquad-flight-2";
 import { scenarios, scenarioFor } from "./scenarios.js?v=comparison-1";
 
 const $ = (id) => document.getElementById(id),
@@ -440,6 +440,9 @@ function showSummary() {
       `${num(m.duration, 1)} s recorded · ${m.gates_passed} gates`,
       `${num(m.mean_speed)} m/s mean · ${num(m.max_speed)} m/s peak`,
       `${num(mean, 1)} ms per update after compilation`,
+      record.tracking
+        ? `Course distance: ${num(record.tracking.course_position_rmse)} m RMS · ${num(record.tracking.course_position_p95)} m at the 95th percentile`
+        : "",
       record.outcome.label,
     ].map((text) => {
       const p = document.createElement("p");

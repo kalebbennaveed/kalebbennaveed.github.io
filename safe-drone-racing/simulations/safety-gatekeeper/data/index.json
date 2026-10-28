@@ -6,21 +6,21 @@
     "label": "Baseline 1 \u00b7 Matching dynamics, no Gatekeeper",
     "mode": "unfiltered",
     "metrics": {
-      "duration": 5.5,
-      "gates_passed": 3,
-      "progress": 23.168000121948726,
-      "mean_speed": 4.291080066324356,
-      "max_speed": 6.387733785814491,
+      "duration": 45.0,
+      "gates_passed": 53,
+      "progress": 314.42293466891687,
+      "mean_speed": 7.4136044462628,
+      "max_speed": 10.684284336214192,
       "tube_covered_steps": 0,
       "continuation_steps": 0,
       "continuation_terminal_violations": 0,
-      "min_clearance": 0.02517081935248136,
-      "min_altitude": 1.8417417586004987,
-      "max_altitude": 3.413385059841654,
+      "min_clearance": 0.08952799927679883,
+      "min_altitude": 1.680968164328095,
+      "max_altitude": 4.408792421008594,
       "passed_candidates": 0,
       "total_candidates": 0
     },
-    "status": "commitment_expired"
+    "status": "completed"
   },
   {
     "file": "baseline-2.json",
@@ -29,21 +29,21 @@
     "label": "Baseline 2 \u00b7 Model mismatch, no Gatekeeper",
     "mode": "unfiltered",
     "metrics": {
-      "duration": 5.5,
-      "gates_passed": 3,
-      "progress": 20.030049171956485,
-      "mean_speed": 3.8670103634291926,
-      "max_speed": 6.49083161252063,
+      "duration": 45.0,
+      "gates_passed": 50,
+      "progress": 295.6009898101807,
+      "mean_speed": 7.8226805609881085,
+      "max_speed": 16.02297366345527,
       "tube_covered_steps": 0,
       "continuation_steps": 0,
       "continuation_terminal_violations": 0,
-      "min_clearance": 0.05655993789104008,
-      "min_altitude": 0.9004220198692865,
-      "max_altitude": 3.648903597282686,
+      "min_clearance": 0.05209764061083538,
+      "min_altitude": 1.4314967836225503,
+      "max_altitude": 4.348796810152831,
       "passed_candidates": 0,
       "total_candidates": 0
     },
-    "status": "commitment_expired"
+    "status": "completed"
   },
   {
     "file": "method-1.json",
@@ -52,20 +52,20 @@
     "label": "Method 1 \u00b7 DiffReach + Gatekeeper",
     "mode": "diffreach",
     "metrics": {
-      "duration": 45.0,
-      "gates_passed": 10,
-      "progress": 63.20629953200902,
-      "mean_speed": 1.5229391703897333,
-      "max_speed": 2.686186740737526,
-      "tube_covered_steps": 4500,
+      "duration": 3.0,
+      "gates_passed": 0,
+      "progress": 4.0647902824749,
+      "mean_speed": 1.8092451415750945,
+      "max_speed": 3.4522337849336413,
+      "tube_covered_steps": 300,
       "continuation_steps": 0,
       "continuation_terminal_violations": 0,
-      "min_clearance": 0.5428712317500566,
-      "min_altitude": 1.7501913376016238,
-      "max_altitude": 4.212101163902429,
-      "passed_candidates": 54,
-      "total_candidates": 270
+      "min_clearance": 0.5919748412787573,
+      "min_altitude": 3.0,
+      "max_altitude": 4.05415683127195,
+      "passed_candidates": 5,
+      "total_candidates": 78
     },
-    "status": "completed"
+    "status": "commitment_expired"
   }
 ]

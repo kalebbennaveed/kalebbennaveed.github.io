@@ -6,21 +6,21 @@
     "label": "Baseline 1 \u00b7 Matching dynamics, no Gatekeeper",
     "mode": "unfiltered",
     "metrics": {
-      "duration": 37.5,
-      "gates_passed": 7,
-      "progress": 145.86945372473951,
-      "mean_speed": 3.7968429770144376,
-      "max_speed": 7.142923742772443,
+      "duration": 45.0,
+      "gates_passed": 19,
+      "progress": 266.0042061809426,
+      "mean_speed": 6.169417554180848,
+      "max_speed": 12.025470669715125,
       "tube_covered_steps": 0,
       "continuation_steps": 0,
       "continuation_terminal_violations": 0,
-      "min_clearance": 0.02673575969108119,
-      "min_altitude": 0.5599965815576388,
-      "max_altitude": 4.033575046484645,
+      "min_clearance": 0.14688700499874868,
+      "min_altitude": 0.898721493173239,
+      "max_altitude": 5.138823866116735,
       "passed_candidates": 0,
       "total_candidates": 0
     },
-    "status": "commitment_expired"
+    "status": "completed"
   },
   {
     "file": "baseline-2.json",
@@ -30,16 +30,16 @@
     "mode": "unfiltered",
     "metrics": {
       "duration": 45.0,
-      "gates_passed": 0,
-      "progress": 176.082136306814,
-      "mean_speed": 3.3958280424492777,
-      "max_speed": 5.988664291875394,
+      "gates_passed": 19,
+      "progress": 267.0396769276057,
+      "mean_speed": 6.128801677992529,
+      "max_speed": 20.74516853012963,
       "tube_covered_steps": 0,
       "continuation_steps": 0,
       "continuation_terminal_violations": 0,
-      "min_clearance": 0.02897823327769941,
-      "min_altitude": 0.8069226089813285,
-      "max_altitude": 4.3472348115260235,
+      "min_clearance": 0.09213189568147484,
+      "min_altitude": 1.2341891348447305,
+      "max_altitude": 5.2548286597554394,
       "passed_candidates": 0,
       "total_candidates": 0
     },
@@ -52,20 +52,20 @@
     "label": "Method 1 \u00b7 DiffReach + Gatekeeper",
     "mode": "diffreach",
     "metrics": {
-      "duration": 45.0,
-      "gates_passed": 4,
-      "progress": 61.2324519577233,
-      "mean_speed": 1.4105993605235776,
-      "max_speed": 2.2311013069649106,
-      "tube_covered_steps": 4500,
+      "duration": 8.500000000000002,
+      "gates_passed": 0,
+      "progress": 11.321895890199352,
+      "mean_speed": 1.6089010370177461,
+      "max_speed": 2.8722189102815494,
+      "tube_covered_steps": 850,
       "continuation_steps": 0,
       "continuation_terminal_violations": 0,
-      "min_clearance": 0.4720892009266155,
-      "min_altitude": 1.426635247052644,
-      "max_altitude": 5.006572894297962,
-      "passed_candidates": 58,
-      "total_candidates": 270
+      "min_clearance": 0.8984090856108831,
+      "min_altitude": 3.492656888718885,
+      "max_altitude": 3.710892863485512,
+      "passed_candidates": 14,
+      "total_candidates": 108
     },
-    "status": "completed"
+    "status": "commitment_expired"
   }
 ]
