@@ -5,6 +5,7 @@
   image: "/dual-gtk/assets/publication-preview.gif"
   links:
     pdf: "https://arxiv.org/abs/2604.15507"
+    code: "https://github.com/kalebbennaveed/dual-gtk"
     video: "https://youtu.be/l-pxMYxoITU"
     website: "/dual-gtk/"
 
