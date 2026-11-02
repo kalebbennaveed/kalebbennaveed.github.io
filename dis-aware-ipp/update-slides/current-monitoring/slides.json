@@ -1,0 +1,283 @@
+[
+  {
+    "title": "Disturbance-aware monitoring",
+    "subtitle": "Model-based diffusion with a learned wind field and task-directed exploration",
+    "kind": "cover",
+    "body": [
+      "Kaleb Ben Naveed",
+      "Department of Robotics, University of Michigan"
+    ],
+    "notes": "Prepared from the recorded circular-environment experiments and repository implementation, 2 November 2026. Interactive replays show recorded data, not new browser physics. Older simulations remain available on the main webpage. Design reference: output/presentation/wind_aware_mbd, October 2026. Its optimistic-planning content is excluded."
+  },
+  {
+    "title": "Persistent monitoring under wind",
+    "kind": "motivation",
+    "body": [
+      "A planned sensing visit has value only if the robot can execute it.",
+      "Wind changes tracking, travel time and safety-filter intervention.",
+      "The robot must repeatedly restore clarity in A and B while learning the spatial wind field."
+    ],
+    "equation": "min E[ \u222b\u2080\u1d40 mean\u1d62 (q\u0304\u1d62 \u2212 q\u1d62(t))\u208a dt ]",
+    "notes": "The whole-free-space objective uses every free clarity cell. Additional speed and clearance penalties enter optimization. Monitoring cost does not reset on visits. Source: scripts/airflow/legacy_monitoring.py and monitoring_mbd.py."
+  },
+  {
+    "title": "Two environments with stationary wind",
+    "kind": "wind",
+    "body": [
+      "Both central passages oppose B to A.",
+      "Scenario 2 adds strong opposing wind along the lower bypass.",
+      "The upper bypass and monitoring regions target sheltered conditions."
+    ],
+    "caption": "Particles move through a fixed field. Designed CFD fields, with numerical validation incomplete.",
+    "notes": "The CFD-derived field is a 16\u201332 s mean from 3D D3Q19 MRT LBM with Smagorinsky LES, sampled at z=0.75 m. The domain is 8 \u00d7 4.625 \u00d7 2 m. These are provisional designed CFD fields, with incomplete mesh validation. Residual wind remains in sheltered areas. Sources: data/scenario1/metadata.json, data/scenario2/metadata.json, data/validation.json."
+  },
+  {
+    "title": "Path-dependent deviation",
+    "kind": "robot",
+    "body": [
+      "The same tracker follows each reference in both scenarios.",
+      "Select the route and direction to compare unfiltered and RPCBF execution."
+    ],
+    "caption": "Replay of computed trajectories. Dashed lines show the reference and still-air response.",
+    "notes": "All twelve route-direction-scenario cases are recorded. The nominal controller has no wind feedforward. References share geometry across directions. Source: data/robot/manifest.json and individual records. The known-wind RPCBF diagnostic uses zero uncertainty and differs from learned-belief monitoring."
+  },
+  {
+    "title": "Central headwind slows safe passage",
+    "kind": "transit",
+    "body": [
+      "Without the filter, both B-to-A central runs contact an obstacle.",
+      "With known-wind RPCBF, the 1.2 m throat takes about five times longer than in still air."
+    ],
+    "table": [
+      [
+        "Central B to A",
+        "Still air",
+        "RPCBF"
+      ],
+      [
+        "Scenario 1",
+        "1.30 s",
+        "6.59 s"
+      ],
+      [
+        "Scenario 2",
+        "1.30 s",
+        "6.47 s"
+      ]
+    ],
+    "caption": "Same robot, reference, actuator limits and tracker. This diagnostic assumes known wind.",
+    "notes": "Exact values: still air 1.2989242467 s, Scenario 1 6.5927494660 s, Scenario 2 6.4714367428 s. Contact occurs at 6.5642 s and 6.9983 s without filter. Source: data/robot/manifest.json. These tests do not establish global safety or that every alternative route is impossible."
+  },
+  {
+    "title": "Double integrator with aerodynamic force",
+    "kind": "model",
+    "body": [
+      "Position p and velocity v form the four-dimensional robot state.",
+      "Wind enters through relative air velocity and an explicit force law.",
+      "The control remains bounded acceleration."
+    ],
+    "equation": "p\u0307 = v\nv\u0307 = u + (c/m) \u2016w(p) \u2212 v\u2016 [w(p) \u2212 v]",
+    "caption": "m = 0.680 kg     c = 0.1 kg/m     |u\u2093|, |u\u1d67| \u2264 1.6 m/s\u00b2",
+    "notes": "This is the existing planar robot and quadratic air-force mapping. Vertical and attitude dynamics are outside this model. The mass and drag coefficient are designed repository parameters, not a measured vehicle calibration. Execution uses held-control RK4 with 0.01 s physics steps and 0.05 s filtering. Source: scripts/airflow/physical.py, model section of the website."
+  },
+  {
+    "title": "Original disturbance-aware MBD architecture",
+    "kind": "architecture",
+    "body": [
+      "Wind observations update the full POAM belief.",
+      "MBD evaluates predicted executed motion with wind and relaxed RPCBF.",
+      "The shared hard RPCBF filters the command before execution."
+    ],
+    "notes": "Requested architecture diagram. Belief and clarity update from actual measurements and executed motion. The original disturbance-aware MBD does not predict future belief updates. The still-air baseline removes wind and planning-time RPCBF from its forecasts and applies RPCBF after optimization. Sources: legacy_monitoring.py; quarter/continuous.py; run_legacy_monitoring.py. This describes the original comparison architecture. The added survey objective and execution-rate final validation are introduced in slides 18\u201319."
+  },
+  {
+    "title": "Receding-horizon algorithm",
+    "kind": "algorithm",
+    "steps": [
+      "Assimilate measured wind and update clarity",
+      "Construct diverse geometric path initializations",
+      "Sample coherent spatial wind fields from POAM",
+      "Optimize full reference accelerations with MBD",
+      "Validate finalists on independent wind samples",
+      "Execute 5 seconds through RPCBF, then replan"
+    ],
+    "caption": "15 s planning horizon. 120 acceleration coordinates remain free.",
+    "notes": "Original two reverse levels, fourteen proposals per level, seven independent geometric modes plus shifted incumbent. All sixty two-dimensional acceleration controls at 0.25 s spacing remain free. Sources: legacy_monitoring.py; monitoring_routes.py; quarter/multimode.py. Browser buttons highlight the algorithm sequence only. The original historical forecasts use 0.25 s steps. The added method retains that proposal search but validates the full horizon at the execution intervals described on slide 19."
+  },
+  {
+    "title": "Clarity dynamics across the environment",
+    "kind": "clarity",
+    "body": [
+      "Sensing improves local clarity continuously.",
+      "Clarity decays everywhere. Regions A and B decay eight times faster.",
+      "The planner evaluates the whole field along predicted executed motion."
+    ],
+    "equation": "q\u0307\u1d62 = [C\u1d62(p)\u00b2/R] (1 \u2212 q\u1d62)\u00b2 \u2212 Q\u1d62 q\u1d62\u00b2",
+    "caption": "C\u1d62(p) = exp(\u2212\u2016p \u2212 cell\u1d62\u2016\u00b2 / (2\u03c3\u00b2)),  \u03c3 = 0.5 m, R = 0.1\nQ\u1d62 = 0.16 in A/B, 0.02 elsewhere. Targets: 0.70 and 0.35.",
+    "notes": "There are 1,884 free cells at 0.125 m spacing. Initial q=0.74. Without sensing, q(t)=q(0)/(1+Qq(0)t), so A/B fall to about 0.220 at 20 seconds. No visit reset or coverage surrogate replaces the ODE. Source: environment.json and clarity.py."
+  },
+  {
+    "title": "Wind belief and actual measurements",
+    "kind": "belief",
+    "body": [
+      "POAM represents a spatially correlated wind field.",
+      "Noisy observations update posterior mean and covariance at 5 Hz.",
+      "Coherent field samples preserve spatial dependence in forecasts."
+    ],
+    "equation": "y\u2096 = w(p\u2096) + \u03b5\u2096,   \u03b5\u2096 \u223c N(0, 0.1\u00b2 I)",
+    "caption": "128 inducing locations with online relocation. Full conditional residual covariance remains included.",
+    "notes": "The posterior mean and standard-deviation maps use saved POAM records. The kernel is fixed for these experiments. The prior uses the same geometry and capacity as surveyed comparisons, with no survey wind values. Source: wind/poam.py, legacy_monitoring.matched_prior, belief-audit.json. POAM reference: https://arxiv.org/abs/2406.03669."
+  },
+  {
+    "title": "Original geometric MBD initialization",
+    "kind": "initialization",
+    "body": [
+      "Rebuild a coarse free-space graph from current geometry.",
+      "Rank reachable sensing locations from predicted clarity deficit.",
+      "Recover alternative passages using temporary graph cuts.",
+      "Use paths as initial controls. MBD can change every acceleration."
+    ],
+    "caption": "Compiled Dijkstra on a 64 \u00d7 37 grid. Geometry guides initialization only.",
+    "notes": "The heuristic predicts no-sensing Riccati decay at several future times and convolves deficit with the sensor footprint. Temporary cuts diversify discovered bottlenecks, not physical obstacles. No scenario-specific route labels or true wind enter initialization. Full dynamics, clarity and RPCBF evaluate candidates. Source: monitoring_routes.py. The added online survey method uses a 128 \u00d7 74 clearance-weighted initialization grid, three passage starts, two survey frontiers, one local clarity start and hold. This numerical grid refines initialization only."
+  },
+  {
+    "title": "Model-based diffusion update",
+    "kind": "mbd",
+    "body": [
+      "Sample candidate control sequences around each diffusion state.",
+      "Evaluate their predicted executed monitoring cost.",
+      "Use cost-weighted samples to estimate the score and reverse the diffusion step."
+    ],
+    "equation": "\u03c9\u2c7c \u221d exp(\u2212J(\u03b8\u2c7c)/\u03bb)\ns\u0302 = [\u2212z + \u221a\u03b1\u0304 \u2211\u2c7c \u03c9\u2c7c \u03b8\u2c7c] / (1 \u2212 \u03b1\u0304)\nz\u207b = [z + (1 \u2212 \u03b1\u0304)s\u0302] / \u221a\u03b1",
+    "caption": "Independent chains retain distinct routes. \u03bb is cost temperature. \u03b1 and \u03b1\u0304 follow the cosine schedule.",
+    "notes": "These are the actual score_and_update equations in quarter/mbd_core.py, used per mode by quarter/multimode.py. Current disturbance-aware method uses mean cost, no favorable-tail selection and no mixture optimism. Proposal samples remain full-dimensional. Finite search budget is two reverse levels and fourteen proposals each. Source: mbd_core.py and multimode.py."
+  },
+  {
+    "title": "RPCBF in planning and execution",
+    "kind": "rpcbf",
+    "body": [
+      "Backup rollouts evaluate recovery under sampled wind fields.",
+      "Spline extrema retain the minimum safety value between backup samples.",
+      "MBD searches with relaxed RPCBF. Final validation and execution use hard constraints."
+    ],
+    "equation": "u* = arg min\u1d64 \u00bd\u2016u \u2212 u\u2099\u2092\u2098\u2016\u00b2\nsubject to \u1e23(x,u) + \u03b1 h(x) \u2265 0, u \u2208 U",
+    "caption": "h is the recovery-based safety value. Search allows penalized slack. Hard-filter infeasibility remains explicit.",
+    "notes": "Schematic CBF-QP statement. The actual full RPCBF constructs barrier values from bounded braking backup policies, eight 0.15 s rollout steps, full not-a-knot spline extrema and derivatives through the rollouts. Shared safe execution uses eight construction fields and 0.12 m margin. Relaxed forecasting uses two construction fields and 0.06 m margin. A finite sampled belief does not imply a global safety guarantee. Source: filter implementation and run protocols. For the added online survey method, final validation uses the full 15 s at 0.05 s tracking/RPCBF and 0.01 s physical/clarity integration. Older comparison archives used coarse forecasts. The hard solver retains its explicit minimum-common-slack fallback when constraints are infeasible, so contact-free execution and zero infeasibility are distinct outcomes."
+  },
+  {
+    "title": "Earlier surveyed runs showed route progress",
+    "kind": "monitor",
+    "dataset": "monitoring-legacy-300",
+    "body": [
+      "The disturbance-aware planner reached both monitoring regions in the earlier setup.",
+      "Both baseline runs eventually contacted an obstacle.",
+      "This archive motivates learning, but does not establish a fair collision-free advantage."
+    ],
+    "caption": "Earlier 300 s surveyed comparison. Different execution-filter settings from the current safe comparison.",
+    "notes": "Archived integrated deficits: Scenario 1 aware45.8584 versus baseline89.9981, Scenario 2 aware46.0111 versus baseline50.7529. Baseline contacts at86.50095 and270.63539s. Aware minclearances.04398/.07016m. These runs must not be conflated with the later common conservative filter comparison. Source: data/monitoring-legacy-300/manifest.json."
+  },
+  {
+    "title": "Shared conservative filtering limits progress",
+    "kind": "monitor",
+    "dataset": "monitoring-survey-safe-300",
+    "body": [
+      "With the shared conservative filter, all four surveyed runs finish without contact.",
+      "None reaches A within 300 seconds.",
+      "Wind knowledge alone does not overcome the current planning and execution limitations."
+    ],
+    "caption": "Current surveyed comparison. Disturbance-aware MBD versus still-air MBD with execution RPCBF.",
+    "notes": "CostS1aware91.8076,baseline87.8805; S2aware91.7744,baseline88.2320. All300s no contact. The earlier helpful survey result used different filter settings, so the survey's causal benefit cannot be inferred across these archives. Source: data/monitoring-survey-safe-300/manifest.json."
+  },
+  {
+    "title": "Without a survey, uncertainty persists remotely",
+    "kind": "monitor",
+    "dataset": "monitoring-nosurvey-safe-300",
+    "body": [
+      "Both methods assimilate actual local measurements.",
+      "The disturbance-aware planner improves local monitoring but still does not reach A.",
+      "Remote wind uncertainty remains because execution samples only nearby space."
+    ],
+    "caption": "Toggle the belief layer to inspect estimated wind direction and uncertainty over time.",
+    "notes": "Integrated deficit: Scenario 1, aware 64.2892 and baseline 88.2982. Scenario 2, aware 63.5470 and baseline 88.9060. All four runs complete 300 seconds without contact. None reaches A. The displayed maps change with actual measurements. Sources: monitoring-nosurvey-safe-300/manifest.json and belief-audit.json."
+  },
+  {
+    "title": "Task look-ahead did not resolve the failure",
+    "kind": "monitor",
+    "dataset": "monitoring-bayesian-300",
+    "body": [
+      "The bounded Bayesian selector values measurements through later task cost.",
+      "No run reaches A. Scenario 1 worsens by 1.27%; Scenario 2 improves by only 0.25%.",
+      "Finite look-ahead alone did not induce useful spatial exploration."
+    ],
+    "caption": "Learning versus a matched frozen-forecast-belief selector. Both learn from actual execution.",
+    "notes": "Three root candidates, one outer wind draw, one conditional draw, four continuations and one hypothetical POAM update at 5 seconds. This finite posterior-sampling policy is not exact dynamic programming. Four 300-second runs finish without contact. Accepted warm planning median is 0.688 seconds, including 0.268 seconds for look-ahead. Rejected calls took 1.031 and 1.195 seconds. Sources: monitoring-bayesian-300/manifest.json and method.html."
+  },
+  {
+    "title": "Tested task-valued exploration objective",
+    "kind": "survey-decision",
+    "body": [
+      "Geometric task routes identify where wind knowledge could improve execution.",
+      "Each MBD candidate trades current monitoring cost against useful uncertainty reduction.",
+      "A monitoring-cost allowance limits the price of exploration."
+    ],
+    "diagram": [
+      {
+        "id": "routes",
+        "title": "Three task routes",
+        "detail": "Paired uncertain and revealed-wind forecasts"
+      },
+      {
+        "id": "value",
+        "title": "Useful wind knowledge",
+        "detail": "V\u1d63 = (min\u209b J\u1d64,\u209b \u2212 J\u2096,\u1d63)\u208a"
+      },
+      {
+        "id": "prefix",
+        "title": "Candidate sensing prefix",
+        "detail": "Route covariance reduction g\u1d62\u1d63"
+      },
+      {
+        "id": "selection",
+        "title": "Selection after validation",
+        "detail": "min\u1d62 [J\u1d62 \u2212 N max\u1d63(V\u1d63 g\u1d62\u1d63)]\nsubject to J\u1d62 \u2264 J* + 1.0"
+      }
+    ],
+    "caption": "N = max(1, min(20, remaining mission / 15 s)). A bounded repeated-use surrogate for stationary wind.",
+    "notes": "Task-directed exploration uses the unchanged physical robot, fixed wind field, clarity dynamics and original MBD equations. Seven independent starts comprise hold, one local clarity seed, two survey frontiers and three task passages. Every one of the 120 acceleration coordinates remains free. The three paired route-value probes use the same reference and posterior-sampled physical wind. One controller uses the current uncertain belief. The other is given that sampled field. These probes retain the old 0.25 s forecast and serve only as a task-value proposal heuristic. They do not query the true environment field or determine final physical progress. For route r, V_r = max(0, min_s J_uncertain,s - J_known,r), with zero value if the known-field route predicts contact. Only positive-value routes receive information weight. Weighted wind standard deviation must exceed 0.30 m/s and aerodynamic acceleration variation 0.10 m/s\u00b2. Zero wind-to-force coupling disables the reward. For candidate i, g_ir is fractional weighted trace reduction of full predictive-GP covariance along useful route r, conditioned on all 25 predicted sensor positions at the actual 5 Hz measurement times in the first five seconds. Both wind components and spatial covariance remain. This gain is a declared surrogate, not the exact future covariance of relocated POAM or exact decision value of information. B_i = N max_r(V_r g_ir), with N = clip(remaining mission seconds / 15, 1, 20). N is an explicit repeated-use assumption for stationary wind, not a solved future policy. The maximum avoids adding benefits of mutually alternative routes. Candidates minimize J_i - B_i subject to J_i <= J* + 1.0. Search and validation form that allowance from their own candidate banks. If all V_r vanish or the force/uncertainty gates fail, the bonus vanishes. Final validation uses the full 15 s at 0.05 s tracking/RPCBF and 0.01 s physical/clarity integration. It evaluates five finalists with one fresh physical wind draw and eight safety construction fields. Original relaxed RPCBF with two construction fields and a 0.06 m margin remains in MBD search. Final validation and actual execution use full hard RPCBF with eight construction fields and a 0.12 m margin, retaining its explicit infeasibility fallback. Actual POAM protects measurement-supported centers at 0.15 m spacing, up to 128 centers, then uses nearest replacement. Full residual covariance and accumulated statistics remain, with float64 inference. Both methods in the new comparison use this estimator and the same geometric starts. Monitoring-only disables B. This is distinct from the older still-air baseline. The previous variance-dominated survey spent 295 of 300 s surveying, reached A at 35.35 s, then stalled with deficit 76.18. It is development evidence, not a success claim. Final 300 s mission comparisons remain pending. Authoritative definition: docs/airflow/online_survey_monitoring.md. POAM: https://arxiv.org/abs/2406.03669. Informative path planning: https://www.cs.cmu.edu/~guestrin/Publications/IJCAI2007/ijcai-2007.pdf. The completed Scenario 1 development run did not reach Region A. Slide 20 reports that observed result. This objective has not demonstrated successful exploration."
+  },
+  {
+    "title": "Validation at the execution rate",
+    "kind": "validation-timeline",
+    "body": [
+      "Validate the complete 15 s trajectory at the actual control and integration intervals.",
+      "A 0.25 s filter forecast could predict passage crossings that execution could not achieve."
+    ],
+    "timeline": [
+      {
+        "interval": "Proposal search",
+        "heading": "0.25 s forecast",
+        "control": "Original relaxed RPCBF in MBD",
+        "integration": "Coarse paired route-value probes supply only the exploration heuristic."
+      },
+      {
+        "interval": "Final validation: 0\u201315 s",
+        "heading": "Execution intervals",
+        "control": "Tracking and hard RPCBF every 0.05 s",
+        "integration": "Robot and all clarity cells every 0.01 s"
+      }
+    ],
+    "caption": "59 warm calls: median 0.796 s, maximum 0.858 s. No rejected calls.\nFirst call including compilation: 25.682 s. Scenario 1, 300 s.",
+    "notes": "The additional method validates the entire 15 s horizon at the execution intervals. MBD search and the paired route-value heuristic retain the original 0.25 s forecast. A controlled diagnostic with frozen belief and physical wind found that coarse filtering could predict a crossing while actual 0.05 s filtering stalled. Refining only the first five seconds still allowed false delayed progress in the tail and was rejected. The final forecast updates tracking and hard RPCBF every 0.05 s, integrating the robot and all 1,884 clarity cells with the original 0.01 s RK4 recurrence throughout all 15 s. Robot trajectories are computed before clarity because clarity does not enter the tracker or filter. Batched sensor coefficients then feed the same sequential clarity RK4 recurrence. This is an algebraic reordering, not coarser sensing or fewer cells. Four regression cases passed, including every-step clarity agreement to approximately 2e-14 in the reported test. Five finalists are the global MBD training winner, hold and the three passage-mode leaders. Their selection uses training scores only. One independent posterior physical wind draw evaluates performance, reduced from two to fund execution-rate validation. All eight hard-RPCBF safety construction fields remain, with a 0.12 m margin. Search retains two construction fields and the relaxed 0.06 m margin. The finite candidate set and one physical draw are declared numerical budgets, not a guarantee of global safety or expected-cost accuracy. Actual belief updates still use only executed noisy observations. Forecast tables are float32 and execution tables are float64, both with existing 0.2 m C1 wind tables. The one-second warm-planning guard covers geometry, posterior sampling, three route probes, MBD and executable-control selection. Compilation and serialization are separate. Over-budget plans are rejected without execution. The fixed-state full-optimizer diagnostic selected a moving lower-route candidate and measured approximately 0.764 and 0.793 s in warm trials. Those diagnostics establish local runtime/fidelity only. Final mission runtime and performance remain pending. Earlier animations remain historical execution records and do not establish agreement between their coarse forecasts and execution. Source: docs/airflow/online_survey_monitoring.md and fine-forecast regression tests. Completed Scenario 1 execution: 59 warm calls, median 0.795911875 s, p95 0.835549505 s, maximum 0.85825125 s. Warm module medians: initialization 0.057623917 s, field sampling 0.029603334 s, combined relevance/search/validation 0.706725625 s. No rejected calls. First call including compilation was 25.681629708 s. These module medians do not sum exactly to total median. Full mission independent audit remains incomplete."
+  },
+  {
+    "title": "Exploration remains unresolved",
+    "kind": "experiment",
+    "record": "current-monitoring/assets/s1-aware.json.gz",
+    "body": [
+      "Scenario 1: 300 s, no contact, no visit to A. Integrated clarity deficit: 70.75.",
+      "Ten filter-infeasible steps. Scenario 2 and the matched comparison remain untested.",
+      "Next, untested: route-aligned uncertainty targets, progress through known prefixes, and a cumulative monitoring-loss budget."
+    ],
+    "notes": "Recorded Scenario 1 development run from results/airflow/monitoring_survey_value_refined_300/s1-aware.json. This tested J - N max_r(V_r g_ir), with all final validation at execution intervals. The run completed 300 s without contact, minimum clearance 0.151124 m. It never visited Region A and recorded no passage crossing. Integrated clarity deficit was 70.75399. Final mean clarity: A 0.02027, B 0.53770. The hard filter recorded 10 infeasible steps, maximum fallback slack 1.206811. Contact-free observation is not a safety guarantee. The information gate was enabled for 57 of 60 plans, but only four five-second commitments paid extra predicted monitoring cost to explore: t=0,10,20,25 s. The robot reached the upper entry and retreated. There is no matched monitoring-only run or Scenario 2 run for this final variant, so this slide claims no cost improvement. The full-horizon numerical regressions passed, but the complete independent audit of this mission remains unfinished. The exact run and protocol are packaged with SHA-256 provenance in presentation/assets/s1-aware-provenance.json. The proposed next method is unimplemented and untested: keep the full physical models and use route-aligned survey frontiers with uncertainty targets on the same passage. Compare a monitoring candidate that minimizes J against a survey candidate maximizing G(theta)=tr[W Sigma_TX (Sigma_XX + sigma_n\u00b2 I)^(-1) Sigma_XT]. Score route information over the validated full 15 s horizon or retain a frontier to cross already-known prefixes. Let delta=max(0,L5(theta_S)-L5(theta_M)), with L5 the predicted first-five-second monitoring loss at execution intervals. Select survey only when relevant uncertainty can be reduced and delta is within a cumulative allowance B. Update B_next=min(Bmax,B+rho Delta_t-delta). This bounds cumulative predicted extra committed monitoring loss by B0+rho T, not actual closed-loop regret. It is a constrained two-objective proposal, not a successful result. Earlier simulations remain unchanged."
+  }
+]

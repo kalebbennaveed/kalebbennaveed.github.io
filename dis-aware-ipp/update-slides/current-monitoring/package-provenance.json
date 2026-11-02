@@ -1,0 +1,297 @@
+{
+  "title": "Final 20-slide disturbance-aware monitoring presentation",
+  "source_slide_count": 20,
+  "earlier_deck": "previous-deck.html",
+  "earlier_index_sha256": "e58c2baf0cf8998add2bba0077a81acfcfe3d4d84864f56130d2d99cf2c2abbc",
+  "unchanged_existing_asset_count": 195,
+  "files": [
+    {
+      "path": "deck.css",
+      "source": "presentation/deck.css",
+      "source_sha256": "8e87380a743c683ff44b780f2a4bb5afd2a5ffd1a0506ba69859fb22131832cc",
+      "packaged_sha256": "be7c43cb3903a8fe4afbd179339751f1a0d4071d28cd2b89adcfd705552743c2",
+      "transform": "navigation-only CSS appended"
+    },
+    {
+      "path": "assets/s1-aware-protocol.json",
+      "source": "presentation/assets/s1-aware-protocol.json",
+      "source_sha256": "33deba267ec059748a13ab6a81fee6ab268803388fe2c546be34a287c9faf65e",
+      "packaged_sha256": "33deba267ec059748a13ab6a81fee6ab268803388fe2c546be34a287c9faf65e",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "assets/s1-aware.json.gz",
+      "source": "presentation/assets/s1-aware.json.gz",
+      "source_sha256": "9ff38b3ba7c82ac42e003ada6e5c14caaeb3badb0e0efec19909fccee71d4194",
+      "packaged_sha256": "9ff38b3ba7c82ac42e003ada6e5c14caaeb3badb0e0efec19909fccee71d4194",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "assets/s1-aware-provenance.json",
+      "source": "presentation/assets/s1-aware-provenance.json",
+      "source_sha256": "c27713e85a01517d289e8f6161ee34bf38a05a46700d9178cdfa0319e6ed1b90",
+      "packaged_sha256": "c27713e85a01517d289e8f6161ee34bf38a05a46700d9178cdfa0319e6ed1b90",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/scenario1/metadata.json",
+      "source": "data/scenario1/metadata.json",
+      "source_sha256": "f14392e4ad7c65b508dab46ded7b6c9afcf7b91fbe3ed580da4deebcbd362fc7",
+      "packaged_sha256": "f14392e4ad7c65b508dab46ded7b6c9afcf7b91fbe3ed580da4deebcbd362fc7",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/scenario1/stationary-velocity.f32",
+      "source": "data/scenario1/stationary-velocity.f32",
+      "source_sha256": "b20832fbcbe5d29fdf2b532009144eae4d76f30e99fb8bd72ee3a9466521e53a",
+      "packaged_sha256": "b20832fbcbe5d29fdf2b532009144eae4d76f30e99fb8bd72ee3a9466521e53a",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/scenario2/metadata.json",
+      "source": "data/scenario2/metadata.json",
+      "source_sha256": "7900d029ff3e80d0606abbb0b43967bb591ed3e792cd9e9c9bb8a21957b1fbe6",
+      "packaged_sha256": "7900d029ff3e80d0606abbb0b43967bb591ed3e792cd9e9c9bb8a21957b1fbe6",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/scenario2/stationary-velocity.f32",
+      "source": "data/scenario2/stationary-velocity.f32",
+      "source_sha256": "b29a17da083f412d0a95e747851ac6a6b606d0f1070bee816f468a5fd854bbc0",
+      "packaged_sha256": "b29a17da083f412d0a95e747851ac6a6b606d0f1070bee816f468a5fd854bbc0",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/robot/s1-central-A-B.json",
+      "source": "data/robot/s1-central-A-B.json",
+      "source_sha256": "ae523e4f2be16ace29e76a64f6af3afabe1aead6e4619d7384d9e7ee287a5a4b",
+      "packaged_sha256": "ae523e4f2be16ace29e76a64f6af3afabe1aead6e4619d7384d9e7ee287a5a4b",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/robot/s1-central-B-A.json",
+      "source": "data/robot/s1-central-B-A.json",
+      "source_sha256": "98cdcb44c50f643bdaeb1a3ea8eefd0f9757699c380f87c74b13879fd9b3c61e",
+      "packaged_sha256": "98cdcb44c50f643bdaeb1a3ea8eefd0f9757699c380f87c74b13879fd9b3c61e",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/robot/s1-lower-A-B.json",
+      "source": "data/robot/s1-lower-A-B.json",
+      "source_sha256": "2bfa1f8e4f9c3c97034b60b6336be5334b01e0845d0a26fa99fe26caf5cf3687",
+      "packaged_sha256": "2bfa1f8e4f9c3c97034b60b6336be5334b01e0845d0a26fa99fe26caf5cf3687",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/robot/s1-lower-B-A.json",
+      "source": "data/robot/s1-lower-B-A.json",
+      "source_sha256": "af34a0a5c84ac33bc18b536c3cd1d632eb494ae49a372bd15d26ea703d420506",
+      "packaged_sha256": "af34a0a5c84ac33bc18b536c3cd1d632eb494ae49a372bd15d26ea703d420506",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/robot/s1-upper-A-B.json",
+      "source": "data/robot/s1-upper-A-B.json",
+      "source_sha256": "2873b036a617d8c316b73419f88d7c0a098164940be3d4eaf61b41ccc02c8558",
+      "packaged_sha256": "2873b036a617d8c316b73419f88d7c0a098164940be3d4eaf61b41ccc02c8558",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/robot/s1-upper-B-A.json",
+      "source": "data/robot/s1-upper-B-A.json",
+      "source_sha256": "5aa1eff17c05b59a82a902d1fa6a04abc46c9450329777421900450161d363c5",
+      "packaged_sha256": "5aa1eff17c05b59a82a902d1fa6a04abc46c9450329777421900450161d363c5",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/robot/s2-central-A-B.json",
+      "source": "data/robot/s2-central-A-B.json",
+      "source_sha256": "7bdbc56b534dd4ab083f5fb78951cb09faa8b3ae7eabb6eff03a4ad744b108a4",
+      "packaged_sha256": "7bdbc56b534dd4ab083f5fb78951cb09faa8b3ae7eabb6eff03a4ad744b108a4",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/robot/s2-central-B-A.json",
+      "source": "data/robot/s2-central-B-A.json",
+      "source_sha256": "26316f998fb03c83ce81e9da1d58fdd5ba098c508758e9fe93dbc95d6722ddc7",
+      "packaged_sha256": "26316f998fb03c83ce81e9da1d58fdd5ba098c508758e9fe93dbc95d6722ddc7",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/robot/s2-lower-A-B.json",
+      "source": "data/robot/s2-lower-A-B.json",
+      "source_sha256": "327b009a06ffd454e15c1a42768233c2f54480cf0840210a8dcf14a99eaa3d57",
+      "packaged_sha256": "327b009a06ffd454e15c1a42768233c2f54480cf0840210a8dcf14a99eaa3d57",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/robot/s2-lower-B-A.json",
+      "source": "data/robot/s2-lower-B-A.json",
+      "source_sha256": "47d592a1fc7ea2058bea64f11461162c5ac0453f82754e96bd91adcdacc0136f",
+      "packaged_sha256": "47d592a1fc7ea2058bea64f11461162c5ac0453f82754e96bd91adcdacc0136f",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/robot/s2-upper-A-B.json",
+      "source": "data/robot/s2-upper-A-B.json",
+      "source_sha256": "a87f6401e262b54c1ff4ab1518030e0de6d69049bfbba214ca7f88a07cdcbdee",
+      "packaged_sha256": "a87f6401e262b54c1ff4ab1518030e0de6d69049bfbba214ca7f88a07cdcbdee",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/robot/s2-upper-B-A.json",
+      "source": "data/robot/s2-upper-B-A.json",
+      "source_sha256": "aaefa790698ce883f707fcab246d7319cb7eaa181d2253cabe392eef7dac78d7",
+      "packaged_sha256": "aaefa790698ce883f707fcab246d7319cb7eaa181d2253cabe392eef7dac78d7",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/monitoring-legacy-300/environment.json",
+      "source": "data/monitoring-legacy-300/environment.json",
+      "source_sha256": "f7dfeb6977f9e78799be0bdfc4feb79e7da09b5e1f52c4f915f0d7e1c5786fa5",
+      "packaged_sha256": "f7dfeb6977f9e78799be0bdfc4feb79e7da09b5e1f52c4f915f0d7e1c5786fa5",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/monitoring-legacy-300/s1-aware.json.gz",
+      "source": "data/monitoring-legacy-300/s1-aware.json",
+      "source_sha256": "68dad002d278d09dd54f6876aa51fd73028c9fa71283da51b9978601a3bd2446",
+      "packaged_sha256": "e2620c0e5b894a78de0abb191f17dc769403c069bc6ca2bfe925bc5bf481b7bb",
+      "transform": "lossless gzip"
+    },
+    {
+      "path": "data/monitoring-legacy-300/s1-baseline.json.gz",
+      "source": "data/monitoring-legacy-300/s1-baseline.json",
+      "source_sha256": "41d89ee050b534bde44257065fa39978ad92abf8d700356faf3383791c1f2420",
+      "packaged_sha256": "a42b1605f723dfe932270842f0525c730ecc4315dda7992d78a95c49b38b37b7",
+      "transform": "lossless gzip"
+    },
+    {
+      "path": "data/monitoring-legacy-300/s2-aware.json.gz",
+      "source": "data/monitoring-legacy-300/s2-aware.json",
+      "source_sha256": "cffa70272127df7e0a5e92badc2b754fcccc87a65d694ca9419acc2c6895778a",
+      "packaged_sha256": "26a0372f4dbb3406e5fd30f027e5a39cebfff6c906babb0ace01602a05ceca59",
+      "transform": "lossless gzip"
+    },
+    {
+      "path": "data/monitoring-legacy-300/s2-baseline.json.gz",
+      "source": "data/monitoring-legacy-300/s2-baseline.json",
+      "source_sha256": "f111dacb125280c049a647a7bf58d229b295ecd6cecb3c4da4c222af6ee67159",
+      "packaged_sha256": "972a288c0298a2c10591c703eb32abfaf613cc32c7b4c7b536913ac05f5908d8",
+      "transform": "lossless gzip"
+    },
+    {
+      "path": "data/monitoring-survey-safe-300/environment.json",
+      "source": "data/monitoring-survey-safe-300/environment.json",
+      "source_sha256": "f7dfeb6977f9e78799be0bdfc4feb79e7da09b5e1f52c4f915f0d7e1c5786fa5",
+      "packaged_sha256": "f7dfeb6977f9e78799be0bdfc4feb79e7da09b5e1f52c4f915f0d7e1c5786fa5",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/monitoring-survey-safe-300/s1-aware.json.gz",
+      "source": "data/monitoring-survey-safe-300/s1-aware.json.gz",
+      "source_sha256": "b079759636abe96aa37785d062e16c1ce52f2c439f8661e6f5e30253ccbb0b3d",
+      "packaged_sha256": "b079759636abe96aa37785d062e16c1ce52f2c439f8661e6f5e30253ccbb0b3d",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/monitoring-survey-safe-300/s1-baseline.json.gz",
+      "source": "data/monitoring-survey-safe-300/s1-baseline.json.gz",
+      "source_sha256": "3de14d5d7562e60c5cc71743b81f5941469172032280d65cf5fae88ceaaebf20",
+      "packaged_sha256": "3de14d5d7562e60c5cc71743b81f5941469172032280d65cf5fae88ceaaebf20",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/monitoring-survey-safe-300/s2-aware.json.gz",
+      "source": "data/monitoring-survey-safe-300/s2-aware.json.gz",
+      "source_sha256": "41c5b6ac213fcca5ab862ff0e2df56aa24ee72c01a9bee31fdb4b2df9c12b81c",
+      "packaged_sha256": "41c5b6ac213fcca5ab862ff0e2df56aa24ee72c01a9bee31fdb4b2df9c12b81c",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/monitoring-survey-safe-300/s2-baseline.json.gz",
+      "source": "data/monitoring-survey-safe-300/s2-baseline.json.gz",
+      "source_sha256": "69db80d33c1540efae5cd4e7234a161e74c0fa2c4be7a422da0f29cd8623b4fe",
+      "packaged_sha256": "69db80d33c1540efae5cd4e7234a161e74c0fa2c4be7a422da0f29cd8623b4fe",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/monitoring-nosurvey-safe-300/environment.json",
+      "source": "data/monitoring-nosurvey-safe-300/environment.json",
+      "source_sha256": "f7dfeb6977f9e78799be0bdfc4feb79e7da09b5e1f52c4f915f0d7e1c5786fa5",
+      "packaged_sha256": "f7dfeb6977f9e78799be0bdfc4feb79e7da09b5e1f52c4f915f0d7e1c5786fa5",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/monitoring-nosurvey-safe-300/s1-aware.json.gz",
+      "source": "data/monitoring-nosurvey-safe-300/s1-aware.json.gz",
+      "source_sha256": "04588f0fc7a37753c1885d8058229ae2be5d07e6968af864f1ad820e18e1958c",
+      "packaged_sha256": "04588f0fc7a37753c1885d8058229ae2be5d07e6968af864f1ad820e18e1958c",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/monitoring-nosurvey-safe-300/s1-baseline.json.gz",
+      "source": "data/monitoring-nosurvey-safe-300/s1-baseline.json.gz",
+      "source_sha256": "8368f3568f89298602ad076948a01ccfb4331cae61d4c886aff4c0b4592be46a",
+      "packaged_sha256": "8368f3568f89298602ad076948a01ccfb4331cae61d4c886aff4c0b4592be46a",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/monitoring-nosurvey-safe-300/s2-aware.json.gz",
+      "source": "data/monitoring-nosurvey-safe-300/s2-aware.json.gz",
+      "source_sha256": "6b2c924187a9a713fc5429482ff276e617f06e229923e99de66c50f79161108e",
+      "packaged_sha256": "6b2c924187a9a713fc5429482ff276e617f06e229923e99de66c50f79161108e",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/monitoring-nosurvey-safe-300/s2-baseline.json.gz",
+      "source": "data/monitoring-nosurvey-safe-300/s2-baseline.json.gz",
+      "source_sha256": "412955af79159ca210de8325a3921f36dafe18fe6a82ba84de5c9a13c283954b",
+      "packaged_sha256": "412955af79159ca210de8325a3921f36dafe18fe6a82ba84de5c9a13c283954b",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/monitoring-bayesian-300/environment.json",
+      "source": "data/monitoring-bayesian-300/environment.json",
+      "source_sha256": "f7dfeb6977f9e78799be0bdfc4feb79e7da09b5e1f52c4f915f0d7e1c5786fa5",
+      "packaged_sha256": "f7dfeb6977f9e78799be0bdfc4feb79e7da09b5e1f52c4f915f0d7e1c5786fa5",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/monitoring-bayesian-300/s1-aware.json.gz",
+      "source": "data/monitoring-bayesian-300/s1-aware.json.gz",
+      "source_sha256": "f333ff4dbc09d0a9379bf4c7d12d26c2602fa744775756fdaf124abb5cdea41d",
+      "packaged_sha256": "f333ff4dbc09d0a9379bf4c7d12d26c2602fa744775756fdaf124abb5cdea41d",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/monitoring-bayesian-300/s1-baseline.json.gz",
+      "source": "data/monitoring-bayesian-300/s1-baseline.json.gz",
+      "source_sha256": "824949229b7e22eacd49cb3568ed03c3331f6f83bbdecae6c4e957f3e19de4e3",
+      "packaged_sha256": "824949229b7e22eacd49cb3568ed03c3331f6f83bbdecae6c4e957f3e19de4e3",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/monitoring-bayesian-300/s2-aware.json.gz",
+      "source": "data/monitoring-bayesian-300/s2-aware.json.gz",
+      "source_sha256": "0a0362d4a04bd363f8b63449542cb9f518f4314a0b5453e545d94760dbc75275",
+      "packaged_sha256": "0a0362d4a04bd363f8b63449542cb9f518f4314a0b5453e545d94760dbc75275",
+      "transform": "byte-identical"
+    },
+    {
+      "path": "data/monitoring-bayesian-300/s2-baseline.json.gz",
+      "source": "data/monitoring-bayesian-300/s2-baseline.json.gz",
+      "source_sha256": "f838cb5a628ecb039b40c5dab0945f2fc25e2d6fc00df2289e959ff6132fa255",
+      "packaged_sha256": "f838cb5a628ecb039b40c5dab0945f2fc25e2d6fc00df2289e959ff6132fa255",
+      "transform": "byte-identical"
+    }
+  ],
+  "rewrites": [
+    "Relative data URLs point to current-monitoring/data/",
+    "Slide data URL points to current-monitoring/slides.json",
+    "Result replay URL points to current-monitoring/assets/",
+    "Legacy JSON records losslessly gzip-compressed; copied manifest file references updated",
+    "Presentation navigation links to the simulations dashboard and preserved earlier deck"
+  ],
+  "data_models": "No field, trajectory or simulation value modified."
+}

@@ -1,0 +1,456 @@
+{
+  "duration_s": 300,
+  "state": "complete",
+  "implementation": "bayesian-mbd",
+  "planner_settings": {
+    "scenario": "corridor",
+    "dt": 0.25,
+    "stage_steps": 12,
+    "future_steps": 32,
+    "mission_horizons": 5,
+    "knots": 3,
+    "branches": 2,
+    "worlds": 1,
+    "inner_samples": 2,
+    "backup_steps": 8,
+    "backup_dt": 0.15,
+    "backup_gain": 2.0,
+    "cbf_alpha": 1.0,
+    "umax": 1.6,
+    "linear_drag": 0.0,
+    "safety_margin": 0.12,
+    "diffusion_steps": 2,
+    "proposals": 14,
+    "temperature": 0.025,
+    "beta_min": 0.005,
+    "beta_max": 0.18,
+    "mbd_latent_bound": 8.0,
+    "diffusion_reference_steps": 0,
+    "candidate_chunk": 7,
+    "terminal_seconds": 0.0,
+    "sensor_sigma": 0.5,
+    "sensor_R": 0.1,
+    "clarity_decay": 0.16,
+    "clarity_decay_pattern": "uniform",
+    "initial_clarity": "cold",
+    "wind_std": 1.8,
+    "wind_length": 1.1,
+    "observation_std": 0.1,
+    "ig_weight": 0.025,
+    "measurements": true,
+    "shared_future": false,
+    "independent_cells": false,
+    "spline": "full",
+    "safety_filter": "rpcbf",
+    "shield_terminal_speed": 0.2,
+    "shield_substeps": 4,
+    "shield_latch": true,
+    "wind_backend": "poam",
+    "poam_train_steps": 10,
+    "hypothetical_relocation": false,
+    "budgeted_policy": "compact",
+    "budgeted_feedback_features": "probe",
+    "budgeted_update_steps": 0,
+    "poam_inducing_x": 6,
+    "poam_inducing_y": 4,
+    "poam_spectral_nodes": 32,
+    "poam_support_x": 0,
+    "poam_support_y": 0,
+    "grid_nx": 25,
+    "grid_ny": 19,
+    "whole_field": true,
+    "reject_collisions": true,
+    "warm_starts": 1,
+    "obstacle_radius": 0.79,
+    "control_representation": "acceleration",
+    "branch_rule": "crosswind",
+    "recourse_samples": 3,
+    "waypoint_x_limit": 2.25,
+    "waypoint_y_limit": 1.65,
+    "future_updates": false,
+    "require_feasible_candidates": false,
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "methods": [
+      "proposed",
+      "passive",
+      "weighted_ig",
+      "heuristic",
+      "cem",
+      "mppi",
+      "oracle"
+    ],
+    "horizon_seconds": 15,
+    "commit_seconds": 5.0,
+    "mission_seconds": 300.0,
+    "execution_dt": 0.05,
+    "physics_dt": 0.01,
+    "slack_weight": 15.0,
+    "background_decay": 0.02,
+    "region_target": 0.7,
+    "background_target": 0.35,
+    "initial_q": 0.74,
+    "reference_tracking": true,
+    "multimode": true,
+    "tracking_kp": 4.411764705882352,
+    "tracking_kv": 7.352941176470588,
+    "legacy_safety_costs": true,
+    "planning_clearance": 0.06,
+    "violation_weight": 1.0,
+    "speed_max": 3.1,
+    "speed_penalty": 2.0,
+    "mode_count": 7,
+    "validation_worlds": 2
+  },
+  "legacy_settings": {
+    "dt": 0.25,
+    "horizon": 15,
+    "commit": 5.0,
+    "worlds": 1,
+    "validation_worlds": 2,
+    "construction_worlds": 2,
+    "iterations": 2,
+    "proposals": 14,
+    "temperature": 0.06,
+    "optimism": 1.0,
+    "mixture": 0.0,
+    "archive_size": 8,
+    "latent_bound": 12.0,
+    "cosine_end": 0.15,
+    "umax": 1.6,
+    "speed_max": 3.1,
+    "backup_steps": 8,
+    "backup_dt": 0.15,
+    "backup_gain": 2.0,
+    "cbf_alpha": 1.0,
+    "safety_margin": 0.06,
+    "slack_weight": 15.0,
+    "violation_weight": 1.0,
+    "spline": "full",
+    "sensor_sigma": 0.5,
+    "sensor_R": 0.1,
+    "sensor_half_angle_degrees": 45.0,
+    "observation_std": 0.25,
+    "wind_strength": 3.1,
+    "prior_std": 1.8,
+    "seed": 8101,
+    "batch_size": 7,
+    "validation_batch_size": 4,
+    "chains": 1,
+    "environment_scale": 1.0,
+    "inspection_scale": 1.0,
+    "initialization": "modes",
+    "rrt_paths": 3,
+    "rrt_visits": 1,
+    "common_construction": false,
+    "rrt_margin": 0.65,
+    "guidance_sigma": 1.0,
+    "planning_clearance": 0.06,
+    "speed_penalty": 2.0,
+    "jerk_limit": 12.0,
+    "jerk_penalty": 0.0,
+    "tracking_kp": 4.411764705882352,
+    "tracking_kv": 7.352941176470588,
+    "execution_dt": 0.05,
+    "execution_margin": 0.55,
+    "execution_filter": "hard",
+    "penalty_aggregation": "mean",
+    "validate_initials": true,
+    "rrt_diversity": false,
+    "prediction_substeps": 1,
+    "observation_period": 5.0,
+    "prediction_filter": "soft",
+    "guidance_mode": "off",
+    "online_estimation": false,
+    "wind_support_nodes": 0,
+    "wind_relocate": false,
+    "terminate_predictions": true,
+    "geometry": "quarter",
+    "multimode": true,
+    "mode_count": 7,
+    "initialization_effort": null,
+    "optimism_anneal_seconds": null,
+    "detour_depth": 2.0,
+    "wind_at_start": false,
+    "initial_wind_observations": [],
+    "wind_inducing_count": 36,
+    "wind_kernel_lengths": []
+  },
+  "initial_wind_knowledge": "cold-start",
+  "execution_belief": {
+    "posterior_update_seconds": 0.2,
+    "construction_fields": 8,
+    "safety_margin_m": 0.12
+  },
+  "prior_configuration": "survey-matched 128 inducing points, fixed kernel, geometry-only initialization",
+  "method_labels": {
+    "aware": "Task-directed learning",
+    "baseline": "Current-belief planning"
+  },
+  "method_descriptions": {
+    "aware": "Future wind measurements can change the continuation decision. Task cost only.",
+    "baseline": "Matched planner with a frozen forecast belief. Still learns from actual measurements."
+  },
+  "outcome": "All four 300 s runs completed without contact. 0 of four runs reached Region A. The new method has not demonstrated the desired inter-region exploration; reducing uncertainty or passing audits does not establish that behavior. Scenario 1: learning cost is 1.27% higher than the matched comparator. Scenario 2: learning cost is 0.25% lower than the matched comparator.",
+  "runtime": {
+    "warm_min_s": 0.6507945420162287,
+    "warm_max_s": 0.9566298339923378,
+    "warm_median_s": 0.6875916040007723,
+    "warm_calls": 234,
+    "mbd_median_s": 0.3923735419957666,
+    "lookahead_median_s": 0.2684856039995793,
+    "first_call_min_s": 23.852069167012814,
+    "first_call_max_s": 26.235851167002693,
+    "limit_s": 1.0,
+    "rejected_calls": [
+      {
+        "id": "s1-baseline",
+        "t": 150.0,
+        "wall_seconds": 1.0310902089986484,
+        "timing": {
+          "initialization": 0.014865374978398904,
+          "field_sampling": 0.014179499994497746,
+          "optimization_validation": 0.5210397919872776,
+          "lookahead": {
+            "root_fields": 0.03056920800008811,
+            "prefix_rollouts": 0.01839541702065617,
+            "posterior_and_fields": 0.17009683401556686,
+            "continuation_geometry": 0.0750314999895636,
+            "continuation_rollouts": 0.18398287499439903,
+            "total": 0.47808387500117533
+          },
+          "compilation_included": false
+        },
+        "reason": "One-second guard stopped execution before this plan was applied"
+      },
+      {
+        "id": "s2-baseline",
+        "t": 215.0,
+        "wall_seconds": 1.1947080829995684,
+        "timing": {
+          "initialization": 0.020936750021064654,
+          "field_sampling": 0.01700912497472018,
+          "optimization_validation": 0.5521683749975637,
+          "lookahead": {
+            "root_fields": 0.020679208013461903,
+            "prefix_rollouts": 0.019724458019481972,
+            "posterior_and_fields": 0.08452216602745466,
+            "continuation_geometry": 0.051110625005094334,
+            "continuation_rollouts": 0.4248736250156071,
+            "total": 0.6009161669935565
+          },
+          "compilation_included": false
+        },
+        "reason": "One-second guard stopped execution before this plan was applied"
+      }
+    ]
+  },
+  "runs": [
+    {
+      "id": "s1-aware",
+      "scenario": 1,
+      "method": "aware",
+      "file": "s1-aware.json.gz",
+      "decoded_sha256": "67a2d79d342540016784a84a9684a05eefd7ed85c742e4ad7501e55d7dbcd264",
+      "summary": {
+        "completed": true,
+        "simulated_seconds": 300.0,
+        "planned_seconds": 300.0,
+        "contact": null,
+        "integrated_deficit": 66.17950023616652,
+        "min_clearance_m": 0.32093913155887166,
+        "infeasible_execution_steps": 0,
+        "max_execution_slack": 0.0,
+        "max_control_component_m_s2": 1.6,
+        "fallback_periods": 0,
+        "wall_seconds": 136.11783383297734,
+        "passage_crossings": [],
+        "final_region_clarity": [
+          0.02026651101968367,
+          0.5473782874982487
+        ],
+        "final_whole_clarity": 0.25782524007338953,
+        "stop_reason": null,
+        "warm_plan_max_seconds": 0.7535784160136245,
+        "rejected_planning_calls": [],
+        "total_wall_seconds": 136.11785099998815,
+        "regions_visited": [
+          "B"
+        ],
+        "first_60s_mean_deficit": 0.143481515,
+        "last_60s_mean_deficit": 0.26962613166666677,
+        "selected_prefix_counts": {
+          "MBD": 30,
+          "hold": 30,
+          "alternative": 0
+        }
+      }
+    },
+    {
+      "id": "s1-baseline",
+      "scenario": 1,
+      "method": "baseline",
+      "file": "s1-baseline.json.gz",
+      "decoded_sha256": "84dcaf81e52fe71d0f8efba466c40af1c1872bdff4f5ac492ee8e5b2dc13d28b",
+      "summary": {
+        "completed": true,
+        "simulated_seconds": 300.0,
+        "planned_seconds": 300.0,
+        "contact": null,
+        "integrated_deficit": 65.34837966706021,
+        "min_clearance_m": 0.20251237738599404,
+        "infeasible_execution_steps": 0,
+        "max_execution_slack": 0.0,
+        "max_control_component_m_s2": 1.6000000000000003,
+        "fallback_periods": 0,
+        "wall_seconds": 86.83028654201189,
+        "passage_crossings": [],
+        "final_region_clarity": [
+          0.02026287162741855,
+          0.5565296515744655
+        ],
+        "final_whole_clarity": 0.31123323568441225,
+        "stop_reason": null,
+        "warm_plan_max_seconds": 0.8767431250016671,
+        "rejected_planning_calls": [
+          {
+            "t": 150.0,
+            "wall_seconds": 1.0310902089986484,
+            "timing": {
+              "initialization": 0.014865374978398904,
+              "field_sampling": 0.014179499994497746,
+              "optimization_validation": 0.5210397919872776,
+              "lookahead": {
+                "root_fields": 0.03056920800008811,
+                "prefix_rollouts": 0.01839541702065617,
+                "posterior_and_fields": 0.17009683401556686,
+                "continuation_geometry": 0.0750314999895636,
+                "continuation_rollouts": 0.18398287499439903,
+                "total": 0.47808387500117533
+              },
+              "compilation_included": false
+            },
+            "reason": "One-second guard stopped execution before this plan was applied"
+          }
+        ],
+        "total_wall_seconds": 181.4898846670112,
+        "regions_visited": [
+          "B"
+        ],
+        "first_60s_mean_deficit": 0.143856975,
+        "last_60s_mean_deficit": 0.25792354499999987,
+        "selected_prefix_counts": {
+          "MBD": 22,
+          "hold": 33,
+          "alternative": 5
+        }
+      }
+    },
+    {
+      "id": "s2-aware",
+      "scenario": 2,
+      "method": "aware",
+      "file": "s2-aware.json.gz",
+      "decoded_sha256": "d9695f157db2bdedc6d8fa6109edf99a6f2000b9e310290916d5c3656b175470",
+      "summary": {
+        "completed": true,
+        "simulated_seconds": 300.0,
+        "planned_seconds": 300.0,
+        "contact": null,
+        "integrated_deficit": 66.66422647355982,
+        "min_clearance_m": 0.21891381145047628,
+        "infeasible_execution_steps": 0,
+        "max_execution_slack": 0.0,
+        "max_control_component_m_s2": 1.6,
+        "fallback_periods": 0,
+        "wall_seconds": 150.12044400000013,
+        "passage_crossings": [],
+        "final_region_clarity": [
+          0.020262869852736586,
+          0.5252172775303314
+        ],
+        "final_whole_clarity": 0.23730176088297777,
+        "stop_reason": null,
+        "warm_plan_max_seconds": 0.9566298339923378,
+        "rejected_planning_calls": [],
+        "total_wall_seconds": 150.1204645000107,
+        "regions_visited": [
+          "B"
+        ],
+        "first_60s_mean_deficit": 0.14233415666666666,
+        "last_60s_mean_deficit": 0.2675574216666667,
+        "selected_prefix_counts": {
+          "MBD": 21,
+          "hold": 35,
+          "alternative": 4
+        }
+      }
+    },
+    {
+      "id": "s2-baseline",
+      "scenario": 2,
+      "method": "baseline",
+      "file": "s2-baseline.json.gz",
+      "decoded_sha256": "953be1019a0dc416ed329845ec2444a947785e4a30eb411f3ff72e31844aab5a",
+      "summary": {
+        "completed": true,
+        "simulated_seconds": 300.0,
+        "planned_seconds": 300.0,
+        "contact": null,
+        "integrated_deficit": 66.83297104899619,
+        "min_clearance_m": 0.26425450497197045,
+        "infeasible_execution_steps": 0,
+        "max_execution_slack": 0.0,
+        "max_control_component_m_s2": 1.6000000000000005,
+        "fallback_periods": 0,
+        "wall_seconds": 65.26519774997723,
+        "passage_crossings": [],
+        "final_region_clarity": [
+          0.02026437958072075,
+          0.4541832746355139
+        ],
+        "final_whole_clarity": 0.3284565744702733,
+        "stop_reason": null,
+        "warm_plan_max_seconds": 0.9099774589994922,
+        "rejected_planning_calls": [
+          {
+            "t": 215.0,
+            "wall_seconds": 1.1947080829995684,
+            "timing": {
+              "initialization": 0.020936750021064654,
+              "field_sampling": 0.01700912497472018,
+              "optimization_validation": 0.5521683749975637,
+              "lookahead": {
+                "root_fields": 0.020679208013461903,
+                "prefix_rollouts": 0.019724458019481972,
+                "posterior_and_fields": 0.08452216602745466,
+                "continuation_geometry": 0.051110625005094334,
+                "continuation_rollouts": 0.4248736250156071,
+                "total": 0.6009161669935565
+              },
+              "compilation_included": false
+            },
+            "reason": "One-second guard stopped execution before this plan was applied"
+          }
+        ],
+        "total_wall_seconds": 176.3174230409786,
+        "regions_visited": [
+          "B"
+        ],
+        "first_60s_mean_deficit": 0.14377985666666668,
+        "last_60s_mean_deficit": 0.27062082666666665,
+        "selected_prefix_counts": {
+          "MBD": 20,
+          "hold": 35,
+          "alternative": 5
+        }
+      }
+    }
+  ],
+  "verification": "audit.json",
+  "source_available": true,
+  "method_document": "method.html"
+}

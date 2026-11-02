@@ -1,0 +1,9 @@
+{
+  "source_run": "voi-diffusion-ipp/results/airflow/monitoring_survey_value_refined_300/s1-aware.json",
+  "run_sha256": "b42ce7e221abf297bc9f66a7b85d6c68b1252ea83511ae3e00946371196380fa",
+  "protocol_sha256": "33deba267ec059748a13ab6a81fee6ab268803388fe2c546be34a287c9faf65e",
+  "scenario": 1,
+  "duration_s": 300,
+  "status": "Recorded development execution; fine-forecast numerical regressions passed. Full independent mission audit not complete. No matched final-variant baseline or Scenario 2 run.",
+  "compression": "Exact source JSON bytes, gzip with fixed timestamp"
+}

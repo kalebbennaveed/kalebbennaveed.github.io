@@ -1,0 +1,426 @@
+{
+  "scenario": 2,
+  "solver": "lbmpy 1.4.1 / D3Q19 MRT / Smagorinsky LES Cs=0.16",
+  "equations": "3D isothermal low-Mach filtered Navier-Stokes; molecular plus Smagorinsky subgrid viscosity",
+  "units": "m, s, m/s",
+  "domain_m": [
+    8.0,
+    4.625,
+    2.0
+  ],
+  "obstacles": [
+    [
+      2.16,
+      3.3125,
+      0.98,
+      1.5
+    ],
+    [
+      3.73,
+      2.6325,
+      0.855,
+      1.5
+    ],
+    [
+      5.355,
+      1.1625,
+      0.855,
+      1.5
+    ]
+  ],
+  "grid": [
+    64,
+    37,
+    16
+  ],
+  "dx_m": 0.125,
+  "dt_s": 0.0001875,
+  "density_kg_m3": 1.204,
+  "temperature_K": 293.15,
+  "dynamic_viscosity_Pa_s": 1.8134058821488238e-05,
+  "kinematic_viscosity_m2_s": 1.506151064907661e-05,
+  "wind_source": "Elevated north central opening x=6.4\u20137.2 m, z=1.5\u20132 m, peak 30 m/s, direction (-2.2575,-2.7275,-1) normalized. It aims from (6.8,4.625,1.75) through the central gap (4.5425,1.8975,0.75), toward the floor outlet outside B. Scenario 2 also has an east lower opening y=0.35\u20131.15 m, z=0.25\u20131.25 m, peak 18 m/s, direction (-1,-0.6,0) normalized. Compact sin^2 profiles across each opening. Interior velocity is solved by CFD; no ROI masking or scaling.",
+  "boundary_conditions": "No-slip roof, floor and perimeter except the elevated north inlet, Scenario 2 east lower inlet, and floor pressure outlet x=4\u20134.9 m, y=1.35\u20132.25 m at z=0, outside B and below the robot plane. Additional south outlet x=2.95\u20134.45 m for the lower flow. Same analytic circular-column boundaries and recorded stencil-junction fallback.",
+  "initial_condition": "Air initially at rest; imposed inlets start at t=0",
+  "environment_revision": "directional-sheltered-ports-v11",
+  "openings": {
+    "central_inlet": {
+      "side": "north",
+      "x_m": [
+        6.3999999999999995,
+        7.2
+      ],
+      "z_m": [
+        1.5,
+        2.0
+      ],
+      "peak_m_s": 30.0,
+      "direction": [
+        -2.2575,
+        -2.7275,
+        -1.0
+      ]
+    },
+    "lower_inlet": {
+      "side": "east",
+      "y_m": [
+        0.35,
+        1.15
+      ],
+      "z_m": [
+        0.25,
+        1.25
+      ],
+      "peak_m_s": 18.0,
+      "direction": [
+        -1.0,
+        -0.6,
+        0.0
+      ]
+    },
+    "outlet": {
+      "side": "floor",
+      "x_m": [
+        4.0,
+        4.9
+      ],
+      "y_m": [
+        1.35,
+        2.25
+      ],
+      "z_m": 0.0
+    },
+    "lower_outlet": {
+      "side": "south",
+      "x_m": [
+        2.95,
+        4.45
+      ]
+    }
+  },
+  "slice_height_m": 0.75,
+  "requested_slice_height_m": 0.75,
+  "slice_interpolation": "Linear interpolation between neighboring vertical CFD cell centers",
+  "data_dtype": "little-endian float32",
+  "diagnostics": [
+    {
+      "time_s": 0.999375,
+      "max_speed_m_s": 24.193932646811422,
+      "max_lattice_mach": 0.06285768086876513,
+      "max_relative_density_change": 0.0006839465106887044,
+      "mean_speed_m_s": 0.8407299709741507,
+      "wall_seconds": 8.801921334001236
+    },
+    {
+      "time_s": 1.99875,
+      "max_speed_m_s": 24.186498819655622,
+      "max_lattice_mach": 0.06283836721927233,
+      "max_relative_density_change": 0.0006010604958262,
+      "mean_speed_m_s": 0.9328871069679753,
+      "wall_seconds": 17.545623209007317
+    },
+    {
+      "time_s": 2.998125,
+      "max_speed_m_s": 24.182515947162063,
+      "max_lattice_mach": 0.06282801941299396,
+      "max_relative_density_change": 0.0006216095172422165,
+      "mean_speed_m_s": 0.976228850515835,
+      "wall_seconds": 26.2915158750111
+    },
+    {
+      "time_s": 3.9975,
+      "max_speed_m_s": 24.17937335514288,
+      "max_lattice_mach": 0.06281985471942692,
+      "max_relative_density_change": 0.0006244558821433266,
+      "mean_speed_m_s": 1.0215239110639287,
+      "wall_seconds": 35.142712000000756
+    },
+    {
+      "time_s": 4.996875,
+      "max_speed_m_s": 24.17476055107584,
+      "max_lattice_mach": 0.06280787030291271,
+      "max_relative_density_change": 0.0006331236374610416,
+      "mean_speed_m_s": 1.056089237393246,
+      "wall_seconds": 43.90185845900851
+    },
+    {
+      "time_s": 5.99625,
+      "max_speed_m_s": 24.175921791092676,
+      "max_lattice_mach": 0.06281088729297613,
+      "max_relative_density_change": 0.0006408165389850673,
+      "mean_speed_m_s": 1.068046749834976,
+      "wall_seconds": 56.03813433399773
+    },
+    {
+      "time_s": 6.995625,
+      "max_speed_m_s": 24.181561528127787,
+      "max_lattice_mach": 0.06282553975960534,
+      "max_relative_density_change": 0.0006375756673173694,
+      "mean_speed_m_s": 1.0807881068876737,
+      "wall_seconds": 71.34656158401049
+    },
+    {
+      "time_s": 7.995,
+      "max_speed_m_s": 24.18184467717525,
+      "max_lattice_mach": 0.06282627540240981,
+      "max_relative_density_change": 0.0006352243522795842,
+      "mean_speed_m_s": 1.0818700122408411,
+      "wall_seconds": 84.35485383401101
+    },
+    {
+      "time_s": 8.994375,
+      "max_speed_m_s": 24.18095859258505,
+      "max_lattice_mach": 0.06282397328711477,
+      "max_relative_density_change": 0.0006344709039280971,
+      "mean_speed_m_s": 1.0768156870479133,
+      "wall_seconds": 95.95786720899923
+    },
+    {
+      "time_s": 9.99375,
+      "max_speed_m_s": 24.180302896269875,
+      "max_lattice_mach": 0.06282226973811644,
+      "max_relative_density_change": 0.0006347413606488939,
+      "mean_speed_m_s": 1.069602084380371,
+      "wall_seconds": 108.14413695900294
+    },
+    {
+      "time_s": 10.993125000000001,
+      "max_speed_m_s": 24.175397837103205,
+      "max_lattice_mach": 0.06280952602058025,
+      "max_relative_density_change": 0.0006351384254763559,
+      "mean_speed_m_s": 1.0622075602554841,
+      "wall_seconds": 120.10269679200428
+    },
+    {
+      "time_s": 11.9925,
+      "max_speed_m_s": 24.172185499873702,
+      "max_lattice_mach": 0.06280118012364143,
+      "max_relative_density_change": 0.0006362280857201696,
+      "mean_speed_m_s": 1.057515264527651,
+      "wall_seconds": 131.92697125000996
+    },
+    {
+      "time_s": 12.991875,
+      "max_speed_m_s": 24.17023813241966,
+      "max_lattice_mach": 0.06279612071458432,
+      "max_relative_density_change": 0.0006382798793467259,
+      "mean_speed_m_s": 1.056116306778831,
+      "wall_seconds": 144.14473016699776
+    },
+    {
+      "time_s": 13.99125,
+      "max_speed_m_s": 24.16987945926636,
+      "max_lattice_mach": 0.06279518885439708,
+      "max_relative_density_change": 0.0006391532781020448,
+      "mean_speed_m_s": 1.0554321751710976,
+      "wall_seconds": 156.0758629589982
+    },
+    {
+      "time_s": 14.990625,
+      "max_speed_m_s": 24.171576120687437,
+      "max_lattice_mach": 0.06279959691007389,
+      "max_relative_density_change": 0.0006380001742321006,
+      "mean_speed_m_s": 1.0573749126377017,
+      "wall_seconds": 168.01053512500948
+    },
+    {
+      "time_s": 15.99,
+      "max_speed_m_s": 24.16884706634578,
+      "max_lattice_mach": 0.06279250661890934,
+      "max_relative_density_change": 0.0006377716177312642,
+      "mean_speed_m_s": 1.059483132894535,
+      "wall_seconds": 179.77773591699952
+    },
+    {
+      "time_s": 16.989375,
+      "max_speed_m_s": 24.16882381575285,
+      "max_lattice_mach": 0.06279244621209695,
+      "max_relative_density_change": 0.00063747177305995,
+      "mean_speed_m_s": 1.0620521401465186,
+      "wall_seconds": 192.38075337500777
+    },
+    {
+      "time_s": 17.98875,
+      "max_speed_m_s": 24.169998795446286,
+      "max_lattice_mach": 0.06279549889888729,
+      "max_relative_density_change": 0.0006365244863635322,
+      "mean_speed_m_s": 1.0649557767840832,
+      "wall_seconds": 207.52342283399776
+    },
+    {
+      "time_s": 18.988125,
+      "max_speed_m_s": 24.169438984147348,
+      "max_lattice_mach": 0.06279404446646868,
+      "max_relative_density_change": 0.0006345171383161929,
+      "mean_speed_m_s": 1.0662607365050423,
+      "wall_seconds": 222.88947279199783
+    },
+    {
+      "time_s": 19.9875,
+      "max_speed_m_s": 24.170842644404445,
+      "max_lattice_mach": 0.06279769128279146,
+      "max_relative_density_change": 0.0006321818406662683,
+      "mean_speed_m_s": 1.06624868013059,
+      "wall_seconds": 237.6868495420058
+    },
+    {
+      "time_s": 20.986875,
+      "max_speed_m_s": 24.17254559993829,
+      "max_lattice_mach": 0.06280211569105293,
+      "max_relative_density_change": 0.000630855980102929,
+      "mean_speed_m_s": 1.0642369972622294,
+      "wall_seconds": 252.29274433400133
+    },
+    {
+      "time_s": 21.986250000000002,
+      "max_speed_m_s": 24.1727715790618,
+      "max_lattice_mach": 0.062802702802038,
+      "max_relative_density_change": 0.0006305901962893046,
+      "mean_speed_m_s": 1.0616028343272026,
+      "wall_seconds": 267.43049512500875
+    },
+    {
+      "time_s": 22.985625,
+      "max_speed_m_s": 24.17281468127814,
+      "max_lattice_mach": 0.06280281478488092,
+      "max_relative_density_change": 0.0006310140685670262,
+      "mean_speed_m_s": 1.059561940503205,
+      "wall_seconds": 283.2071150420088
+    },
+    {
+      "time_s": 23.985,
+      "max_speed_m_s": 24.172114471167,
+      "max_lattice_mach": 0.06280099558564821,
+      "max_relative_density_change": 0.0006317556002186642,
+      "mean_speed_m_s": 1.0591009950435208,
+      "wall_seconds": 302.86697679200734
+    },
+    {
+      "time_s": 24.984375,
+      "max_speed_m_s": 24.171856670959084,
+      "max_lattice_mach": 0.06280032580106075,
+      "max_relative_density_change": 0.0006327357718347582,
+      "mean_speed_m_s": 1.059390922179713,
+      "wall_seconds": 320.96286579201114
+    },
+    {
+      "time_s": 25.98375,
+      "max_speed_m_s": 24.171856935082758,
+      "max_lattice_mach": 0.06280032648727418,
+      "max_relative_density_change": 0.0006334467570632274,
+      "mean_speed_m_s": 1.059041661880644,
+      "wall_seconds": 331.6569715000078
+    },
+    {
+      "time_s": 26.983125,
+      "max_speed_m_s": 24.17115362850578,
+      "max_lattice_mach": 0.06279849924318726,
+      "max_relative_density_change": 0.0006336959924542196,
+      "mean_speed_m_s": 1.058570448804608,
+      "wall_seconds": 341.09510274999775
+    },
+    {
+      "time_s": 27.9825,
+      "max_speed_m_s": 24.1700049753614,
+      "max_lattice_mach": 0.06279551495477774,
+      "max_relative_density_change": 0.0006335394734053867,
+      "mean_speed_m_s": 1.0583984233697679,
+      "wall_seconds": 350.0480336250039
+    },
+    {
+      "time_s": 28.981875000000002,
+      "max_speed_m_s": 24.169481494917267,
+      "max_lattice_mach": 0.06279415491268872,
+      "max_relative_density_change": 0.000633303352538972,
+      "mean_speed_m_s": 1.058271206462577,
+      "wall_seconds": 360.1704184170085
+    },
+    {
+      "time_s": 29.98125,
+      "max_speed_m_s": 24.16972367052622,
+      "max_lattice_mach": 0.06279478410337733,
+      "max_relative_density_change": 0.0006332473450261222,
+      "mean_speed_m_s": 1.0575877188572687,
+      "wall_seconds": 371.13929929200094
+    },
+    {
+      "time_s": 30.980625,
+      "max_speed_m_s": 24.170048786676833,
+      "max_lattice_mach": 0.06279562877991415,
+      "max_relative_density_change": 0.000633431423622044,
+      "mean_speed_m_s": 1.0566666095029698,
+      "wall_seconds": 386.9244288750051
+    },
+    {
+      "time_s": 31.98,
+      "max_speed_m_s": 24.16954479978991,
+      "max_lattice_mach": 0.06279431938357241,
+      "max_relative_density_change": 0.0006338738102831254,
+      "mean_speed_m_s": 1.056221696748441,
+      "wall_seconds": 397.50321575001
+    },
+    {
+      "time_s": 32.0000625,
+      "max_speed_m_s": 24.169085798544437,
+      "max_lattice_mach": 0.06279312686335556,
+      "max_relative_density_change": 0.0006338938333096955,
+      "mean_speed_m_s": 1.0562561047826051,
+      "wall_seconds": 397.9309087500005
+    }
+  ],
+  "curved_boundary_checks": [
+    {
+      "links": 10524,
+      "min_q": 0.00021898393600583432,
+      "max_q": 0.9979555258286101,
+      "unresolved": 0,
+      "junction_halfway_no_slip_links": 212
+    }
+  ],
+  "wall_seconds": 398.01140395901166,
+  "limitations": [
+    "LES models unresolved eddies; not DNS or an approximation-free or measured wind field.",
+    "Finite spatial/time discretization; near-wall turbulence is not wall-resolved at these grids.",
+    "Quiet zones and route impassability are design targets, not imposed solution properties.",
+    "A horizontal velocity slice is exported for animated streamlets; these are not three-dimensional particle trajectories.",
+    "Air velocity is not assigned directly to the robot additive-acceleration disturbance. Robot coupling remains separate."
+  ],
+  "time_dependence": "none",
+  "field_definition": "Fixed vector mean of redesigned 3D CFD horizontal slice over 16\u201332 s",
+  "averaging_interval_s": [
+    16,
+    32
+  ],
+  "averaging_method": "Trapezoidal vector average with interpolated endpoints; no interior masking, rescaling, or clipping.",
+  "data_shape": [
+    37,
+    64,
+    3
+  ],
+  "data_file": "stationary-velocity.f32",
+  "data_axes": [
+    "y from south",
+    "x from west",
+    "u/v/w"
+  ],
+  "velocity_sha256": "b29a17da083f412d0a95e747851ac6a6b606d0f1070bee816f468a5fd854bbc0",
+  "generator": {
+    "source_directory": "results/airflow/directional_v11p30_s2_n64",
+    "transient_velocity_sha256": "f21d1a3b32514a9b93f30fa0f4b12291a9db58778c990b729080b08f44f2e888"
+  },
+  "stationary_model_limit": "Prescribed stationary mean-flow environment, not an exact steady Navier\u2013Stokes solution.",
+  "validation_status": "Provisional CFD; monitor-region speeds measured in the computed field. Full-scene grid convergence not established.",
+  "intended_use": "Designed scenario and conditional robot-response review",
+  "monitoring_region_metrics": {
+    "A": {
+      "mean_m_s": 0.9725653529167175,
+      "p95_m_s": 2.8522610664367676,
+      "max_m_s": 7.875024318695068
+    },
+    "B": {
+      "mean_m_s": 0.3219371438026428,
+      "p95_m_s": 0.543391764163971,
+      "max_m_s": 0.8007347583770752
+    }
+  }
+}
