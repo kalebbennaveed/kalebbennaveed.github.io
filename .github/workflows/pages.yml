@@ -53,7 +53,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 15
     permissions:
       pages: write
       id-token: write
@@ -65,5 +65,5 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346
         with:
-          # The managed workflow canceled two valid builds during syncing_files.
-          timeout: 1800000
+          # deploy-pages caps its polling timeout at ten minutes.
+          timeout: 600000
