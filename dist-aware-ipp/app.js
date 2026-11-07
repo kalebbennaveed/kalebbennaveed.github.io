@@ -1,6 +1,6 @@
 'use strict';
 const $=(s,e=document)=>e.querySelector(s), $$=(s,e=document)=>[...e.querySelectorAll(s)];
-const ROOT='data/', states=[], warm=['#fff7ec','#fee8c8','#fdd49e','#fdbb84','#fc8d59','#ef6548','#d7301f','#b30000','#7f0000'], blue=['#fafdfd','#d7ebf3','#86c1d6','#3189ad','#124368'];
+const ROOT='https://raw.githubusercontent.com/kalebbennaveed/kalebbennaveed.github.io/334c6889cac83584531d6e15383746312cc405eb/dist-aware-ipp/data/', states=[], warm=['#fff7ec','#fee8c8','#fdd49e','#fdbb84','#fc8d59','#ef6548','#d7301f','#b30000','#7f0000'], blue=['#fafdfd','#d7ebf3','#86c1d6','#3189ad','#124368'];
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 function rgb(h){return [1,3,5].map(i=>parseInt(h.slice(i,i+2),16))}
 function color(v,palette){const z=Math.max(0,Math.min(1,v))*(palette.length-1),i=Math.min(palette.length-2,Math.floor(z)),f=z-i,a=rgb(palette[i]),b=rgb(palette[i+1]);return a.map((x,k)=>Math.round(x*(1-f)+b[k]*f))}

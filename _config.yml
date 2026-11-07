@@ -5,3 +5,4 @@ url: "https://kalebbennaveed.github.io"
 markdown: kramdown
 theme: null
 include: [".nojekyll", "notes/_static", "notes/_images", "notes/_sources", "notes/_sphinx_design_static"]
+exclude: ["dist-aware-ipp/data"]
