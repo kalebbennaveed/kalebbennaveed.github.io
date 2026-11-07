@@ -1,0 +1,69 @@
+name: Publish website
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # Use the same build actions as the previous GitHub-managed Pages build.
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Build with Jekyll
+        uses: actions/jekyll-build-pages@44a6e6beabd48582f863aeeb6cb2151cc1716697
+        with:
+          source: .
+          destination: ./_site
+          future: false
+          build_revision: ${{ github.sha }}
+      - name: Verify existing pages and simulation presentation
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          site = Path('_site')
+          for name in ('index.html', 'publications.html', 'research.html',
+                       'dual-gtk/index.html', 'dis-aware-ipp/update-slides/index.html',
+                       'dist-aware-ipp/index.html', 'dist-aware-ipp/app.js',
+                       'dist-aware-ipp/style.css'):
+              assert (site / name).is_file(), f'Missing published page: {name}'
+          for name in ('dist-aware-ipp/index.html', 'dist-aware-ipp/app.js',
+                       'dist-aware-ipp/style.css'):
+              assert (site / name).read_bytes() == Path(name).read_bytes(), name
+          assert not any(p.is_symlink() for p in site.rglob('*'))
+          print('Existing pages and new presentation verified.')
+          PY
+      - name: Upload site
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa
+        with:
+          path: ./_site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346
+        with:
+          # The managed workflow canceled two valid builds during syncing_files.
+          timeout: 1800000
