@@ -1,0 +1,13 @@
+{
+  "draft_sha256": "cf7fb83a72eaca8bae11f61b9eab774773a2b2d7a4608961742136d6529c57aa",
+  "draft": "disturbance_aware_ipp-draft1.pdf",
+  "scenario_mapping": {
+    "1": 1,
+    "2": 2,
+    "3": 4,
+    "4": 3
+  },
+  "data_commit": "261948aefe452de1d47065e0df5b28a667269008",
+  "source": "../../../dist-aware-ipp/data/manifest.json",
+  "note": "Manuscript numbering. Existing data and simulations unchanged. Cartoons are illustrations, not simulated outcomes."
+}
