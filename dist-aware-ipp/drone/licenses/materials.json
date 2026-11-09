@@ -1,0 +1,58 @@
+[
+  {
+    "file": "assets/brick_diff.jpg",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/red_brick/red_brick_diff_1k.jpg",
+    "asset_page": "https://polyhaven.com/a/red_brick",
+    "license": "CC0",
+    "sha256": "6dea3a2b5a3185ff48d299d182c405a9f787129d79677792db6de4afd81c47f6",
+    "bytes": 766044
+  },
+  {
+    "file": "assets/brick_nor_gl.jpg",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/red_brick/red_brick_nor_gl_1k.jpg",
+    "asset_page": "https://polyhaven.com/a/red_brick",
+    "license": "CC0",
+    "sha256": "99bd2c60dfdb02b011cc3551bd9ab51d9b0be2807e3ba8f7a53c8a4c945b2f87",
+    "bytes": 1052038
+  },
+  {
+    "file": "assets/brick_rough.jpg",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/red_brick/red_brick_rough_1k.jpg",
+    "asset_page": "https://polyhaven.com/a/red_brick",
+    "license": "CC0",
+    "sha256": "9bc9ece8264eb53d6f290bd2950ece5e462f83ce9e65b945fb1caf9972973ab9",
+    "bytes": 178614
+  },
+  {
+    "file": "assets/paving_diff.jpg",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brick_pavement/brick_pavement_diff_1k.jpg",
+    "asset_page": "https://polyhaven.com/a/brick_pavement",
+    "license": "CC0",
+    "sha256": "898f0cdeade6f685c656552d6886a926cfdd263fbfc24b8e0822505b63eb3153",
+    "bytes": 776499
+  },
+  {
+    "file": "assets/paving_nor_gl.jpg",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brick_pavement/brick_pavement_nor_gl_1k.jpg",
+    "asset_page": "https://polyhaven.com/a/brick_pavement",
+    "license": "CC0",
+    "sha256": "47f4f0fb447bc5b6fdb0a80530ddd3f9ab94b927a8df3cefa58c0af4ae8d6943",
+    "bytes": 904630
+  },
+  {
+    "file": "assets/paving_rough.jpg",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brick_pavement/brick_pavement_rough_1k.jpg",
+    "asset_page": "https://polyhaven.com/a/brick_pavement",
+    "license": "CC0",
+    "sha256": "d17c515eb975691e980b59a2448e4a63eb72f1a80dde733d8289fc556b5fe381",
+    "bytes": 334917
+  },
+  {
+    "file": "assets/daylight.hdr",
+    "source": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/kloofendal_48d_partly_cloudy_puresky_1k.hdr",
+    "asset_page": "https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky",
+    "license": "CC0",
+    "sha256": "fd94c84997b8a3c353b62c2125a9b44e19509956986a126e472684432a02d798",
+    "bytes": 1435119
+  }
+]

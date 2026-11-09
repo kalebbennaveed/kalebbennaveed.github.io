@@ -1,0 +1,41 @@
+[
+  {
+    "file": "aerial_grass_rock_diff_1k.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/aerial_grass_rock/aerial_grass_rock_diff_1k.jpg",
+    "sha256": "57b8041bfe0d0f01430e4dbaad45e7ddddf0a9fc97317f90dbc51f7b0d9e1b5d",
+    "bytes": 666655,
+    "license": "CC0-1.0"
+  },
+  {
+    "file": "aerial_grass_rock_nor_gl_1k.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/aerial_grass_rock/aerial_grass_rock_nor_gl_1k.jpg",
+    "sha256": "1aa3e23bff453f152e089b9f83aa36b4901651e019f7e2ca01d5331a9bbbda78",
+    "bytes": 904956,
+    "license": "CC0-1.0"
+  },
+  {
+    "file": "aerial_grass_rock_rough_1k.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/aerial_grass_rock/aerial_grass_rock_rough_1k.jpg",
+    "sha256": "b9f3f76aba74007f708333c0dbe73c52eb83ea0c4187a13e2e994f888a25114a",
+    "bytes": 362214,
+    "license": "CC0-1.0"
+  },
+  {
+    "file": "pine_tree_01_twig_diff_1k.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/pine_tree_01/pine_tree_01_twig_diff_1k.jpg",
+    "source": "https://polyhaven.com/a/pine_tree_01",
+    "author": "Rico Cilliers / Rob Tuytel",
+    "license": "CC0-1.0",
+    "sha256": "e649f0f9bc74d1af5f1a45eaf2fe7a29adaaddfab251f746b983da301e4b80e1",
+    "bytes": 510932
+  },
+  {
+    "file": "pine_tree_01_twig_alpha_1k.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/pine_tree_01/pine_tree_01_twig_alpha_1k.jpg",
+    "source": "https://polyhaven.com/a/pine_tree_01",
+    "author": "Rico Cilliers / Rob Tuytel",
+    "license": "CC0-1.0",
+    "sha256": "bee10734c529a874570da6e4091758de5cc7dee17a359eeacd9c67fde1cb0947",
+    "bytes": 195206
+  }
+]
