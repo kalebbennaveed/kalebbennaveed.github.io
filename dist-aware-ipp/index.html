@@ -4,26 +4,67 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
-  <meta name="description" content="Simulation results for Disturbance-Aware Informative Planning in Spatiotemporal Environments.">
+  <meta name="description" content="Learn wind along monitoring-relevant paths, then plan informative motion with disturbance-aware model-based diffusion. Explore the method and recorded simulations.">
   <title>Disturbance-Aware Informative Planning</title>
-  <link rel="stylesheet" href="style.css?v=20261109-stage-drone2">
+  <link rel="stylesheet" href="style.css?v=20261110-project">
+  <link rel="stylesheet" href="project.css?v=20261110">
 </head>
 <body>
   <header class="paper">
     <h1>Disturbance-Aware Informative Planning<br class="wide-break"> in Spatiotemporal Environments</h1>
-    <div class="authors"><span><a href="https://kalebbennaveed.github.io/">Kaleb Ben Naveed</a><sup>1</sup></span><span>Haejoon Lee<sup>1</sup></span><span>Anouk Girard<sup>2</sup></span><span>Dimitra Panagou<sup>1,3</sup></span></div>
+    <div class="authors"><span><a href="https://kalebbennaveed.github.io/">Kaleb Ben Naveed</a><sup>1</sup></span><span>Haejoon Lee<sup>1</sup></span><span>Anouck Girard<sup>2</sup></span><span>Dimitra Panagou<sup>1,3</sup></span></div>
     <p class="affiliations"><span><sup>1</sup> Department of Robotics, University of Michigan, Ann Arbor</span><span><sup>2</sup> Embry-Riddle Aeronautical University</span><span><sup>3</sup> Department of Aerospace Engineering, University of Michigan, Ann Arbor</span></p>
-    <nav aria-label="Scenarios"><a href="#scenario-1">Scenario 1</a><a href="#scenario-2">Scenario 2</a><a href="#scenario-4">Scenario 4</a><a href="#scenario-3">Scenario 3</a><a href="#drone-scenario-1">3D drone replay</a></nav>
+    <div class="paper-resources" aria-label="Paper resources">
+      <span class="resource pending" aria-disabled="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6zM14 3v5h4M9 12h6M9 16h6"/></svg>arXiv <small>Coming soon</small></span>
+      <span class="resource pending" aria-disabled="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 6-6 6 6 6m8-12 6 6-6 6M14 3l-4 18"/></svg>Code <small>Coming soon</small></span>
+      <a class="resource" href="https://kalebbennaveed.github.io/dis-aware-ipp/slides/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18v13H3zM12 17v5m-5 0 5-5 5 5M7 8h10M7 12h6"/></svg>Slides</a>
+    </div>
+    <nav aria-label="Scenarios"><a href="#overview">Overview</a><a href="#method">Method</a><a href="#scenario-1">Scenario 1</a><a href="#scenario-2">Scenario 2</a><a href="#scenario-4">Scenario 4</a><a href="#scenario-3">Scenario 3</a><a href="#drone-replays">3D replays</a></nav>
   </header>
+  <section id="overview" class="project-overview" aria-labelledby="overview-title">
+    <div class="overview-heading"><p class="section-label">The idea</p><h2 id="overview-title">Learn wind where it matters<br>for monitoring.</h2></div>
+    <div class="overview-copy"><p>Robots performing persistent monitoring must revisit regions as information decays. Wind can delay or deflect a planned route, so a short path can deliver poor monitoring performance.</p>
+    <p>We use geometric alternatives and predicted clarity deficits to identify where wind knowledge matters. The robot first gathers measurements along relevant paths. Once weighted uncertainty is sufficiently low, disturbance-aware model-based diffusion (MBD) plans monitoring trajectories by predicting motion and sensing under sampled wind fields.</p></div>
+  </section>
+  <section id="method" class="method-overview" aria-labelledby="method-title">
+    <div class="method-intro"><div><p class="section-label">How it works</p><h2 id="method-title">From useful paths to informed motion</h2></div><p>Sensing continues during both wind learning and monitoring.</p></div>
+    <div class="method-figure"><div class="cartoon-scroll"><div id="method-cartoon"><img src="assets/method-cartoon.svg" alt="Five-step method: geometric paths, relevant wind uncertainty, targeted measurements, disturbance-aware optimization, and execution."></div></div>
+      <div class="cartoon-key"><span><i class="key-deficit"></i>Clarity deficit</span><span><i class="key-uncertainty"></i>Wind uncertainty</span><span><i class="key-corridor"></i>Relevant paths</span><span><i class="key-selected"></i>Selected trajectory</span></div>
+      <div class="cartoon-controls" hidden><button id="cartoon-play" type="button">Play animation</button><button id="cartoon-restart" type="button">Restart</button><input id="cartoon-progress" type="range" min="0" max="1" step="0.001" value="0" aria-label="Method animation progress"><output id="cartoon-step">Step 1 of 5</output></div>
+      <div class="method-steps" aria-label="Method steps">
+        <button data-method-step="0" aria-pressed="true"><span>01</span>Geometric paths</button><button data-method-step="1" aria-pressed="false"><span>02</span>Relevant uncertainty</button><button data-method-step="2" aria-pressed="false"><span>03</span>Targeted learning</button><button data-method-step="3" aria-pressed="false"><span>04</span>Disturbance-aware MBD</button><button data-method-step="4" aria-pressed="false"><span>05</span>Execute &amp; update</button>
+      </div>
+      <div class="method-explanation"><strong id="method-stage-title">Task and geometric paths</strong><p id="method-stage-copy">Predict future clarity deficits and retain routes through different passages.</p></div>
+    </div>
+    <p class="method-caption">Conceptual illustration. Blue predictions show how wind changes motion; the teal alternative is selected for lower expected monitoring cost. <a href="../dis-aware-ipp/slides/assets/method-cartoon.gif">View the animated GIF ↗</a></p>
+  </section>
+  <div class="simulation-intro"><p class="section-label">Experiments</p><h2>Recorded simulation results</h2><p>Five methods in each environment. The shared comparison time includes wind learning; use the GIF or slider controls to inspect each run.</p></div>
   <main id="scenarios" aria-label="Simulation results"><p class="loading">Loading simulations…</p></main>
+  <section id="drone-replays" class="spatial-intro"><p class="section-label">The same recordings, in 3D</p><h2>Drone inspection environments</h2><p>The saved planar trajectories are replayed at a fixed display height. Moving tracers use each scenario’s stationary CFD wind field; the architecture is illustrative.</p><nav aria-label="3D scenarios"><a href="#drone-scenario-1">Scenario 1</a><a href="#drone-scenario-2">Scenario 2</a><a href="#drone-scenario-3">Scenario 3</a><a href="#drone-scenario-4">Scenario 4</a></nav></section>
   <section class="drone-section" id="drone-scenario-1" aria-label="Scenario 1 three-dimensional drone replay">
     <h2>Scenario 1 · Drone inspection courtyard</h2>
     <p>The recorded trajectories in an industrial courtyard, with moving tracers from the saved stationary wind field. Select any method and replay its wind-learning and monitoring stages.</p>
-    <iframe src="drone/index.html?v=20261109" title="Scenario 1 drone replay" loading="lazy" allow="fullscreen"></iframe>
+    <iframe src="drone/index.html?v=20261110" title="Scenario 1 drone replay" loading="lazy" allow="fullscreen"></iframe>
     <a class="viewer-link" href="drone/" target="_blank" rel="noopener">Open the 3D view in a full window ↗</a>
+  </section>
+  <section class="drone-section" id="drone-scenario-2" aria-label="Scenario 2 three-dimensional drone replay">
+    <h2>Scenario 2 · Industrial courtyard · opposing wind</h2><p>The same courtyard layout as Scenario 1, with the recorded strong wind in both the central and lower passages. The upper route remains sheltered.</p>
+    <iframe data-src="drone/index.html?scenario=2&amp;v=20261110" title="Scenario 2 drone replay" loading="lazy" allow="fullscreen"></iframe>
+    <a class="viewer-link" href="drone/?scenario=2" target="_blank" rel="noopener">Open the 3D view in a full window ↗</a>
+  </section>
+  <section class="drone-section" id="drone-scenario-3" aria-label="Scenario 3 three-dimensional drone replay">
+    <h2>Scenario 3 · Sheltered inspection plaza</h2><p>A glazed pavilion sits within the upper monitoring plaza. The recorded strong wind lies in the lower-right forecourt, away from the main monitoring region.</p>
+    <iframe data-src="drone/index.html?scenario=3&amp;v=20261110" title="Scenario 3 drone replay" loading="lazy" allow="fullscreen"></iframe>
+    <a class="viewer-link" href="drone/?scenario=3" target="_blank" rel="noopener">Open the 3D view in a full window ↗</a>
+  </section>
+  <section class="drone-section" id="drone-scenario-4" aria-label="Scenario 4 three-dimensional drone replay">
+    <h2>Scenario 4 · Utility campus · selective wind learning</h2><p>Workshops and storage tanks form a utility campus. The monitoring bays sit on the west side, while the larger eastern service yard adds space that need not be fully surveyed.</p>
+    <iframe data-src="drone/index.html?scenario=4&amp;v=20261110" title="Scenario 4 drone replay" loading="lazy" allow="fullscreen"></iframe>
+    <a class="viewer-link" href="drone/?scenario=4" target="_blank" rel="noopener">Open the 3D view in a full window ↗</a>
   </section>
   <footer class="result-note" style="text-align:center;margin:2rem"><a href="figures/scenario4-v5-20261107/paper-figures-pdf-svg-split-myriad.zip">Download paper figures (PDF + SVG)</a> · <a href="archive/20261107-v2/#scenario-4">Earlier Scenario 4 recordings</a></footer>
   <noscript>This page needs JavaScript to show recorded simulations and interactive plots.</noscript>
-  <script src="app.js?v=20261109-stage-drone2" defer></script>
+  <script src="app.js?v=20261110-project" defer></script>
+  <script type="module" src="project.js?v=20261110"></script>
 </body>
 </html>

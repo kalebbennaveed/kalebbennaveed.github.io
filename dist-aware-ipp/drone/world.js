@@ -24,7 +24,7 @@ function pineGeometry(){
   const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(positions,3));g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));g.computeVertexNormals();return g;
 }
 
-export async function buildWorld(scene,renderer,env){
+export async function buildWorld(scene,renderer,env,{scenario=1}={}){
  const loader=new T.TextureLoader();
  async function tex(name,repeat,color=false){const t=await loader.loadAsync(`assets/${name}.jpg`);t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(...repeat);t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());if(color)t.colorSpace=T.SRGBColorSpace;return t}
  const [pd,pn,pr,bd,bn,br]=await Promise.all([tex('paving_diff',[20,16],true),tex('paving_nor_gl',[20,16]),tex('paving_rough',[20,16]),tex('brick_diff',[2.5,1],true),tex('brick_nor_gl',[2.5,1]),tex('brick_rough',[2.5,1])]);
@@ -49,7 +49,8 @@ export async function buildWorld(scene,renderer,env){
  for(let z=0;z>=-36;z-=6)box(24,z,48,.018,.012,joint);
  for(let i=0;i<14;i++)box(47.7,-2-i*2.35,.35,.48,.016,metal);
  // Monitoring/loading bays remain at the recorded A and B bounds.
- for(const r of env.regions){const [[x0,y0],[x1,y1]]=r.bounds,lo=x0*S,hi=x1*S,z0=-y0*S,z1=-y1*S,w=hi-lo,d=z0-z1;
+ const monitoring=env.wind_region?[{label:'REGION',bounds:[[0,2.8],[8,6]]}]:env.regions;
+ for(const r of monitoring){const [[x0,y0],[x1,y1]]=r.bounds,lo=x0*S,hi=x1*S,z0=-y0*S,z1=-y1*S,w=hi-lo,d=z0-z1;
   plane((lo+hi)/2,(z0+z1)/2,w,d,new T.MeshStandardMaterial({color:'#b9b29a',transparent:true,opacity:.19,depthWrite:false}),.025);
   for(const x of [lo+.12,hi-.12])box(x,(z0+z1)/2,.09,d-.2,.016,paint,.04);
   for(const z of [z0-.12,z1+.12])box((lo+hi)/2,z,w-.2,.09,.016,paint,.04);
@@ -57,7 +58,7 @@ export async function buildWorld(scene,renderer,env){
   const labelCanvas=document.createElement('canvas');labelCanvas.width=768;labelCanvas.height=100;const labelCtx=labelCanvas.getContext('2d');labelCtx.fillStyle='#f9f7e9e8';labelCtx.fillRect(0,0,768,100);labelCtx.font='600 43px Arial';labelCtx.textAlign='center';labelCtx.fillStyle='#314d54';labelCtx.fillText(`MONITORING ${r.label}`,384,66);const labelTex=new T.CanvasTexture(labelCanvas);labelTex.colorSpace=T.SRGBColorSpace;const sprite=new T.Sprite(new T.SpriteMaterial({map:labelTex,depthTest:true}));sprite.scale.set(6.8,.89,1);sprite.position.set((lo+hi)/2,1.3,z1+.55);scene.add(sprite);for(let x=lo+1;x<hi-1;x+=1)box(x,z0-.65,.08,.65,.015,paint,.04);
  }
  // Four connected industrial wings, entirely inside the circular obstacle envelopes.
- for(const [i,[px,py,r]] of env.obstacles.slice(0,4).entries()){
+ function warehouse([px,py,r],i){
   const x=px*S,z=-py*S,w=r*S*1.36,d=r*S*1.36,h=[8.5,7.2,6.3,7.0][i];
   box(x,z,w+.22,d+.22,.3,concrete);box(x,z,w,d,1.55,brick,.3);box(x,z,w,d,h-1.55,wall,1.85);
   for(let a=-w/2+.22;a<w/2;a+=.48){box(x+a,z+d/2+.025,.025,.05,h-1.8,roof,1.8);box(x+a,z-d/2-.025,.025,.05,h-1.8,roof,1.8)}
@@ -79,7 +80,7 @@ export async function buildWorld(scene,renderer,env){
   box(x-w*.34,z+d/2+.13,.83,.04,1.9,metal,.3);box(x-w*.34,z+d/2+.2,1,.22,.1,paint,2.4);
  }
  // The independent obstacle is a tank with a concrete bund, roof, access rail and ladder.
- const [tx,ty,tr]=env.obstacles[4],x=tx*S,z=-ty*S,r=tr*S;
+ function tank([tx,ty,tr]){const x=tx*S,z=-ty*S,r=tr*S;
  cyl(x,z,r,.28,concrete);cyl(x,z,r*.84,6.7,new T.MeshStandardMaterial({color:'#c7d0ce',roughness:.45,metalness:.5}),.28);
  for(const yy of [1.8,3.9,6.8]){const ring=mesh(new T.TorusGeometry(r*.845,.045,6,64),trim,x,yy,z);ring.rotation.x=Math.PI/2}
  const cap=mesh(new T.ConeGeometry(r*.845,.55,64),roof,x,7.25,z);cap.receiveShadow=true;
@@ -89,6 +90,24 @@ export async function buildWorld(scene,renderer,env){
  for(const off of [-.28,.28])tube([[x+r*.87,0,z+off],[x+r*.87,7.8,z+off],[x+r*.65,8,z+off]],.045,metal);
  for(let yy=.35;yy<7.6;yy+=.32)tube([[x+r*.87,yy,z-.28],[x+r*.87,yy,z+.28]],.035,metal);
  tube([[x-r*.7,1,z],[x-r*.91,1,z],[x-r*.91,.3,z-.8]],.18,metal);
+ }
+ function pavilion([px,py,pr]){
+  const x=px*S,z=-py*S,r=pr*S;
+  const glazing=new T.MeshPhysicalMaterial({color:'#7399a5',metalness:.35,roughness:.17,transparent:true,opacity:.88,side:T.DoubleSide});
+  cyl(x,z,r*.97,.25,concrete);cyl(x,z,r*.88,.65,brick,.25);
+  const curtain=mesh(new T.CylinderGeometry(r*.86,r*.86,5.2,64,1,true),glazing,x,3.45,z);
+  for(let i=0;i<28;i++){const angle=i/28*Math.PI*2,xx=x+Math.cos(angle)*r*.875,zz=z+Math.sin(angle)*r*.875;cyl(xx,zz,.045,5.6,trim,.7);}
+  for(const yy of [1,3.3,6.1]){const band=mesh(new T.TorusGeometry(r*.875,.06,8,96),trim,x,yy,z);band.rotation.x=Math.PI/2;}
+  cyl(x,z,r*.96,.24,roof,6.2);cyl(x,z,r*.67,.14,trim,6.44);
+  const skylight=mesh(new T.SphereGeometry(r*.46,48,16,0,Math.PI*2,0,Math.PI/2),glass,x,6.55,z);skylight.scale.y=.35;
+  for(let i=0;i<12;i++){const a=i/12*Math.PI*2;tube([[x+Math.cos(a)*r*.48,6.58,z+Math.sin(a)*r*.48],[x+Math.cos(a)*r*.92,6.58,z+Math.sin(a)*r*.92]],.035,trim);}
+  // Entrance and terrace details stay inside the recorded obstacle footprint.
+  box(x,z+r*.88,1.7,.08,2.4,trim,.8);box(x,z+r*.895,1.5,.04,2.2,glass,.9);
+  for(const side of [-1,1]){const xx=x+side*r*.48;box(xx,z+r*.68,1.3,.3,.4,concrete);box(xx,z+r*.68,1.45,.36,.07,metal,.4);}
+ }
+ if(scenario===1||scenario===2){env.obstacles.slice(0,4).forEach((o,i)=>warehouse(o,i));tank(env.obstacles[4]);}
+ else if(scenario===3){pavilion(env.obstacles[0]);text('SERVICE FORECOURT',36,-5.3,12,1.2,'#dedbc2');}
+ else{env.obstacles.forEach((o,i)=>[0,4,7].includes(i)?tank(o):warehouse(o,i%4));text('EAST SERVICE YARD',39,-17.4,10,1.1,'#dedbc2');}
  // Perimeter fencing and landscaping outside the recorded free workspace.
  for(const zz of [-37.2,1.2]){for(let xx=-1;xx<=49;xx+=3)cyl(xx,zz,.045,1.6,metal);for(const yy of [.45,1.5])tube([[-1,yy,zz],[49,yy,zz]],.025,metal)}
  for(const xx of [-1.2,49.2]){for(let zz=-36;zz<1;zz+=3)cyl(xx,zz,.045,1.6,metal);for(const yy of [.45,1.5])tube([[xx,yy,-37],[xx,yy,1]],.025,metal)}
