@@ -6,3 +6,10 @@ markdown: kramdown
 theme: null
 include: [".nojekyll", "notes/_static", "notes/_images", "notes/_sources", "notes/_sphinx_design_static"]
 exclude: ["dist-aware-ipp/data"]
+
+# Keep the direct-link presentation out of generated sitemaps.
+defaults:
+  - scope:
+      path: "rob-535-predictive-autonomous-driving/update-slides"
+    values:
+      sitemap: false
