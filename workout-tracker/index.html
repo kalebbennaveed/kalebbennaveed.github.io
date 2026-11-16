@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17382d">
+  <meta name="description" content="A personal journal for workouts, meals, SOAP reflections and weight.">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="referrer" content="no-referrer">
+  <title>Daymark · Overview</title>
+  <link rel="icon" href="./assets/daymark.svg" type="image/svg+xml">
+  <link rel="preload" href="./assets/daymark-sans.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./forms.css">
+  <link rel="stylesheet" href="./calendar-reports.css">
+  <link rel="stylesheet" href="./sync.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div id="shell">
+    <aside id="sidebar" aria-label="Sidebar">
+      <div class="side-top">
+        <a class="brand" href="#overview" aria-label="Daymark overview"><img src="./assets/daymark.svg" width="34" height="34" alt="">Daymark</a>
+        <button class="mobile-close icon-button" aria-label="Close navigation" data-action="close-menu"></button>
+      </div>
+      <nav id="navigation" aria-label="Main navigation"></nav>
+      <div class="side-bottom">
+        <div class="unit-row"><span>Weight unit</span><div class="unit-toggle" role="group" aria-label="Weight unit"><button data-unit="kg">kg</button><button data-unit="lb">lb</button></div></div>
+        <button class="storage-button" data-action="sync"><span class="storage-icon" id="storage-icon"></span><span><strong>Cloud storage</strong><small id="storage-label">Device only</small></span><span class="storage-arrow" id="storage-arrow"></span></button>
+      </div>
+    </aside>
+    <button id="scrim" aria-label="Close navigation" data-action="close-menu" hidden></button>
+    <div class="work-area">
+      <header class="topbar">
+        <div class="breadcrumb"><button id="mobile-open" class="icon-button" data-action="menu" aria-label="Open navigation"></button><span class="workspace-icon" id="workspace-icon"></span><span class="crumb-workspace">Workspace</span><span class="mobile-brand">Daymark</span><span class="crumb-divider">/</span><strong id="current-location">Overview</strong></div>
+        <button class="primary-button" data-action="picker" id="global-log">Log entry</button>
+      </header>
+      <main id="main" tabindex="-1"></main>
+    </div>
+  </div>
+  <div id="notice" class="toast" role="status" aria-live="polite"></div>
+  <noscript>Enable JavaScript to log and view your entries.</noscript>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

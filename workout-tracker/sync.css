@@ -1,0 +1,49 @@
+dialog.tracker-sync {
+  box-sizing: border-box;
+  padding: 0;
+  width: min(500px, calc(100% - 28px));
+  max-height: calc(100dvh - 34px);
+  margin: auto;
+  overflow: auto;
+  border: 1px solid #d7dccf;
+  border-radius: 19px;
+  background: #fbfbf6;
+  color: #22392d;
+  box-shadow: 0 24px 80px #142d2440;
+  font: inherit;
+}
+.tracker-sync::backdrop { background: #10231877; backdrop-filter: blur(3px); }
+.tracker-sync [hidden] { display: none !important; }
+.tracker-sync .sync-heading { display: flex; align-items: center; justify-content: space-between; padding: 22px 25px 13px; gap: 16px; }
+.tracker-sync h2 { font-family: Georgia, serif; font-weight: 500; font-size: 30px; margin: 0; line-height: 1.12; letter-spacing: -.035em; }
+.tracker-sync button, .tracker-sync input { font: inherit; }
+.tracker-sync button { cursor: pointer; }
+.tracker-sync .sync-close { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid #ced4ca; border-radius: 50%; color: #2e4537; background: transparent; font-size: 23px; line-height: 1; }
+.tracker-sync .sync-body { padding: 0 25px 25px; display: grid; gap: 16px; }
+.tracker-sync p { margin: 0; }
+.tracker-sync .sync-intro, .tracker-sync .sync-manage p, .tracker-sync .sync-guide li { color: #4b5b50; font-size: 14px; line-height: 1.5; }
+.tracker-sync .sync-connection { display: grid; gap: 3px; border-radius: 10px; border: 1px solid #d7e1d2; background: #edf2e8; padding: 12px 14px; }
+.tracker-sync .sync-state { font-size: 14px; }
+.tracker-sync .sync-detail, .tracker-sync small { font-size: 12px; color: #4e5f52; line-height: 1.45; overflow-wrap: anywhere; }
+.tracker-sync .sync-guide { padding: 12px 0; border-block: 1px solid #d8ded2; }
+.tracker-sync .sync-guide summary { color: #284d38; font-weight: 650; font-size: 14px; cursor: pointer; }
+.tracker-sync .sync-guide ol { margin: 10px 0 0; padding-left: 20px; }
+.tracker-sync .sync-guide li + li { margin-top: 7px; }
+.tracker-sync a { color: #246143; text-decoration: underline; text-underline-offset: 2px; }
+.tracker-sync form, .tracker-sync .sync-manage { display: grid; gap: 14px; }
+.tracker-sync label { display: grid; gap: 6px; font-size: 13px; font-weight: 650; }
+.tracker-sync input:not([type=checkbox]) { box-sizing: border-box; width: 100%; border: 1px solid #cbd5c6; background: #fff; color: #233b2d; border-radius: 8px; min-height: 42px; padding: 8px 11px; font-size: 16px; }
+.tracker-sync :focus-visible { outline: 2px solid #467c50; outline-offset: 2px; }
+.tracker-sync small { margin-top: -9px; }
+.tracker-sync .sync-include { display: flex; gap: 8px; align-items: center; font-weight: 500; }
+.tracker-sync .sync-include input { accent-color: #294d37; width: 17px; height: 17px; flex: 0 0 auto; }
+.tracker-sync .sync-feedback, .tracker-sync .sync-issue { color: #863e2a; font-size: 13px; line-height: 1.45; }
+.tracker-sync .sync-feedback:empty { display: none; }
+.tracker-sync .sync-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.tracker-sync .sync-primary, .tracker-sync .sync-secondary { padding: 11px 15px; border: 1px solid #294b37; border-radius: 9px; color: #fff; background: #294b37; font-size: 14px; font-weight: 650; }
+.tracker-sync .sync-secondary { background: transparent; color: #294b37; border-color: #c8d1c5; }
+.tracker-sync button:disabled { opacity: .6; cursor: wait; }
+@media (max-width: 450px) {
+  .tracker-sync .sync-heading { padding: 19px 18px 12px; }
+  .tracker-sync .sync-body { padding: 0 18px 20px; }
+}

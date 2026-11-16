@@ -13,3 +13,7 @@ defaults:
       path: "rob-535-predictive-autonomous-driving/update-slides"
     values:
       sitemap: false
+  - scope:
+      path: "workout-tracker"
+    values:
+      sitemap: false
