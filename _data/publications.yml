@@ -1,4 +1,14 @@
 - year: 2026
+  title: "Disturbance-Aware Informative Planning in Spatiotemporal Environments"
+  authors: "<strong>Kaleb Ben Naveed</strong>, Haejoon Lee, Anouck Girard, Dimitra Panagou"
+  venue: "Under Review, 2026"
+  image: "/dist-aware-ipp/assets/publication-preview.gif"
+  links:
+    pdf: "https://arxiv.org/abs/2611.18505"
+    code: "https://github.com/kalebbennaveed/voi-diffusion-ipp"
+    website: "/dist-aware-ipp/"
+
+- year: 2026
   title: "Trajectory Planning for Safe Dual Control with Active Exploration"
   authors: "<strong>Kaleb Ben Naveed</strong>, Manveer Singh, Devansh R. Agrawal, Dimitra Panagou"
   venue: "Under Review, 2026"
