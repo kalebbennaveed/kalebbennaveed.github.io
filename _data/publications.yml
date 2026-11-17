@@ -1,4 +1,13 @@
 - year: 2026
+  title: "High-Speed Forward and Reverse Tractor-Trailer Driving with Learned Vehicle Dynamics"
+  authors: "Aaron Chen*, David Shen*, Taekyung Kim*, <strong>Kaleb Ben Naveed</strong>, Dimitra Panagou<br><em>*Equal Contribution</em>"
+  venue: "arXiv preprint, 2026"
+  image: "/assets/tractor-trailer.jpg"
+  links:
+    pdf: "https://arxiv.org/abs/2611.20324"
+    website: "https://ds12a.github.io/drift-with-trailer/"
+
+- year: 2026
   title: "Disturbance-Aware Informative Planning in Spatiotemporal Environments"
   authors: "<strong>Kaleb Ben Naveed</strong>, Haejoon Lee, Anouck Girard, Dimitra Panagou"
   venue: "Under Review, 2026"
