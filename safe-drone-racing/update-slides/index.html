@@ -511,8 +511,24 @@ html,body{background:var(--paper)!important}
 .reveal .math-panel .lead p{font-size:31px;line-height:1.3;color:#285779;letter-spacing:-.65px}
 .reveal .math-panel .source-links p{font-size:20px}
 .visual-panel{position:relative;height:570px;min-width:0;align-self:start}
-.animation-scene{width:100%;height:540px;overflow:hidden;border-radius:20px}
+.animation-scene{width:100%;height:540px;overflow:hidden;border-radius:20px;position:relative;isolation:isolate}
 .animation-scene svg{width:100%;height:100%;display:block;overflow:visible}
+.method-three-canvas,.three-poster{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;margin:0!important;max-width:none!important;max-height:none!important}
+.method-three-canvas{z-index:2;touch-action:none}
+.three-poster{z-index:1;border:0!important;box-shadow:none!important}
+section.present .three-poster{display:none}
+.has-3d-world{background:#e9eff3;border:1px solid #d8e2e9;box-shadow:0 14px 35px #1f405010}
+.has-3d-world>svg{visibility:hidden}
+.three-world-labels{position:absolute;inset:0;z-index:3;pointer-events:none;font-family:Arial,Helvetica,sans-serif}
+.three-scene-title{position:absolute;top:0;left:0;right:0;padding:23px 25px 18px;background:linear-gradient(#e9eff3f5 75%,#e9eff300);font-size:18px;font-weight:600;line-height:1.3;color:#365469}
+.three-label{position:absolute;transform:translate(-50%,-50%);background:#f9fbfbd9;border:1px solid #dce5ea;border-radius:6px;padding:6px 9px;font-size:15px;white-space:nowrap;box-shadow:0 2px 9px #27445908;color:#4e6678}
+.three-view-tools{position:absolute;left:22px;right:22px;bottom:17px;display:flex;align-items:center;justify-content:space-between;z-index:4;font:13px Arial,sans-serif;color:#5a7487;pointer-events:none}
+.three-view-tools button{pointer-events:auto;border:1px solid #bacbd7;border-radius:6px;background:#f9fcfccc;color:#284c65;padding:7px 11px;cursor:pointer;font:13px Arial,sans-serif}
+.three-view-tools[hidden],.three-world-labels[hidden]{display:none}
+.reveal.overview .three-poster{display:block}
+.reveal.overview .method-three-canvas,.reveal.overview .three-view-tools{display:none}
+.animation-scene:empty::before{content:'Loading 3D illustration…';position:absolute;inset:45% 0;text-align:center;font:17px Arial,sans-serif;color:#647d90}
+.no-method-webgl .animation-scene::after,.webgl-lost::after{content:'The 3D view needs WebGL. Reload in a browser with graphics acceleration enabled.';position:absolute;inset:35% 10%;font:18px/1.5 Arial,sans-serif;color:#526d82;background:#fafbf9;z-index:5;padding:25px}
 .visual-caption{font-size:13px!important;letter-spacing:.15px;color:#7a8a93;text-align:center;margin-top:9px}
 #method-controls{height:96px;box-sizing:border-box;position:fixed;bottom:0;left:0;right:0;background:#fafbf9f5;border-top:1px solid #dce3e5;z-index:40;color:var(--ink);font:14px Arial,Helvetica,sans-serif;padding:10px max(24px,4vw);backdrop-filter:blur(10px)}
 .control-primary{display:flex;align-items:center;gap:12px;height:36px}
@@ -532,7 +548,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .reveal .slides .notes{display:none}
 @media(max-width:700px){#method-controls{padding:9px 14px}.control-primary{gap:7px}.control-hint{display:none}.control-secondary{gap:15px}.control-secondary label{display:none}.control-secondary select{margin-left:auto;width:38vw}.control-primary .play-button{min-width:88px;padding:0 8px}}
 @media(prefers-reduced-motion:reduce){.reveal *{transition:none!important}}
-@media print{#method-controls{display:none}.reveal{height:auto!important}.animation-scene{overflow:visible}.visual-panel{break-inside:avoid}}
+@media print{#method-controls{display:none}.reveal{height:auto!important}.animation-scene{overflow:visible}.visual-panel{break-inside:avoid}.three-poster{display:block!important}.method-three-canvas,.three-view-tools{display:none!important}}
 .scrubbing .reveal .slides section{transition:none!important}
 </style>
   
@@ -1083,7 +1099,7 @@ margin-right: 0; }
 </style>
   <meta name="robots" content="noindex,nofollow">
   <meta name="description" content="An animated explanation of learned-dynamics error bounds, neural feedback, reachable tubes and Gatekeeper verification.">
-  <meta name="animation-version" content="2026-11-17-v1">
+  <meta name="animation-version" content="2026-11-17-3d1">
 </head>
 <body class="quarto-light">
   <div class="reveal">
@@ -3454,20 +3470,11 @@ window.QuartoSupport = function () {
     const width=s.length*10.2+22; x=Math.min(x,780-width);
     return `<rect x="${x-11}" y="${y-21}" width="${width}" height="33" rx="6" fill="#fafbf9" opacity=".94"/>`+text(x,y,s,{color,size:20,weight:600});
   }
+  // Slots are populated by the shared WebGL renderer using the real 3D mesh.
   function quad(x,y,scale=1,angle=0,phase=0,opacity=1,tint=null){
-    let out=`<g transform="translate(${x} ${y}) rotate(${angle}) scale(${scale})" opacity="${opacity}">`;
-    out+=`<ellipse cx="4" cy="37" rx="53" ry="12" fill="#153c55" opacity=".09"/>`;
-    out+=`<path d="M-41 -20L41 20M-41 20L41 -20" stroke="${tint||'#283540'}" stroke-width="9" stroke-linecap="round"/>`;
-    out+=`<path d="M-40 -19L40 19M-40 19L40 -19" stroke="#72828a" stroke-width="1.5"/>`;
-    for(const [i,xx,yy] of [[0,-42,-21],[1,42,-21],[2,-42,21],[3,42,21]]){
-      out+=`<ellipse cx="${xx}" cy="${yy}" rx="25" ry="12" fill="${i<2?C.red:'#294352'}" opacity=".08"/>`;
-      out+=`<g transform="translate(${xx} ${yy}) scale(1 .53) rotate(${phase*2160*(i%2?1:-1)+i*51})">`;
-      out+=`<path d="M-24 -3Q-10 -11 1 -3Q15 -7 24 4Q8 10-1 3Q-14 9-24 -3Z" fill="${tint||(i<2?'#ca3549':'#253b46')}" stroke="#1e3242" stroke-width=".8"/></g>`;
-      out+=circle(xx,yy,5,tint||'#2d3a43');
-    }
-    out+=`<path d="M-18 -13L9 -18L22 -7L18 15L-9 19L-22 6Z" fill="${tint||'#4d5e67'}" stroke="#1e3242" stroke-width="2"/><path d="M-13 -12L8 -16L16 -7L10 7L-12 10Z" fill="${tint||'#c5ced0'}"/><path d="M-8 -7L8 -9L10 2L-8 4Z" fill="#233746"/><path d="M-14 17L-16 26M15 12L17 23" stroke="#4b5f6b" stroke-width="3"/>`;
-    return out+'</g>';
+    return `<g class="quad-slot" data-x="${x}" data-y="${y}" data-scale="${scale}" data-angle="${angle}" data-opacity="${opacity}" data-tint="${tint||''}"/>`;
   }
+  let threeView=null;
   function route(t,kind='fast'){
     // A single bend through the illustrated gates, parameterized by forecast time.
     let x=82+575*t, y=430-255*t-45*Math.sin(t*Math.PI*1.5);
@@ -3493,34 +3500,6 @@ window.QuartoSupport = function () {
     if(tag)s+=text(-35,-78,tag,{size:18,color:C.muted});
     return s+'</g>';
   }
-  function boxAt(p,r,color=C.blue,alpha=.12){
-    const dx=11,dy=-7;
-    return `<g><path d="M${p.x-9} ${p.y-r}L${p.x+dx} ${p.y-r+dy}L${p.x+dx} ${p.y+r+dy}L${p.x-9} ${p.y+r}Z" fill="${color}" fill-opacity="${alpha}" stroke="${color}" stroke-opacity=".65" stroke-width="1.2"/><path d="M${p.x-9} ${p.y-r}h-11v${2*r}h11M${p.x-20} ${p.y-r}l20 -7M${p.x-20} ${p.y+r}l20 -7" fill="none" stroke="${color}" stroke-opacity=".25"/></g>`;
-  }
-  function tube(kind='fast',{wide=true,end=1,redAt=-1,opacity=1}={}){
-    const n=36,pts=[];for(let i=0;i<=n;i++){const t=i/n;if(t>end+.001)break;const p=route(t,kind);const r=wide?6+47*t*t:5+17*t;pts.push({p,r,t});}
-    if(pts.length<2)return '';
-    let d='M'+pts.map(({p,r})=>`${p.x},${p.y-r}`).join(' L')+' L'+pts.slice().reverse().map(({p,r})=>`${p.x},${p.y+r}`).join(' L')+' Z';
-    let s=`<g opacity="${opacity}"><path d="${d}" fill="url(#${uid}-tube)" stroke="${C.blue}" stroke-width="1.2" stroke-opacity=".35"/>`;
-    for(const {p,r,t} of pts)s+=boxAt(p,r,Math.abs(t-redAt)<.017?C.red:C.blue,Math.abs(t-redAt)<.017?.35:.025);
-    return s+'</g>';
-  }
-  function courseScene(phase,{kind='fast',showTube=false,wide=true,collision=false,ghosts=false,progress=false,showPrevious=false,cut=false}={}){
-    let s=floor();const p1=route(.6),p2=route(.96);
-    s+=gate(p2.x,p2.y+4,.7,false,'');
-    s+=path(routePath(kind),C.grey,1.8,'5 7',.6);
-    if(showPrevious)s+=path(routePath('previous'),C.teal,4);
-    if(showTube)s+=tube(kind,{wide,end:cut?.55:(progress?Math.max(.02,phase):1),redAt:collision?.611:-1});
-    if(cut)s+=tube(kind,{wide,end:1,opacity:.12})+label(475,370,'Unproved continuation',C.muted);
-    s+=path(routePath(kind),kind==='safe'?C.teal:C.gold,3.5);
-    if(ghosts)for(let j=0;j<4;j++){const t=phase*.86,p=route(t,kind),off=(j-1.5)*(5+t*12)*phase;s+=quad(p.x,p.y+off,.33,-12,phase,.22,C.blue);}
-    const p=route(phase*.86,kind);s+=quad(p.x,p.y,.85,-9+Math.sin(phase*5)*7,phase);
-    s+=gate(p1.x,p1.y+25,1,collision,'Gate frame');
-    if(collision){const q=route(.61);s+=boxAt(q,6+47*.61*.61,C.red,.32);s+=circle(q.x,q.y-30,6,C.red);s+=path(`M${q.x} ${q.y-30}L${q.x+40} ${q.y-92}H655`,C.red,1.5);s+=label(q.x+44,q.y-104,'First failed clearance',C.red);}
-    s+=label(60,501,'Measured state',C.muted)+circle(82,430,4,C.ink);
-    if(showTube)s+=label(478,480,cut?'Established prefix':'Full candidate horizon',C.blue);
-    return s;
-  }
   function networkGraphic(phase,{bounded=false}={}){
     let s='';const xs=[278,366,454,542],counts=[4,5,5,4];
     for(let k=0;k<3;k++)for(let i=0;i<counts[k];i++)for(let j=0;j<counts[k+1];j++){
@@ -3542,56 +3521,8 @@ window.QuartoSupport = function () {
     uid='scene-'+id;
     let s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="${esc(scene)} illustration, progress ${Math.round(phase*100)} percent"><defs><linearGradient id="${uid}-floor" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#edf3f2"/><stop offset="1" stop-color="#e5edec" stop-opacity=".35"/></linearGradient><linearGradient id="${uid}-tube" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#458be0" stop-opacity=".06"/><stop offset=".5" stop-color="#5f9de8" stop-opacity=".26"/><stop offset="1" stop-color="#3975d0" stop-opacity=".09"/></linearGradient></defs>`;
     const frame=(caption,color=C.muted)=>text(36,54,caption,{size:19,color,weight:600});
-    const pt=route(.12+phase*.75);
-    if(['intro','start','planner','propagate','tube','swept','collision','retry','commit','guarantee','clock','switches','geometry','failure-types','sources','evidence'].includes(scene)){
-      const opt={};
-      if(['intro','propagate','tube','swept','collision','retry','commit','guarantee','clock','switches','geometry','failure-types','sources','evidence'].includes(scene))opt.showTube=true;
-      if(['intro','retry','commit','guarantee','clock','switches','sources','evidence'].includes(scene)){opt.kind='safe';opt.wide=false;}
-      if(['start','propagate','tube','evidence'].includes(scene))opt.ghosts=true;
-      if(['propagate','tube'].includes(scene))opt.progress=true;
-      if(['collision','geometry'].includes(scene))opt.collision=true;
-      if(scene==='failure-types')opt.cut=true;
-      if(scene==='commit')opt.showPrevious=true;
-      s+=courseScene(phase,opt);
-      if(scene==='intro')s+=frame('A reference becomes a verified commitment')+label(328,397,'Reachable position sets',C.blue);
-      if(scene==='start')s+=frame('Same starting state; different admissible dynamics')+circle(82,430,20,'none',C.teal,1.5)+label(76,373,'Exact start',C.teal);
-      if(scene==='planner'){
-        for(let k=-2;k<=2;k++)s+=path(routePath('fast',0,1,k*13),C.gold,1.4,'',.2);
-        s+=frame('Fast reference selected by the planner')+label(423,406,'Predicted motion',C.gold);
-      }
-      if(scene==='propagate')s+=frame('Bounded acceleration error changes future motion')+arrow(pt.x,pt.y,-10,-68,C.purple)+arrow(pt.x,pt.y,18,62,C.purple)+label(55,105,'Possible acceleration corrections',C.purple);
-      if(scene==='tube')s+=frame('The set evolves along the entire candidate')+label(420,110,'Possible flights inside the enclosure',C.blue);
-      if(scene==='swept'){
-        const a=route(.24),b=route(.36);s+=circle(a.x,a.y,6,C.blue)+circle(b.x,b.y,6,C.blue)+path(routePath('fast',.24,.36),C.teal,12,'',.5);
-        s+=label(83,110,'Endpoints and the motion between them',C.teal)+frame('No gaps in the time interval');
-      }
-      if(scene==='collision')s+=frame('A failed clearance does not truncate a valid tube',C.red);
-      if(scene==='retry'){
-        s+=path(routePath('fast'),C.red,2,'7 7',.5)+frame('Earlier switch: different motion, complete horizon')+label(245,363,'Earlier backup',C.teal)+label(478,120,'Long racing candidate rejected',C.red);
-      }
-      if(scene==='commit'){
-        s+=path(routePath('fast'),C.red,2,'7 7',.5)+frame('Rejected proposal; current commitment continues')+label(430,110,'New proposal rejected',C.red)+label(190,365,'Existing commitment',C.teal);
-      }
-      if(scene==='guarantee')s+=frame('Safety applies while verified coverage remains')+label(470,110,'End of verified horizon',C.blue);
-      if(scene==='clock'){
-        s+=frame('The physical command is held for five substeps');
-        for(let k=0;k<=5;k++){const q=route(.1+k*.045,'safe');s+=boxAt(q,13,C.teal,.08);s+=circle(q.x,q.y,3,C.teal);}
-        s+=label(128,115,'Control update: 0.05 s',C.teal)+label(85,151,'Propagation step: 0.01 s',C.blue);
-      }
-      if(scene==='switches'){
-        const switches=[2,1.5,1,.5,.2,0];
-        switches.forEach((v,k)=>{const t=v/2.5,p=route(t,'safe');s+=circle(p.x,p.y,5,k===Math.floor(phase*5.999)?C.gold:C.teal);});
-        s+=frame('Six switch choices; each horizon is 2.5 s')+label(110,110,'Selected switch: '+switches[Math.min(5,Math.floor(phase*6))]+' s',C.teal);
-      }
-      if(scene==='geometry'){
-        const p=route(.61);s+=circle(p.x,p.y,28,'none',C.ink,2)+quad(p.x,p.y,.42,phase*80-40,phase)+label(90,110,'Include the body around every possible position',C.ink);
-      }
-      if(scene==='failure-types')s+=frame('Construction failure: stop claiming containment',C.red)+label(245,110,'Last established step',C.blue)+circle(route(.55).x,route(.55).y,8,C.red);
-      if(scene==='evidence'){
-        for(let k=0;k<7;k++){const p=route(.18+phase*.6,'safe');s+=quad(p.x+(k-3)*3,p.y+Math.sin(k*2)*13,.3,8*Math.sin(k),phase,.23,C.blue);}
-        s+=frame('Sampled flights check the implementation')+label(262,110,'Finite evidence, not a universal proof',C.ink);
-      }
-      if(scene==='sources')s+=frame('The same sequence in the recorded demo')+label(158,350,'Propose',C.gold)+label(340,393,'Verify',C.blue)+label(522,422,'Commit',C.teal);
+    if(threeView?.isWorld(scene)){
+      // World geometry and labels are rendered by method-3d.js.
     }else if(scene==='architecture'){
       s+=frame('Models, reference schedules and applied commands');
       function block(x,y,title,sub,color){return `<rect x="${x}" y="${y}" width="208" height="76" rx="11" fill="${color}" fill-opacity=".06" stroke="${color}" stroke-width="1.5"/>`+text(x+15,y+29,title,{size:21,color,weight:600})+text(x+15,y+56,sub,{size:16,color:C.muted});}
@@ -3613,13 +3544,6 @@ window.QuartoSupport = function () {
         s+=quad(x,yy-15*Math.sin(phase*Math.PI)+dy,.62,-8,phase);
         s+=text(470,yy+47,j===0?'Known equations':j===1?'Base + learned correction':'Base + true residual',{size:17,color:C.muted});
       }
-    }else if(scene==='candidate'){
-      s+=floor()+gate(565,225,.9,false,'');
-      const sw=.48,a=route(sw,'safe');
-      s+=path(routePath('safe',0,sw),C.gold,5)+path(routePath('safe',sw,1),C.teal,5);
-      s+=circle(a.x,a.y,9,'#fafbf9',C.ink,2)+path(`M${a.x} ${a.y-12}V145`,C.muted,1.5,'4 5');
-      s+=label(190,137,'Switching time',C.ink)+label(90,369,'Racing reference',C.gold)+label(475,337,'Backup reference',C.teal);
-      const p=route(phase,'safe');s+=quad(p.x,p.y,.78,-6,phase)+frame('One reference schedule; one feedback controller');
     }else if(['feedback','neural-bound','network'].includes(scene)){
       s+=frame(scene==='neural-bound'?'Every represented state must have its command enclosed':'The reference enters the same neural policy');
       s+=networkGraphic(phase,{bounded:scene==='neural-bound'});
@@ -3637,12 +3561,6 @@ window.QuartoSupport = function () {
       s+=frame(wide?'Use the farthest distance to the region':'Data + a bound on how quickly error can change');
       if(scene==='velocity-residual')s+=label(105,520,'Queries vary with velocity in this implementation',C.ink);
       else s+=text(280,530,wide?'Every possible query is covered':'Each observation offers one valid bound',{size:20,color:C.ink});
-    }else if(scene==='taylor'){
-      s+=floor()+frame('Shared shape + a bounded remainder');
-      s+=tube('safe',{wide:false})+path(routePath('safe'),C.teal,4);
-      const p=route(.1+phase*.77,'safe');s+=quad(p.x,p.y,.8,-8,phase);
-      s+=label(80,120,'Polynomial shape P',C.teal)+label(450,440,'Remainder I',C.blue);
-      for(let k=0;k<3;k++){const q=route(.25+k*.22,'safe');s+=boxAt(q,24,C.blue,.06);}
     }else if(['picard','inclusion'].includes(scene)){
       s+=frame('Enclose the complete integrated image');
       s+=`<rect x="148" y="140" width="500" height="288" rx="42" fill="${C.blue}" fill-opacity=".055" stroke="${C.blue}" stroke-width="2"/>`;
@@ -3668,14 +3586,6 @@ window.QuartoSupport = function () {
       s+=arrow(p.x,p.y,22*tx,22*ty,C.teal,5)+arrow(p.x+22*tx,p.y+22*ty,-62*ty,62*tx,C.blue,5)+quad(qx,qy,.88,phase*12-6,phase);
       s+=circle(p.x,p.y,5,C.ink)+label(p.x-126,p.y-32,'Selected route point',C.gold)+label(qx+55,qy+8,'Across route',C.blue)+label(p.x+8,p.y-61,'Along tangent',C.teal);
       s+=frame('Contouring and lag are two components of one displacement');
-    }else if(scene==='mppi'){
-      s+=floor()+gate(438,287,1)+gate(640,218,.75);
-      for(let k=0;k<20;k++){
-        const off=Math.sin(k*2.4)*70*(1-.6*phase);
-        s+=path(`M80 440C230 ${230+off} 350 ${370+off} 690 ${190+off}`,C.blue,1.3,'',.12+(k%4===0?.1:0));
-      }
-      s+=path(routePath(),C.gold,4)+quad(82,430,.9,-8,phase)+frame('Many reference schedules; each predicts feedback motion');
-      s+=label(425,445,'Best retained proposal',C.gold)+label(78,116,'Search update '+Math.min(3,Math.floor(phase*3)+1)+' of 3',C.blue);
     }else if(scene==='comparisons'){
       const titles=['Baseline 1','Baseline 2','Method 1'],sub=['Matched dynamics · no Gatekeeper','Mismatch · no Gatekeeper','Mismatch · reachable-tube verification'];
       for(let j=0;j<3;j++){
@@ -3688,10 +3598,17 @@ window.QuartoSupport = function () {
     }
     return s+'</svg>';
   }
-  function boot(){
+  async function boot(){
     if(!window.Reveal||!Reveal.isReady()){setTimeout(boot,60);return;}
     const slides=Array.from(document.querySelectorAll('section.animated-slide'));
     if(!slides.length)return;
+    try {
+      const module=await import(new URL('method-3d.js?v=20261117-3d1',document.baseURI));
+      threeView=await module.createMethod3D();
+    } catch(error) {
+      console.error('3D explanation could not initialize',error);
+      document.body.classList.add('no-method-webgl');
+    }
     let index=slides.indexOf(Reveal.getCurrentSlide());if(index<0)index=0;
     let phase=0,playing=false,frameId=0,last=0,navigating=false;
     const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -3708,7 +3625,10 @@ window.QuartoSupport = function () {
       s.querySelector('.animation-scene').innerHTML=sceneSVG(s.dataset.scene,.55,s.id);
     });
     function draw(){
-      slides[index].querySelector('.animation-scene').innerHTML=sceneSVG(slides[index].dataset.scene,phase,slides[index].id);
+      const host=slides[index].querySelector('.animation-scene');
+      const markup=sceneSVG(slides[index].dataset.scene,phase,slides[index].id);
+      const svg=host.querySelector('svg');if(svg)svg.outerHTML=markup;else host.insertAdjacentHTML('afterbegin',markup);
+      if(threeView)threeView.render(host,slides[index].dataset.scene,phase);
       slider.value=index*100+Math.round(phase*99);
       slider.setAttribute('aria-valuetext',`${index+1} of ${slides.length}: ${slides[index].querySelector('h2').textContent}; animation ${Math.round(phase*100)} percent`);
       controls.querySelector('.control-count').textContent=`${String(index+1).padStart(2,'0')} / ${slides.length}`;
@@ -3742,9 +3662,21 @@ window.QuartoSupport = function () {
     controls.addEventListener('keydown',e=>{e.stopPropagation();if(e.target===slider&&e.key==='PageDown'){e.preventDefault();stop();seek(index+1);}if(e.target===slider&&e.key==='PageUp'){e.preventDefault();stop();seek(index-1);}});
     Reveal.on('slidechanged',()=>{if(navigating)return;playing=false;cancelAnimationFrame(frameId);const i=slides.indexOf(Reveal.getCurrentSlide());if(i>=0){index=i;phase=0;draw();}});
     Reveal.on('overviewshown',stop);document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});
+    // Static 3D snapshots preserve overview/print without creating 33 WebGL contexts.
+    function snapshots(){
+      if(!threeView)return;
+      slides.forEach(s=>{
+        const host=s.querySelector('.animation-scene');
+        host.querySelectorAll('.three-poster').forEach(e=>e.remove());
+        threeView.render(host,s.dataset.scene,.55);
+        const poster=document.createElement('img');poster.className='three-poster';poster.alt='Static 3D illustration';poster.src=threeView.snapshot();host.append(poster);
+      });
+      draw();
+    }
+    snapshots();
     // No automatic movement, including for viewers with reduced-motion preferences.
     controls.dataset.reducedMotion=String(reduced);draw();Reveal.layout();
-    window.addEventListener('beforeprint',()=>slides.forEach(s=>s.querySelector('.animation-scene').innerHTML=sceneSVG(s.dataset.scene,.7,s.id)));
+    window.addEventListener('beforeprint',snapshots);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();

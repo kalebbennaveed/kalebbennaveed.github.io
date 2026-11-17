@@ -1,0 +1,46 @@
+{
+  "model": "DevQuad v2",
+  "source_assembly": "robot-models/cad-models/DevQuad/v2/DevQuad CAD.f3z",
+  "guide": "https://dasc-lab.github.io/robot-framework/vision_drone/vision_drone_guide.html",
+  "cad_units": "millimetres",
+  "display_units": "metres",
+  "motor_centers_m": [
+    [
+      0.07,
+      0.085,
+      0
+    ],
+    [
+      0.07,
+      -0.085,
+      0
+    ],
+    [
+      -0.07,
+      0.085,
+      0
+    ],
+    [
+      -0.07,
+      -0.085,
+      0
+    ]
+  ],
+  "propeller_diameter_m": 0.127,
+  "collision_radius_m": 0.19,
+  "mesh_scope": "Exported STL components copied unchanged. Frame, motors, computer, camera and tri-blade propellers reconstructed from the assembly preview and documented dimensions; the Fusion assembly is not a directly loadable browser mesh. No cable, markers or body lettering.",
+  "files": {
+    "battery-case.stl": {
+      "source": "../robot-models/cad-models/DevQuad/v2/battery_case.stl",
+      "sha256": "8cdf4c80a0411a4fdc82dd0d1fb81954c07ee62cb548db3c4e93d7d4fee0aaaf"
+    },
+    "computer-mount.stl": {
+      "source": "../robot-models/cad-models/DevQuad/v2/xavier_mount.stl",
+      "sha256": "1c39ded8a8d50ba96c7a3cff84b15d40c9e1da9e4ca2b5916d85c2fb86060969"
+    },
+    "flight-controller-stand.stl": {
+      "source": "../robot-models/cad-models/DevQuad/v2/pix32 stand.stl",
+      "sha256": "eba0b25afa81254f147be7ba85c7d54212d30c1c0521c19959296feee0fd09f2"
+    }
+  }
+}
