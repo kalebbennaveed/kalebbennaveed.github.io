@@ -1411,7 +1411,7 @@ display:block!important;
 <div class="explanation-layout">
 <div class="math-panel">
 <p><span class="math display">\underline A w+\underline b\;\le\;G(w)\;\le\;\overline A w+\overline b</span></p>
-<p>Write the uncertain state as <span class="math inline">x=c_x+A_x\xi+\eta_x</span>, with shared parameters <span class="math inline">\xi</span> and a bounded remainder <span class="math inline">\eta_x</span>. For the fixed reference <span class="math inline">r_k</span>,</p>
+<p>Write <span class="math inline">x=c_x+A_x\xi+\eta_x</span>: <span class="math inline">c_x</span> is the center, <span class="math inline">A_x</span> maps shared parameters <span class="math inline">\xi</span>, and <span class="math inline">\eta_x</span> is a bounded remainder. For the fixed reference <span class="math inline">r_k</span>,</p>
 <p><span class="math display">w=(\xi,\eta_x),\qquad G(w)=\pi(x,r_k).</span></p>
 <p>CROWN bounds the complete applied policy, including command limits. The same <span class="math inline">\xi</span> remains in the state and command enclosures.</p>
 <div class="insight">
@@ -1472,7 +1472,7 @@ display:block!important;
 <div class="explanation-layout">
 <div class="math-panel">
 <p><span class="math display"> (\mathscr P y)(\tau)=y_0+\int_0^\tau F(y(\sigma))\,d\sigma </span></p>
-<p>Here <span class="math inline">y=(x,u)</span> also carries the held input, with <span class="math inline">\dot u=0</span>. The operator <span class="math inline">\mathscr P</span> reconstructs motion by integrating its dynamics over one short interval.</p>
+<p>Here <span class="math inline">y=(x,u)</span> includes the held input. Its true dynamics are <span class="math inline">F(y)=(f_0(x,u)+B_a a^\star(\chi(x,u)),0)</span>, with <span class="math inline">\dot u=0</span>. The operator <span class="math inline">\mathscr P</span> integrates these dynamics over one short interval.</p>
 <p>Starting from a trial <span class="math inline">P\oplus I</span>, compute an enclosure <span class="math inline">P^+\oplus I^+</span> of its entire Picard image, including the regional residual error.</p>
 <div class="insight">
 <p>If the image fits inside the trial, the local solution stays enclosed under the stated regularity and sound-arithmetic assumptions.</p>
