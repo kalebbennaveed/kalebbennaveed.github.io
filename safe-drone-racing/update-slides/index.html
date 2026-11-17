@@ -547,6 +547,26 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .reveal .slide-number,.reveal .footer{display:none!important}
 .reveal .slides .notes{display:none}
 @media(max-width:700px){#method-controls{padding:9px 14px}.control-primary{gap:7px}.control-hint{display:none}.control-secondary{gap:15px}.control-secondary label{display:none}.control-secondary select{margin-left:auto;width:38vw}.control-primary .play-button{min-width:88px;padding:0 8px}}
+
+@media(max-width:800px) and (orientation:portrait){
+.reveal .slides{width:100%!important;height:100%!important;left:0!important;top:0!important;transform:none!important}
+.reveal .slides section.animated-slide{width:100%!important;height:100%!important;overflow-y:auto;padding:0 22px 30px;box-sizing:border-box}
+.reveal .slides h2{font-size:28px;line-height:1.2;letter-spacing:-.6px;margin:48px 0 24px}
+.slide-eyebrow{left:23px;top:15px;font-size:11px;letter-spacing:1.8px}
+.explanation-layout{display:flex!important;flex-direction:column;height:auto;gap:26px}
+.math-panel{width:100%;padding:0}
+.reveal .math-panel p{font-size:18px;line-height:1.45;margin-bottom:15px}
+.reveal .math-panel .lead p{font-size:23px;line-height:1.35}
+.reveal .math-panel .insight{margin-top:18px}
+.reveal .math-panel .insight p,.reveal .math-panel .definitions p{font-size:16px}
+.reveal .math-panel .math.display{font-size:17px;max-width:100%;overflow-x:auto}
+.visual-panel{height:auto;width:100%}
+.animation-scene{height:auto;aspect-ratio:4/3}
+.three-scene-title{font-size:14px;padding:16px 18px}
+.three-label{font-size:11px;padding:4px 6px}
+.three-view-tools{left:15px;right:15px;bottom:12px;font-size:11px}
+.three-view-tools button{font-size:11px;padding:5px 8px}
+}
 @media(prefers-reduced-motion:reduce){.reveal *{transition:none!important}}
 @media print{#method-controls{display:none}.reveal{height:auto!important}.animation-scene{overflow:visible}.visual-panel{break-inside:avoid}.three-poster{display:block!important}.method-three-canvas,.three-view-tools{display:none!important}}
 .scrubbing .reveal .slides section{transition:none!important}
@@ -1099,7 +1119,7 @@ margin-right: 0; }
 </style>
   <meta name="robots" content="noindex,nofollow">
   <meta name="description" content="An animated explanation of learned-dynamics error bounds, neural feedback, reachable tubes and Gatekeeper verification.">
-  <meta name="animation-version" content="2026-11-17-3d1">
+  <meta name="animation-version" content="2026-11-17-3d2">
 </head>
 <body class="quarto-light">
   <div class="reveal">
@@ -1610,8 +1630,10 @@ display:block!important;
 <h2>A shorter racing segment can pass</h2>
 <div class="explanation-layout">
 <div class="math-panel">
-<p><span class="math display">\mathcal V=\{s:\text{the complete candidate passes}\},\qquad
-s^\star=\max\mathcal V</span></p>
+<p><span class="math display">\begin{aligned}
+\mathcal V&amp;=\{s:\text{the complete candidate passes}\},\\
+s^\star&amp;=\max\mathcal V.
+\end{aligned}</span></p>
 <p>Try multiple switching times. Each needs a valid enclosure and safe separation over its <strong>entire horizon</strong>.</p>
 <p>The candidate with the longest verified racing segment becomes eligible for commitment.</p>
 <div class="insight">
@@ -3475,31 +3497,6 @@ window.QuartoSupport = function () {
     return `<g class="quad-slot" data-x="${x}" data-y="${y}" data-scale="${scale}" data-angle="${angle}" data-opacity="${opacity}" data-tint="${tint||''}"/>`;
   }
   let threeView=null;
-  function route(t,kind='fast'){
-    // A single bend through the illustrated gates, parameterized by forecast time.
-    let x=82+575*t, y=430-255*t-45*Math.sin(t*Math.PI*1.5);
-    if(kind==='safe') {x=82+520*t;y+=40*Math.sin(Math.PI*t)*smooth((t-.2)*3);}
-    if(kind==='previous'){x=82+505*t;y+=55*Math.sin(Math.PI*t);}
-    return {x,y};
-  }
-  function routePath(kind='fast',start=0,end=1,offset=0){
-    let d='';for(let j=0;j<=65;j++){const t=lerp(start,end,j/65),p=route(t,kind);d+=(j?'L':'M')+p.x+' '+(p.y+offset);}return d;
-  }
-  function floor(){
-    return `<path d="M20 380L465 100L795 310L385 610Z" fill="url(#${uid}-floor)"/><path d="M20 380L385 610L795 310" fill="none" stroke="#dce5e7" stroke-width="1.5"/>`+
-      [0,1,2].map(k=>path(`M${120+k*100} ${315-k*62}L${480+k*90} ${535-k*64}`,'#e5ebeb',1)).join('');
-  }
-  function gate(x,y,scale=1,red=false,tag=''){
-    const col=red?C.red:C.gold,blue=red?'#a63146':'#174878';
-    let s=`<g transform="translate(${x} ${y}) scale(${scale})"><path d="M-48 64L45 108L99 77L7 34Z" fill="#22394a" opacity=".09"/>`;
-    s+=`<path d="M-44 48V87M44 48V87" stroke="#8d9da5" stroke-width="4"/><path d="M-58 89H-29M30 89H59" stroke="#a1afb6" stroke-width="5"/>`;
-    s+=`<path d="M-46 -57L46 -57L46 55L-46 55Z" fill="none" stroke="${col}" stroke-width="11"/>`;
-    s+=`<path d="M-46 -57H46M-46 55H46" stroke="${blue}" stroke-width="8"/>`;
-    for(let xx=-43;xx<46;xx+=18)s+=`<path d="M${xx} -57h8M${xx} 55h8" stroke="${col}" stroke-width="8"/>`;
-    for(let yy=-44;yy<50;yy+=28)s+=`<path d="M-46 ${yy}v11M46 ${yy}v11" stroke="${blue}" stroke-width="5"/>`;
-    if(tag)s+=text(-35,-78,tag,{size:18,color:C.muted});
-    return s+'</g>';
-  }
   function networkGraphic(phase,{bounded=false}={}){
     let s='';const xs=[278,366,454,542],counts=[4,5,5,4];
     for(let k=0;k<3;k++)for(let i=0;i<counts[k];i++)for(let j=0;j<counts[k+1];j++){
@@ -3550,7 +3547,6 @@ window.QuartoSupport = function () {
       s+=text(75,125,scene==='network'?'Velocity error, attitude, body rates':'Own state + reference',{size:18,color:C.blue});
       if(scene==='network')s+=label(285,505,'15 inputs · 64 · 64 · 4 outputs',C.blue);
     }else if(['point-bound','regional-bound','velocity-residual'].includes(scene)){
-      s+=floor();
       const target={x:490,y:290},anchors=[[155,190],[235,435],[650,405]];
       const wide=scene==='regional-bound';
       if(wide)s+=`<ellipse cx="490" cy="290" rx="100" ry="70" fill="${C.blue}" fill-opacity=".1" stroke="${C.blue}" stroke-width="1.8"/>`;
@@ -3571,21 +3567,6 @@ window.QuartoSupport = function () {
       s+=label(168,122,'Trial P + I',C.blue)+label(227,403,'Picard image P⁺ + I⁺',C.teal);
       if(scene==='inclusion')s+=arrow(415,271,shift+20,-22,C.gold)+label(290,497,'Account for the polynomial change',C.ink);
       else s+=text(175,500,'Integrate all admissible dynamics within the trial',{size:19,color:C.ink});
-    }else if(['devquad','physics'].includes(scene)){
-      s+=floor();
-      const x=390,y=315,tilt=scene==='physics'?18*Math.sin(phase*Math.PI*1.3):-9;
-      s+=quad(x,y,2.75,tilt,phase);
-      s+=arrow(x,y,-Math.sin(tilt*Math.PI/180)*140,-Math.cos(tilt*Math.PI/180)*140,C.teal,5);
-      s+=label(353,140,'Collective thrust',C.teal)+arrow(x,y+25,0,117,C.gold,4)+label(410,470,'Gravity',C.gold);
-      s+=frame(scene==='physics'?'Changing attitude changes the thrust direction':'DevQuad parameters; four physical commands');
-      s+=text(76,555,scene==='physics'?'Body torque changes angular motion':'Red and black propellers; no extra physical disturbance',{size:19,color:C.muted});
-    }else if(scene==='contouring'){
-      s+=floor()+path(routePath(),C.gold,3)+gate(633,224,.8);
-      const p=route(.45),a=-.52,tx=Math.cos(a),ty=Math.sin(a),qx=p.x+22*tx-62*ty,qy=p.y+22*ty+62*tx;
-      s+=line(p.x-140*tx,p.y-140*ty,p.x+170*tx,p.y+170*ty,'#a0b1bc',1.5,'5 5');
-      s+=arrow(p.x,p.y,22*tx,22*ty,C.teal,5)+arrow(p.x+22*tx,p.y+22*ty,-62*ty,62*tx,C.blue,5)+quad(qx,qy,.88,phase*12-6,phase);
-      s+=circle(p.x,p.y,5,C.ink)+label(p.x-126,p.y-32,'Selected route point',C.gold)+label(qx+55,qy+8,'Across route',C.blue)+label(p.x+8,p.y-61,'Along tangent',C.teal);
-      s+=frame('Contouring and lag are two components of one displacement');
     }else if(scene==='comparisons'){
       const titles=['Baseline 1','Baseline 2','Method 1'],sub=['Matched dynamics · no Gatekeeper','Mismatch · no Gatekeeper','Mismatch · reachable-tube verification'];
       for(let j=0;j<3;j++){
@@ -3603,7 +3584,7 @@ window.QuartoSupport = function () {
     const slides=Array.from(document.querySelectorAll('section.animated-slide'));
     if(!slides.length)return;
     try {
-      const module=await import(new URL('method-3d.js?v=20261117-3d1',document.baseURI));
+      const module=await import(new URL('method-3d.js?v=20261117-3d2',document.baseURI));
       threeView=await module.createMethod3D();
     } catch(error) {
       console.error('3D explanation could not initialize',error);

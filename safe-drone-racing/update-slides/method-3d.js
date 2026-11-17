@@ -4,7 +4,7 @@ import {createDrone} from './vendor/devquad.js';
 // Illustrative geometry, not a simulation or a computed reachable set.
 // One WebGL context is shared by every slide. Motion depends only on the slider.
 const WORLD = new Set(['intro','start','planner','propagate','tube','swept','collision',
-  'retry','commit','guarantee','clock','switches','geometry','failure-types','sources','evidence','candidate','taylor','mppi']);
+  'retry','commit','guarantee','clock','switches','geometry','failure-types','sources','evidence','candidate','taylor','mppi','devquad','physics','contouring']);
 const HEADINGS = {
   intro:'A reference becomes a verified commitment', start:'One exact start · several possible futures',
   planner:'Fast motion proposed by the planner', propagate:'Model error changes future motion',
@@ -15,7 +15,10 @@ const HEADINGS = {
   geometry:'Check the entire quad against solid geometry', 'failure-types':'Only the established prefix has a containment claim',
   sources:'Propose a reference · verify a tube · commit', evidence:'Sampled flights are finite numerical evidence',
   candidate:'Racing reference → backup reference', taylor:'Polynomial shape + bounded remainder',
-  mppi:'Search reference schedules through feedback rollouts'
+  mppi:'Search reference schedules through feedback rollouts',
+  devquad:'Level rotor plane · thrust follows the body-up axis',
+  physics:'Tilting the quad tilts thrust · gravity remains vertical',
+  contouring:'Resolve displacement along and across the route'
 };
 const BLUE=0x4389df, GOLD=0xe7af25, TEAL=0x009b9b, RED=0xe34e62;
 const V=(x=0,y=0,z=0)=>new THREE.Vector3(x,y,z);
@@ -24,6 +27,16 @@ function point(t,kind='fast') {return worldPoint(kind==='safe'?t*.84:t);}
 function tangent(t,kind='fast') {return point(t+.001,kind).sub(point(t-.001,kind)).normalize();}
 function side(t,kind='fast') {const d=tangent(t,kind);return V(-d.y,d.x,0).normalize();}
 const material=(color,roughness=.58,metalness=.15)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
+function vectorArrow(direction,origin,length,color,radius=.006){
+  const arrow=new THREE.Group(),head=Math.min(.075,length*.2);
+  const mat=new THREE.MeshBasicMaterial({color,toneMapped:false});
+  const shaft=new THREE.Mesh(new THREE.CylinderGeometry(radius,radius,length-head,12),mat);
+  shaft.position.y=(length-head)/2;
+  const tip=new THREE.Mesh(new THREE.ConeGeometry(radius*3.4,head,16),mat);
+  tip.position.y=length-head/2;arrow.add(shaft,tip);
+  arrow.position.copy(origin);arrow.quaternion.setFromUnitVectors(V(0,1,0),direction.clone().normalize());
+  return arrow;
+}
 function line(points,color,width=1,opacity=1) {
   // World-space cylinders keep important paths legible on WebGL implementations with 1px lines.
   if(width>1) return new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points),100,.0045*width,6,false),new THREE.MeshBasicMaterial({color,transparent:opacity<1,opacity}));
@@ -93,7 +106,7 @@ export async function createMethod3D(){
   // Faint floor seams provide depth cues without turning the explanation into a plot.
   for(let i=-6;i<=6;i++)world.add(line([V(i,-7,.002),V(i,7,.002)],0xd5dfe5,1,.34),line([V(-7,i,.002),V(7,i,.002)],0xd5dfe5,1,.34));
   const camera=new THREE.PerspectiveCamera(36,4/3,.03,150);camera.up.set(0,0,1);
-  const flatCamera=new THREE.OrthographicCamera(-400,400,300,-300,.1,5000);flatCamera.position.set(0,0,1600);
+  const flatCamera=new THREE.OrthographicCamera(-400,400,300,-300,.1,5000);flatCamera.up.set(0,0,1);flatCamera.position.set(700,-1100,850);flatCamera.lookAt(0,0,0);flatCamera.updateMatrixWorld();
   const model=createDrone();await model.userData.ready;
   const worldModels=[],diagramModels=[];
   function instance(pool,parent,index){
@@ -112,7 +125,12 @@ export async function createMethod3D(){
   let currentScene='',currentPhase=0,currentHost=null,azimuth=0,elevation=0,drag=null,lastTubeKey='',lastWorld='';
   function setCamera(){
     camera.fov=currentScene==='intro'?44:36;camera.updateProjectionMatrix();
-    const target=V(.1,.65,.8),position=V(-4.5,-6.8,5.2);
+    const vehicle=['devquad','physics'].includes(currentScene);
+    const target=vehicle?V(0,0,.5):V(.1,.65,.8),position=vehicle?V(.85,-1.15,1.18):V(-4.5,-6.8,5.2);
+    if(currentScene==='contouring'){
+      target.copy(point(.44)).add(V(0,0,-.08));
+      position.copy(target).add(V(3.4,-4.2,2.5));
+    }
     if(currentScene==='intro'&&currentPhase<.42){
       const a=currentPhase/.42,k=a*a*(3-2*a),q=point(currentPhase*.86,'safe');
       position.lerp(q.clone().add(V(-1.15,-1.65,.95)),1-k);
@@ -130,6 +148,11 @@ export async function createMethod3D(){
     // Static gate and route meshes are rebuilt only when the explanation changes.
     for(const child of [...world.children])if(child.userData.explanation){world.remove(child);disposeTree(child);}
     const group=new THREE.Group();group.userData.explanation=true;world.add(group);
+    if(['devquad','physics'].includes(name)){lastWorld=name;lastTubeKey='';return;}
+    if(name==='contouring'){
+      group.add(gate(.8),line(pathPoints().slice(8,72),GOLD,2.5));
+      lastWorld=name;lastTubeKey='';return;
+    }
     const collision=['collision','geometry'].includes(name),safe=['intro','retry','commit','guarantee','clock','switches','sources','evidence','candidate','taylor'].includes(name);
     const kind=safe?'safe':'fast';
     group.add(gate(.58,collision),gate(.96));
@@ -142,12 +165,13 @@ export async function createMethod3D(){
   }
   function drawWorld(name,p){
     if(lastWorld!==name)rebuildWorld(name);
+    if(['devquad','physics'].includes(name)){drawVehicle(name,p);return;}
     world.visible=dynamic.visible=drones.visible=true;diagram.visible=false;key.castShadow=true;
     canvas.style.pointerEvents='auto';toolbar.hidden=false;overlay.hidden=false;
     const safe=['intro','retry','commit','guarantee','clock','switches','sources','evidence','candidate','taylor'].includes(name),kind=safe?'safe':'fast';
-    const growing=['propagate','tube'].includes(name),showTube=!['start','planner','candidate','mppi'].includes(name),failed=name==='failure-types',collision=['collision','geometry'].includes(name);
+    const growing=['propagate','tube'].includes(name),showTube=!['start','planner','candidate','mppi','contouring'].includes(name),failed=name==='failure-types',collision=['collision','geometry'].includes(name);
     const end=failed?.55:growing?Math.max(.005,p):1;
-    const tubeKey=[name,Math.round(end*1000)].join(':');
+    const tubeKey=[name,Math.round(end*1000),name==='contouring'?Math.round(p*1000):0].join(':');
     if(lastTubeKey!==tubeKey){
       disposeTree(dynamic);
       if(showTube)dynamic.add(makeTube(kind,{wide:!safe,end,redAt:collision?.58:-1}));
@@ -162,23 +186,54 @@ export async function createMethod3D(){
         const body=new THREE.Mesh(new THREE.SphereGeometry(.19,24,16),new THREE.MeshBasicMaterial({color:0x183f5a,transparent:true,opacity:.13,wireframe:true}));body.position.copy(point(.58));dynamic.add(body);
       }
       if(name==='swept')dynamic.add(line(pathPoints(kind).slice(18,30),TEAL,4,.7));
+      if(name==='contouring'){
+        const r=point(.4),d=tangent(.4),n=side(.4),a=r.clone().addScaledVector(d,.6);
+        dynamic.add(vectorArrow(d,r,.6,TEAL,.009),vectorArrow(n,a,.5+.45*p,BLUE,.009));
+        dynamic.add(line([r.clone().addScaledVector(d,-1.1),r.clone().addScaledVector(d,1.1)],0x8aa1ae,1,.6));
+        const dot=new THREE.Mesh(new THREE.SphereGeometry(.035,16,10),new THREE.MeshBasicMaterial({color:0x23495e}));dot.position.copy(r);dynamic.add(dot);
+      }
       lastTubeKey=tubeKey;
     }
     worldModels.forEach(m=>m.visible=false);
     const t=p*.86,q=instance(worldModels,drones,0),d=tangent(t,kind);q.visible=true;q.scale.setScalar(1);
     q.position.copy(point(t,kind));q.rotation.set(.12*Math.sin(p*4),-.09,Math.atan2(d.y,d.x),'ZYX');styleQuad(q);rotors(q,p);
+    if(name==='contouring'){
+      q.position.copy(point(.4)).addScaledVector(tangent(.4),.6).addScaledVector(side(.4),.5+.45*p);
+      const heading=tangent(.4);q.rotation.set(0,0,Math.atan2(heading.y,heading.x));
+    }
     if(['start','propagate','tube','evidence'].includes(name))for(let i=0;i<4;i++){
       const ghost=instance(worldModels,drones,i+1);ghost.visible=true;ghost.scale.setScalar(1);ghost.position.copy(point(t,kind)).addScaledVector(side(t,kind),(i-1.5)*.09*p).add(V(0,0,Math.sin(i*2)*.055*p));ghost.rotation.copy(q.rotation);styleQuad(ghost,.2,BLUE);rotors(ghost,p);
     }
     setCamera();scene.background=new THREE.Color(0xe9eff3);scene.fog=new THREE.Fog(0xe9eff3,17,36);
     renderer.render(scene,camera);
     overlay.replaceChildren();const title=document.createElement('div');title.className='three-scene-title';title.textContent=HEADINGS[name];overlay.append(title);
-    if(collision)label(point(.58).add(V(0,0,.8)),'First failed clearance','#c43951');
+    if(name==='contouring'){
+      const r=point(.4),d=tangent(.4),n=side(.4),a=r.clone().addScaledVector(d,.6);
+      label(r.clone().addScaledVector(d,-.6).add(V(0,0,.2)),'Selected route point','#ac7c15');
+      label(r.clone().addScaledVector(d,.35).addScaledVector(n,-.6),'Along tangent','#007b7d');
+      label(a.clone().addScaledVector(n,.32+.225*p).add(V(0,0,.65)),'Across route','#326bc0');
+    }
+    else if(collision)label(point(.58).add(V(0,0,.8)),'First failed clearance','#c43951');
     else if(name==='candidate')label(point(.49,'safe').add(V(0,0,.35)),'Switch to backup','#007b7d');
     else if(name==='failure-types')label(point(.55).add(V(0,0,.45)),'Last established step','#306bc0');
     else if(name==='switches'){const times=[2,1.5,1,.5,.2,0],k=Math.min(5,Math.floor(p*6));label(point(times[k]/2.5,'safe').add(V(0,0,.35)),`Switch: ${times[k]} s`,'#007b7d');}
     else if(p<.07)label(point(0).add(V(0,0,-.3)),'Exact starting state');
     if(showTube)label(point(.9,kind).add(V(0,0,.58)),failed?'Unproved continuation':'Position enclosure','#326bc0');
+  }
+  function drawVehicle(name,p){
+    world.visible=dynamic.visible=drones.visible=true;diagram.visible=false;key.castShadow=true;
+    canvas.style.pointerEvents='auto';toolbar.hidden=false;overlay.hidden=false;
+    disposeTree(dynamic);worldModels.forEach(m=>m.visible=false);
+    const q=instance(worldModels,drones,0);q.visible=true;q.scale.setScalar(1);q.position.set(0,0,.5);
+    const pitch=name==='physics'?.24*Math.sin(p*Math.PI*1.3):0;
+    q.rotation.set(0,pitch,0,'ZYX');styleQuad(q);rotors(q,p);
+    const up=V(0,0,1).applyQuaternion(q.quaternion),origin=q.position.clone();
+    dynamic.add(vectorArrow(up,origin,.43,TEAL,.004));
+    dynamic.add(vectorArrow(V(0,0,-1),origin,.37,GOLD,.004));
+    setCamera();scene.background=new THREE.Color(0xe9eff3);scene.fog=new THREE.Fog(0xe9eff3,17,36);renderer.render(scene,camera);
+    overlay.replaceChildren();const title=document.createElement('div');title.className='three-scene-title';title.textContent=HEADINGS[name];overlay.append(title);
+    label(origin.clone().addScaledVector(up,.48),'Collective thrust','#007b7d');
+    label(origin.clone().add(V(0,0,-.4)),'Gravity','#a77b15');
   }
   function drawDiagram(host,name,p){
     world.visible=dynamic.visible=drones.visible=false;diagram.visible=true;key.castShadow=false;canvas.style.pointerEvents='none';toolbar.hidden=true;overlay.hidden=true;
@@ -186,12 +241,14 @@ export async function createMethod3D(){
     const slots=host.querySelectorAll('.quad-slot');
     slots.forEach((slot,i)=>{
       const q=instance(diagramModels,diagram,i),a=slot.dataset;q.visible=true;
-      q.position.set(Number(a.x)-400,300-Number(a.y),0);
+      q.position.copy(V(Number(a.x)-400,300-Number(a.y),0).applyQuaternion(flatCamera.quaternion));
       q.scale.setScalar(300*Number(a.scale));
-      // The camera sees a genuinely three-dimensional model, not a flattened icon.
-      q.rotation.set(.65,-.3,-.55-Number(a.angle)*Math.PI/180,'XYZ');
-      // Align projected body-z with the thrust arrow in these two explanations.
-      if(['devquad','physics'].includes(name))q.rotation.set(-.65,0,Number(a.angle)*Math.PI/180,'ZYX');
+      // Keep every diagram quad level in the same world-up frame as the camera.
+      // Solve the projection of a horizontal heading onto the two screen axes.
+      const right=V(1,0,0).applyQuaternion(flatCamera.quaternion),up=V(0,1,0).applyQuaternion(flatCamera.quaternion);
+      const angle=Number(a.angle)*Math.PI/180,sx=Math.cos(angle),sy=-Math.sin(angle),det=right.x*up.y-right.y*up.x;
+      const hx=(sx*up.y-sy*right.y)/det,hy=(right.x*sy-up.x*sx)/det;
+      q.rotation.set(0,0,Math.atan2(hy,hx));
       styleQuad(q,Number(a.opacity),a.tint||null);rotors(q,p);
     });
     scene.background=null;scene.fog=null;renderer.render(scene,flatCamera);
