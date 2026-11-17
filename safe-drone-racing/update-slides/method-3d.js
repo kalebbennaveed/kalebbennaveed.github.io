@@ -190,7 +190,8 @@ export async function createMethod3D(){
       q.scale.setScalar(300*Number(a.scale));
       // The camera sees a genuinely three-dimensional model, not a flattened icon.
       q.rotation.set(.65,-.3,-.55-Number(a.angle)*Math.PI/180,'XYZ');
-      if(['devquad','physics'].includes(name))q.rotation.z+=.4*Math.sin(p*Math.PI);
+      // Align projected body-z with the thrust arrow in these two explanations.
+      if(['devquad','physics'].includes(name))q.rotation.set(-.65,0,Number(a.angle)*Math.PI/180,'ZYX');
       styleQuad(q,Number(a.opacity),a.tint||null);rotors(q,p);
     });
     scene.background=null;scene.fog=null;renderer.render(scene,flatCamera);
