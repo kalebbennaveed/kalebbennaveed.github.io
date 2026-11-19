@@ -4,8 +4,9 @@ import {createDrone} from './vendor/devquad.js';
 // Illustrative geometry, not a simulation or a computed reachable set.
 // One WebGL context is shared by every slide. Motion depends only on the slider.
 const WORLD = new Set(['intro','start','planner','propagate','tube','swept','collision',
-  'retry','commit','guarantee','clock','switches','geometry','failure-types','sources','evidence','candidate','taylor','mppi','devquad','physics','contouring']);
+  'retry','commit','guarantee','clock','switches','geometry','failure-types','sources','evidence','candidate','taylor','mppi','devquad','physics','contouring','proof-tube']);
 const HEADINGS = {
+  'proof-tube':'Contain every admissible flight over the complete horizon',
   intro:'A reference becomes a verified commitment', start:'One exact start · several possible futures',
   planner:'Fast motion proposed by the planner', propagate:'Model error changes future motion',
   tube:'Reachable position sets along the candidate', swept:'Include motion between consecutive endpoints',
@@ -201,7 +202,7 @@ export async function createMethod3D(){
       q.position.copy(point(.4)).addScaledVector(tangent(.4),.6).addScaledVector(side(.4),.5+.45*p);
       const heading=tangent(.4);q.rotation.set(0,0,Math.atan2(heading.y,heading.x));
     }
-    if(['start','propagate','tube','evidence'].includes(name))for(let i=0;i<4;i++){
+    if(['start','propagate','tube','proof-tube','evidence'].includes(name))for(let i=0;i<4;i++){
       const ghost=instance(worldModels,drones,i+1);ghost.visible=true;ghost.scale.setScalar(1);ghost.position.copy(point(t,kind)).addScaledVector(side(t,kind),(i-1.5)*.09*p).add(V(0,0,Math.sin(i*2)*.055*p));ghost.rotation.copy(q.rotation);styleQuad(ghost,.2,BLUE);rotors(ghost,p);
     }
     setCamera();scene.background=new THREE.Color(0xe9eff3);scene.fog=new THREE.Fog(0xe9eff3,17,36);
