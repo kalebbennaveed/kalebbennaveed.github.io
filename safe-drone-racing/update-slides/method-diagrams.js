@@ -25,16 +25,34 @@ function proofMap(){
   return s;
 }
 
-function residualAxes(){
-  let s=title('Learned acceleration for the three world axes');
-  s+=text(70,118,'Velocity',22,C.ink)+text(257,118,'Fitted scalar function',22,C.ink)+text(582,118,'Acceleration',22,C.ink);
-  for(const [j,axis] of ['x','y','z'].entries()){
-    const y=194+105*j,color=[C.blue,C.teal,C.purple][j];
-    s+=text(81,y+12,axis+' axis',24,color)+arrow(143,y+4,225,y+4,color);
-    s+=rect(234,y-31,268,68,color)+text(368,y+12,'Piecewise-linear fit '+(j+1),20,color,'middle');
-    s+=arrow(510,y+4,570,y+4,color)+text(586,y+12,axis+' component',21,color);
-  }
-  return s+note('Each fitted function takes one velocity component as input.',505);
+function fitSlopes(phase){
+  let s=title('Slope of the fitted acceleration on one axis');
+  const rows=[
+    ['Before the first breakpoint','0'],
+    ['After the first, before the second','wⱼ₁'],
+    ['After the second, before the third','wⱼ₁ + wⱼ₂']
+  ];
+  s+=text(70,138,'Velocity interval',21,C.muted)+text(505,138,'Segment slope',21,C.muted);
+  const active=Math.min(rows.length-1,Math.floor(phase*rows.length));
+  rows.forEach(([interval,slope],i)=>{
+    const y=209+i*75;
+    if(active===i)s+=rect(50,y-44,695,67,C.teal,.07,5);
+    s+=text(70,y,interval,22,C.ink)+text(505,y,slope,24,C.teal);
+  });
+  s+=line(65,414,732,414,C.line);
+  return s+lines(70,467,['Continue across all 21 breakpoints. The largest absolute',
+    'slope bounds the change in the fitted acceleration per m/s.'],21,C.ink,32);
+}
+
+function simulatorSlope(){
+  let s=title('Contributions to the simulator slope limit');
+  const rows=[['Linear drag','λ dⱼ'],['Constant bias','0'],['Sinusoidal acceleration','λ |γ| / v₀']];
+  s+=text(65,138,'Acceleration term',21,C.muted)+text(430,138,'Maximum absolute slope',21,C.muted);
+  rows.forEach(([name,limit],i)=>{
+    const y=214+i*76;
+    s+=line(65,y-42,737,y-42,C.line,1)+text(65,y,name,24,C.ink)+text(430,y,limit,26,C.blue);
+  });
+  return s+note('Adding these limits bounds the slope of the true residual.',477);
 }
 
 function referenceDecision(){
@@ -100,7 +118,7 @@ function velocityScale(y) {
   for(const v of [4,4.5,5,5.5]){
     s += line(x(v),y-6,x(v),y+7,C.ink) + text(x(v),y+35,v.toFixed(1),20,C.ink,'middle');
   }
-  return s + text(400,y+75,'Velocity (m/s)',20,C.muted,'middle');
+  return s + text(400,y+75,'Velocity along the x axis (m/s)',20,C.muted,'middle');
 }
 function exampleFigure(scene, phase) {
   const {samples, region, duration, initialVelocity:v0} = example;
@@ -118,43 +136,49 @@ function exampleFigure(scene, phase) {
     s+=text(400,455,'Greatest distance from 0.70 to the allowed interval',22,C.ink,'middle');
     return s+text(400,506,'0.83 − 0.70 = 0.13 m/s²',34,C.purple,'middle',true);
   }
-  if(scene==='point-bound' || scene==='regional-bound'){
-    const regionView=scene==='regional-bound';
-    const query=regionView?region:[5+phase*.25,5+phase*.25];
-    let s=title(regionView?'One bound for all velocities from 4.75 to 5.25 m/s':'Error bound at a new velocity');
+  if(scene==='point-bound'){
+    const measured=samples[0].velocity, current=v0, distance=current-measured;
+    const lo=x(measured),hi=x(current);
+    let s=title('Acceleration error at the start of the flight segment');
+    s+=text(lo,128,'Earlier flight',22,C.teal,'middle',true)+text(lo,162,'4.00 m/s',24,C.teal,'middle');
+    s+=text(hi,128,'Start of this segment',22,C.purple,'middle',true)+text(hi,162,'5.00 m/s',24,C.purple,'middle');
+    s+=velocityScale(247);
+    s+=dot(lo,247,8,C.teal)+dot(hi,247,8,C.purple);
+    s+=line(lo,201,hi,201,C.line,2)+line(lo,201,lo+(hi-lo)*phase,201,C.gold,4);
+    s+=line(lo,193,lo,209,C.gold,2)+line(hi,193,hi,209,C.gold,2);
+    s+=text((hi+lo)/2,190,'Difference of '+distance.toFixed(2)+' m/s',18,C.ink,'middle');
+    s+=text(55,392,'Error bound at 4.00 m/s',22,C.teal)+text(735,392,'0.13 m/s²',24,C.teal,'end');
+    s+=text(55,446,'Maximum change over 1.00 m/s',22,C.ink)+text(735,446,'+ 0.20 m/s²',24,C.ink,'end');
+    s+=line(55,471,735,471,C.line);
+    return s+text(55,519,'Error bound at 5.00 m/s',23,C.purple,'start',true)
+      +text(735,519,errorBound(samples[0],[current,current]).toFixed(2)+' m/s²',28,C.purple,'end',true);
+  }
+  if(scene==='regional-bound'){
+    let s=title('One bound for velocities from 4.75 to 5.25 m/s');
     s+=velocityScale(246);
-    for(const [i,sample] of samples.entries()){
-      if(i&&!regionView)continue;
-      s+=dot(x(sample.velocity),246,7,C.teal)+text(x(sample.velocity),164,'Sample '+(i+1),21,C.teal,'middle',true);
+    for(const sample of samples){
+      s+=dot(x(sample.velocity),246,7,C.teal)+text(x(sample.velocity),164,'Earlier observation',19,C.teal,'middle',true);
     }
-    if(regionView){
-      s+=intervalLine(x,212,...region,C.purple);
-      s+=text(x(5),188,'Trial velocities',21,C.purple,'middle');
-      const active = phase < .5 ? 0 : 1;
-      const far = active === 0 ? region[1] : region[0];
-      s+=line(x(samples[active].velocity),120,x(far),120,C.gold,3)+dot(x(far),120,5,C.gold);
-      s+=text((x(far)+x(samples[active].velocity))/2,100,'Farthest distance  '+Math.abs(far-samples[active].velocity).toFixed(2)+' m/s',19,C.gold,'middle');
-      s+=text(75,389,'From 4.00 m/s',22,C.teal)+text(325,389,'0.13 + 0.20 × 1.25 = 0.38',24,C.ink);
-      s+=text(75,439,'From 5.50 m/s',22,C.teal)+text(325,439,'0.27 + 0.20 × 0.75 = 0.42',24,C.ink);
-      return s+text(400,524,'Smaller valid bound    0.38 m/s²',29,C.purple,'middle',true);
-    }
-    const v=query[0], distance=v-samples[0].velocity;
-    s+=line(x(4),212,x(v),212,C.gold,3)+dot(x(v),246,8,C.purple)+text(x(v),164,v.toFixed(2)+' m/s',24,C.purple,'middle',true);
-    s+=text(400,399,'Error at sample  +  maximum change across the gap',22,C.ink,'middle');
-    s+=text(400,465,'0.13 + 0.20 × '+distance.toFixed(2)+' = '+errorBound(samples[0],query).toFixed(2)+' m/s²',32,C.purple,'middle',true);
-    return s;
+    s+=intervalLine(x,212,...region,C.purple);
+    s+=text(x(v0),188,'Trial interval',21,C.purple,'middle');
+    const active=phase<.5?0:1, far=active===0?region[1]:region[0];
+    s+=line(x(samples[active].velocity),120,x(far),120,C.gold,3)+dot(x(far),120,5,C.gold);
+    s+=text((x(far)+x(samples[active].velocity))/2,100,'Farthest distance  '+Math.abs(far-samples[active].velocity).toFixed(2)+' m/s',19,C.gold,'middle');
+    s+=text(75,389,'From 4.00 m/s',22,C.teal)+text(325,389,'0.13 + 0.20 × 1.25 = 0.38',24,C.ink);
+    s+=text(75,439,'From 5.50 m/s',22,C.teal)+text(325,439,'0.27 + 0.20 × 0.75 = 0.42',24,C.ink);
+    return s+text(400,524,'Smaller valid bound    0.38 m/s²',29,C.purple,'middle',true);
   }
   if(scene==='worked-motion'){
-    const t=phase*duration,dv=beta*t,dp=beta*t*t/2;
+    const t=Math.round(phase*duration*100)/100,dv=beta*t,dp=beta*t*t/2;
     const vx=v=>400+(v-v0)*1100, px=cm=>400+cm*47;
     let s=title('One axis with zero predicted net acceleration');
     s+=text(400,105,'Elapsed time   '+t.toFixed(2)+' s',28,C.ink,'middle',true);
     s+=text(65,173,'Velocity',22,C.blue,'start',true);
     s+=line(125,213,675,213,C.line,2)+intervalLine(vx,213,v0-dv,v0+dv,C.blue)+dot(400,213,4,C.ink);
-    s+=text(400,264,'5.00 ± '+dv.toFixed(3)+' m/s',26,C.blue,'middle');
+    s+=text(400,264,'5.00 ± '+dv.toFixed(4)+' m/s',26,C.blue,'middle');
     s+=text(65,343,'Position relative to the prediction',22,C.purple,'start',true);
     s+=line(125,391,675,391,C.line,2)+intervalLine(px,391,-100*dp,100*dp,C.purple)+dot(400,391,4,C.ink);
-    s+=text(400,442,'± '+(100*dp).toFixed(2)+' cm about '+(v0*t).toFixed(2)+' m',26,C.purple,'middle');
+    s+=text(400,442,'± '+(100*dp).toFixed(4)+' cm about '+(v0*t).toFixed(2)+' m',26,C.purple,'middle');
     return s+note('At 0.50 s the position interval is 2.4525 to 2.5475 m.');
   }
   if(scene==='worked-feedback'||scene==='worked-relu'){
@@ -194,7 +218,8 @@ export function renderMethodDiagram(scene,p){
   if(worked!==null) return svgFigure(scene,worked);
   let s='';
   if(scene==='proof-map'||scene==='references')s=proofMap();
-  else if(scene==='residual-axes')s=residualAxes();
+  else if(scene==='fit-slopes')s=fitSlopes(p);
+  else if(scene==='simulator-slope')s=simulatorSlope();
   else if(scene==='reference-decision')s=referenceDecision();
   else if(scene==='flight-results'||scene==='timing')s=resultsFigure(scene==='timing');
   else if(scene==='future-learning')s=futureLearning();
@@ -274,14 +299,6 @@ export function renderMethodDiagram(scene,p){
     s+=line(543,337,730,337,C.line,3,'7 7');
     s+=text(70,399,'Activation',20,C.muted)+text(540,399,'Expiration',20,C.muted,'middle');
     s+=box(70,438,660,88,'At expiration',['A new verified commitment or a proved safe continuation is needed.'],C.gold);
-  }else if(scene==='velocity-query'){
-    s+=title('In this implementation the query is velocity');
-    s+=box(60,100,680,110,'Full drone state x = (p, v, η, ω)',['The residual model takes world velocity as input.'],C.ink);
-    s+=arrow(400,214,400,254,C.purple);
-    s+=box(60,264,680,110,'A trial gives a velocity region V',['Each residual component depends only on its own velocity coordinate.'],C.purple);
-    s+=arrow(400,378,400,418,C.purple);
-    s+=box(60,428,680,104,'Data-and-distance bound over V',['Use the farthest interval endpoint from each measured velocity.'],C.purple);
-    s+=note('Reachability propagates all twelve state coordinates.',576);
   }else return null;
   return svgFigure(scene,s);
 }
