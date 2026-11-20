@@ -26,63 +26,127 @@ function proofMap(active,p){
   s+=note(active==='reachability'?'Repeat the controller update and motion enclosure over the horizon.':'CROWN bounds the known controller; E(Q) bounds the unknown model error.');
   return s;
 }
-function queryDiagram(kind,p){
-  let s=title(kind==='regional-bound'?'One bound for every query in the trial':'Known error + permitted change = query-error bound');
-  if(kind==='regional-bound'){
-    const x=435,w=150+75*p,y=182,h=150;
-    s+=dot(130,242,8,C.teal)+text(55,200,'Measured query zℓ',21,C.teal,'start',true);
-    s+=rect(x,y,w,h,C.purple,.09)+text(x+5,y-20,'Query region Q',22,C.purple,'start',true);
-    s+=dot(x+w/2,y+h/2,5,C.line)+line(130,242,x+w/2,y+h/2,C.line,2,'5 6');
-    s+=line(130,242,x+w,y+h,C.gold,3)+dot(x+w,y+h,7,C.gold);
-    s+=text(200,340,'dℓ(Q): distance to the farthest query',20,C.gold);
-    s+=text(x+10,y+h+33,'All queries in the trial',17,C.muted);
-    s+=budget(130,415,165,'Measured error αₐℓ',C.teal)+text(312,437,'+',26,C.ink);
-    s+=budget(345,415,310,'Regional growth Lₐ dℓ(Q)',C.gold);
-    s+=arrow(400,455,400,483,C.purple)+text(400,515,'Uniform bound βₐ(Q)',24,C.purple,'middle',true);
+// The measurement and both distance bounds are reused through the first integration step.
+const example = {
+  samples: [{velocity: 4, error: 0.13}, {velocity: 5.5, error: 0.27}],
+  slope: 0.2, initialVelocity: 5, region: [4.75, 5.25], duration: 0.5
+};
+function errorBound(sample, interval) {
+  const distance = Math.max(...interval.map(v => Math.abs(v - sample.velocity)));
+  return sample.error + example.slope * distance;
+}
+const beta = Math.min(...example.samples.map(s => errorBound(s, example.region)));
+function intervalLine(x, y, lo, hi, color) {
+  const left = x(lo), right = x(hi);
+  return line(left,y,right,y,color,8) + line(left,y-12,left,y+12,color,2)
+       + line(right,y-12,right,y+12,color,2);
+}
+function velocityScale(y) {
+  const x = v => 110 + (v-4)*362;
+  let s = line(68,y,735,y,C.line,2);
+  for(const v of [4,4.5,5,5.5]){
+    s += line(x(v),y-6,x(v),y+7,C.ink) + text(x(v),y+35,v.toFixed(1),20,C.ink,'middle');
+  }
+  return s + text(400,y+75,'Velocity (m/s)',20,C.muted,'middle');
+}
+function exampleFigure(scene, phase) {
+  const {samples, region, duration, initialVelocity:v0} = example;
+  const x = v => 110 + (v-4)*362;
+  if (scene === 'observed-error') {
+    const ax = a => 110 + (a-0.65)*2350;
+    let s=title('One residual measurement at 4 m/s');
+    s+=text(65,128,'Learned residual',22,C.blue)+text(65,165,'0.70 m/s²',32,C.ink);
+    s+=text(420,128,'Measured residual',22,C.teal)+text(420,165,'0.80 ± 0.03 m/s²',32,C.ink);
+    s+=line(85,286,690,286,C.line)+intervalLine(ax,286,.77,.83,C.teal)+dot(ax(.70),286,7,C.blue);
+    for(const a of [.70,.77,.83]) s+=text(ax(a),332,a.toFixed(2),22,C.ink,'middle');
+    s+=text(400,373,'Residual acceleration (m/s²)',20,C.muted,'middle');
+    const a=.77+.06*phase;
+    s+=dot(ax(a),286,6,C.ink)+line(ax(.70),241,ax(a),241,C.gold,3);
+    s+=text(400,455,'Greatest distance from 0.70 to the allowed interval',22,C.ink,'middle');
+    return s+text(400,506,'0.83 − 0.70 = 0.13 m/s²',34,C.purple,'middle',true);
+  }
+  if(scene==='point-bound' || scene==='regional-bound'){
+    const regionView=scene==='regional-bound';
+    const query=regionView?region:[5+phase*.25,5+phase*.25];
+    let s=title(regionView?'One bound for all velocities from 4.75 to 5.25 m/s':'What does the measurement permit at a new speed?');
+    s+=velocityScale(246);
+    for(const [i,sample] of samples.entries()){
+      if(i&&!regionView)continue;
+      s+=dot(x(sample.velocity),246,7,C.teal)+text(x(sample.velocity),164,'Sample '+(i+1),21,C.teal,'middle',true);
+    }
+    if(regionView){
+      s+=intervalLine(x,212,...region,C.purple);
+      s+=text(x(5),188,'Trial velocities',21,C.purple,'middle');
+      const active = phase < .5 ? 0 : 1;
+      const far = active === 0 ? region[1] : region[0];
+      s+=line(x(samples[active].velocity),120,x(far),120,C.gold,3)+dot(x(far),120,5,C.gold);
+      s+=text((x(far)+x(samples[active].velocity))/2,100,'Farthest distance  '+Math.abs(far-samples[active].velocity).toFixed(2)+' m/s',19,C.gold,'middle');
+      s+=text(75,389,'From 4.00 m/s',22,C.teal)+text(325,389,'0.13 + 0.20 × 1.25 = 0.38',24,C.ink);
+      s+=text(75,439,'From 5.50 m/s',22,C.teal)+text(325,439,'0.27 + 0.20 × 0.75 = 0.42',24,C.ink);
+      return s+text(400,524,'Smaller valid bound    0.38 m/s²',29,C.purple,'middle',true);
+    }
+    const v=query[0], distance=v-samples[0].velocity;
+    s+=line(x(4),212,x(v),212,C.gold,3)+dot(x(v),246,8,C.purple)+text(x(v),164,v.toFixed(2)+' m/s',24,C.purple,'middle',true);
+    s+=text(400,399,'Error at sample  +  maximum change across the gap',22,C.ink,'middle');
+    s+=text(400,465,'0.13 + 0.20 × '+distance.toFixed(2)+' = '+errorBound(samples[0],query).toFixed(2)+' m/s²',32,C.purple,'middle',true);
     return s;
   }
-  const x=460+115*p;
-  s+=box(55,116,247,110,'Measured query zℓ',['Error is bounded by αₐℓ'],C.teal);
-  s+=box(x,116,185,110,'New query z',['Error not','measured'],C.purple);
-  s+=line(304,171,x-8,171,C.gold,3,'7 5');
-  s+=text((304+x)/2,264,'distance ‖z − zℓ‖',20,C.gold,'middle');
-  s+=text(70,331,'Error allowance at the new query',23,C.ink,'start',true);
-  const known=130,growth=180+115*p;
-  s+=budget(70,371,known,'αₐℓ',C.teal)+budget(70+known+8,371,growth,'Lₐ ‖z − zℓ‖',C.gold);
-  s+=line(70,416,70+known+8+growth,416,C.purple,3)+line(70,408,70,424,C.purple)+line(70+known+8+growth,408,70+known+8+growth,424,C.purple);
-  s+=text(70,462,'Measured error',20,C.teal)+text(250,462,'Allowed change away from that query',20,C.gold);
-  s+=note('Moving the query farther away increases the allowed model error.');
-  return s;
+  if(scene==='worked-motion'){
+    const t=phase*duration,dv=beta*t,dp=beta*t*t/2;
+    const vx=v=>400+(v-v0)*1100, px=cm=>400+cm*47;
+    let s=title('One axis with zero predicted net acceleration');
+    s+=text(400,105,'Elapsed time   '+t.toFixed(2)+' s',28,C.ink,'middle',true);
+    s+=text(65,173,'Velocity',22,C.blue,'start',true);
+    s+=line(125,213,675,213,C.line,2)+intervalLine(vx,213,v0-dv,v0+dv,C.blue)+dot(400,213,4,C.ink);
+    s+=text(400,264,'5.00 ± '+dv.toFixed(3)+' m/s',26,C.blue,'middle');
+    s+=text(65,343,'Position relative to the prediction',22,C.purple,'start',true);
+    s+=line(125,391,675,391,C.line,2)+intervalLine(px,391,-100*dp,100*dp,C.purple)+dot(400,391,4,C.ink);
+    s+=text(400,442,'± '+(100*dp).toFixed(2)+' cm about '+(v0*t).toFixed(2)+' m',26,C.purple,'middle');
+    return s+note('At 0.50 s the position interval is 2.4525 to 2.5475 m.');
+  }
+  if(scene==='worked-feedback'||scene==='worked-relu'){
+    const q=.19*(2*phase-1),g=Math.max(0,q),lower=.5*q,upper=.5*q+.095;
+    let s=title(scene==='worked-relu'?'One neuron over the allowed input interval':'How two possible velocities change the command');
+    if(scene==='worked-feedback'){
+      s+=text(400,128,'Illustrative command   u = K max(0, 5 − v)',26,C.ink,'middle',true);
+      s+=text(400,172,'K = 1 s⁻¹',22,C.muted,'middle');
+      for(const [i,v] of [4.81,5,5.19].entries()){
+        const y=254+i*76;
+        s+=text(100,y,v.toFixed(2)+' m/s',25,C.blue)+arrow(273,y-8,430,y-8,C.line);
+        s+=text(470,y,Math.max(0,5-v).toFixed(2)+' m/s²',25,C.teal);
+      }
+      return s+note('The reference remains 5 m/s for all three states.');
+    }
+    const axis=v=>140+(v+.1)*1750;
+    s+=text(400,150,'Input q = '+q.toFixed(3)+' on [−0.19, 0.19]',25,C.ink,'middle');
+    s+=line(90,288,694,288,C.line)+intervalLine(axis,288,lower,upper,C.blue)+dot(axis(g),288,8,C.teal);
+    s+=text(75,395,'Lower bound',21,C.blue)+text(400,395,'ReLU output',21,C.teal,'middle')+text(728,395,'Upper bound',21,C.blue,'end');
+    s+=text(75,442,lower.toFixed(3),30,C.ink)+text(400,442,g.toFixed(3),30,C.teal,'middle',true)+text(728,442,upper.toFixed(3),30,C.ink,'end');
+    return s+note('The point stays inside the affine bounds for each input q.');
+  }
+  if(scene==='shift-example'){
+    const value=.05+.15*phase, position=y=>330+1650*y;
+    let s=title('Trial polynomial P = 0 with allowance I = [−0.10, 0.10]');
+    s+=text(400,137,'For ẏ = 5 and y(0) = 0, the integrated image is 5t.',22,C.ink,'middle');
+    s+=intervalLine(position,273,-.1,.1,C.blue)+dot(position(value),273,9,value>.1?C.red:C.teal);
+    s+=text(position(-.1),325,'−0.10',22,C.blue,'middle')+text(position(.1),325,'0.10',22,C.blue,'middle');
+    s+=text(400,402,'t = '+(value/5).toFixed(3)+'     P⁺ = '+value.toFixed(3)+'     I⁺ = {0}',26,C.ink,'middle');
+    return s+note(value>.1?'The integrated value is outside the trial.':'At this time the integrated value is inside the trial.',489);
+  }
+  return null;
 }
+
 export function renderMethodDiagram(scene,p){
+  const worked=exampleFigure(scene,p);
+  if(worked!==null) return svgFigure(scene,worked);
   let s='';
   if(scene==='proof-map'||scene==='reach-map')s=proofMap(scene==='reach-map'?'reachability':'',p);
   else if(scene==='model-equations'){
-    s+=title('The same base model in both dynamics');
+    s=title('The same base model in both dynamics');
     s+=box(70,105,650,112,'Prediction model',['Base equations f₀ + learned residual acceleration â'],C.blue);
     s+=box(70,266,650,112,'True dynamics',['Base equations f₀ + unknown residual acceleration a*'],C.ink);
     s+=arrow(393,381,393,424,C.purple);
     s+=box(140,430,510,94,'Difference: δ = a* − â',['Only this residual mismatch enters E(Q).'],C.purple);
-  }else if(scene==='observed-error'){
-    s+=title('At the same measured query zℓ');
-    s+=box(55,106,325,138,'Observed acceleration',['Residual observation: 0.80 m/s²','Measurement error: at most 0.03'],C.teal);
-    s+=box(423,106,322,138,'Learned acceleration',['Residual prediction: 0.70 m/s²','Evaluated at that same query'],C.blue);
-    s+=arrow(216,250,340,326,C.teal)+arrow(580,250,462,326,C.blue);
-    s+=text(400,369,'|0.80 − 0.70| + 0.03 = 0.13 m/s²',26,C.purple,'middle',true);
-    s+=box(133,417,535,94,'Bound on true model error at zℓ',['The true error magnitude is at most 0.13 m/s².'],C.purple);
-    s+=note('Illustrative numbers for one acceleration component; not flight data.');
-  }else if(scene==='point-bound'||scene==='regional-bound')s=queryDiagram(scene,p);
-  else if(scene==='anchor-minimum'){
-    s+=title('Every row bounds the same unmeasured query');
-    const alpha=[92,48,67],growth=[125+125*p,146-62*p,146+8*p],totals=alpha.map((v,i)=>v+growth[i]),best=totals.indexOf(Math.min(...totals));
-    for(let i=0;i<3;i++){
-      const y=139+i*103;
-      s+=text(50,y+22,`Measurement ${i+1}`,21,C.ink);
-      s+=budget(245,y,alpha[i],'α',C.teal)+budget(249+alpha[i],y,growth[i],'L d',C.gold);
-      if(i===best)s+=rect(234,y-10,350,50,C.purple,0,6)+text(604,y+22,'Smallest total',19,C.purple,'start',true);
-    }
-    s+=text(245,474,'α: error at measurement',20,C.teal)+text(245,508,'L d: change allowed across the distance',20,C.gold);
-    s+=note('Take the minimum total, rather than selecting by distance alone.',566);
   }else if(scene==='error-output'){
     s+=title('An enclosure of the true derivative');
     s+=box(55,134,295,129,'Predicted derivative',['Base + learned residual','One vector at a chosen (x,u)'],C.gold);
@@ -91,51 +155,19 @@ export function renderMethodDiagram(scene,p){
     s+=arrow(400,292,400,358,C.blue);
     s+=box(125,366,550,125,'Set of possible true derivatives',['Every admissible true residual is covered.','Integrating this set will produce motion uncertainty.'],C.blue);
     s+=note('An acceleration allowance is not a position-tube radius.');
-  }else if(scene==='feedback-states'){
-    s+=title('The reference rₖ is the same; the state can differ');
-    const colors=[C.blue,C.teal,C.purple];
-    s+=rect(285,160,230,246,C.ink,.025)+text(400,220,'Known neural policy π',21,C.ink,'middle',true)+text(400,346,'u = π(x, rₖ)',24,C.ink,'middle');
-    for(let i=0;i<3;i++){const y=180+i*100;s+=dot(100,y,11,colors[i])+text(128,y+6,`State x${'ABC'[i]}`,21,colors[i])+arrow(219,y,281,y,colors[i])+arrow(518,y,586,y,colors[i])+dot(612,y,10,colors[i])+text(639,y+6,`Command u${'ABC'[i]}`,20,colors[i]);}
-    s+=note('CROWN covers all states in Xₖ, not just these three examples.',498);
-    s+=note('The relation between a state and its command matters.',537);
-  }else if(scene==='tm-dependence'){
-    s+=title('One parameter links several coordinates');
-    s+=dot(400,136,30,C.blue)+text(400,144,'ξ',28,'#fff','middle',true);
-    s+=arrow(381,162,205,238,C.blue)+arrow(419,162,593,238,C.blue);
-    s+=box(60,250,310,115,'First coordinate',['Polynomial P₁(ξ, θ)','+ bounded remainder I₁'],C.blue);
-    s+=box(430,250,310,115,'Second coordinate',['Polynomial P₂(ξ, θ)','+ bounded remainder I₂'],C.blue);
-    s+=text(400,423,'One value of ξ selects both polynomial values.',22,C.ink,'middle',true);
-    s+=note('Remainders enclose what the polynomial cannot keep exactly.',475);
-    s+=note('Keeping dependence avoids combining unrelated coordinate extremes.',524);
-  }else if(scene==='crown-relaxation'){
-    s+=title('A nonlinear operation is enclosed by affine maps');
-    s+=box(52,180,230,150,'Bounded input',['One neuron input','lies between lᴿ and hᴿ','and crosses zero'],C.ink);
-    s+=arrow(285,255,340,255,C.blue);
-    s+=rect(350,112,394,114,C.blue)+text(372,148,'Upper affine bound',23,C.blue,'start',true)+text(372,194,'κ υ − κ lᴿ',28,C.blue);
-    s+=rect(350,282,394,114,C.teal)+text(372,318,'Lower affine bound',23,C.teal,'start',true)+text(372,364,'κ υ',28,C.teal);
-    s+=text(548,258,'ReLU output always lies between',19,C.muted,'middle');
-    s+=arrow(547,410,547,449,C.blue)+text(400,486,'Compose backward through the network',23,C.ink,'middle',true);
-    s+=note('The bounds hold for every input in the stated interval.');
   }else if(scene==='crown-input'){
     s+=title('Preserve the state parameters through the network');
-    s+=box(70,89,660,104,'Input: ζ = (ξ, eₓ) in Ξ × Iₓ',['Reconstruct the represented state: x = cₓ + Aₓ ξ + eₓ'],C.blue);
+    s+=box(70,89,660,104,'Inputs w = (ξ, eₓ)',['Reconstruct the represented state: x = cₓ + Aₓ ξ + eₓ'],C.blue);
     s+=arrow(400,198,400,235,C.blue);
-    s+=box(70,244,660,104,'Complete applied map G(ζ) = π(x, rₖ)',['Feature transforms → neural network → physical command limits'],C.teal);
+    s+=box(70,244,660,104,'Complete applied map G(w) = π(x, rₖ)',['Feature transforms → neural network → physical command limits'],C.teal);
     s+=arrow(400,352,400,389,C.teal);
-    s+=box(70,398,660,116,'Output: lower and upper affine functions of ζ',['Lower(ζ) ≤ actual command ≤ upper(ζ)','They bound every input in the set, not only the center.'],C.blue);
-  }else if(scene==='crown-output'){
-    s+=title('Separate a common slope from a bounded gap');
-    s+=box(85,95,630,105,'Two enclosing affine functions',['Lower(ζ) ≤ G(ζ) ≤ upper(ζ)'],C.blue);
-    s+=arrow(400,204,400,245,C.blue);
-    s+=box(85,253,630,105,'Subtract the same Aζ from both sides',['Bound the remaining expressions over all ζ in Z'],C.purple);
-    s+=arrow(400,362,400,404,C.purple);
-    s+=box(85,412,630,105,'Command = shared affine part + interval',['G(ζ) lies in Aζ + [d⁻, d⁺]'],C.teal);
+    s+=box(70,398,660,116,'Each command lies between two affine functions of w',['Lower(w) ≤ actual command ≤ upper(w)','They bound every input in the set, not only the center.'],C.blue);
   }else if(scene==='joint-state-command'){
-    s+=title('One joint state-command enclosure');
+    s+=title('Use the same parameter for the state and its command');
     s+=dot(126,290,38,C.blue)+text(126,299,'ξ',33,'#fff','middle',true);
     s+=arrow(165,273,291,183,C.blue)+arrow(165,306,291,392,C.blue);
     s+=box(305,110,416,139,'State',['x = cₓ + Aₓ ξ + eₓ','State remainder: eₓ in Iₓ'],C.blue);
-    s+=box(305,324,416,139,'Command',['u lies in Aξ ξ + Iᵤ','Iᵤ includes the CROWN gap'],C.teal);
+    s+=box(305,324,416,139,'Command',['u lies in A₍ξ₎ ξ + Iᵤ','Iᵤ includes the CROWN gap'],C.teal);
     s+=note('The same ξ appears in both affine expressions.');
   }else if(scene==='held-command'||scene==='implementation-clock'){
     const impl=scene==='implementation-clock';
@@ -193,5 +225,8 @@ export function renderMethodDiagram(scene,p){
     s+=box(60,428,680,104,'Data-and-distance bound over V',['Use the farthest interval endpoint from each measured velocity.'],C.purple);
     s+=note('Velocity-only dependence is a model assumption; the full state is propagated.',576);
   }else return null;
+  return svgFigure(scene,s);
+}
+function svgFigure(scene,s){
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="${escape(scene)} explanation"><rect width="800" height="600" fill="${C.paper}"/>${s}</svg>`;
 }

@@ -1120,7 +1120,7 @@ margin-right: 0; }
 </style>
   <meta name="robots" content="noindex,nofollow">
   <meta name="description" content="An animated explanation of learned-dynamics error bounds, neural feedback, reachable tubes and Gatekeeper verification.">
-  <meta name="animation-version" content="2026-11-19-flow1">
+  <meta name="animation-version" content="2026-11-19-worked">
 </head>
 <body class="quarto-light">
   <div class="reveal">
@@ -1132,236 +1132,108 @@ margin-right: 0; }
 <div class="explanation-layout">
 <div class="math-panel">
 <div class="lead">
-<p>A candidate is safe only if every flight allowed by the model-error bound avoids the obstacles.</p>
+<p>The predicted quad passes through the gate. How much room could a prediction error cost us?</p>
 </div>
-<p>A predicted trajectory alone cannot establish this: the learned dynamics can be wrong at states the quad has not visited.</p>
-<p>We first establish <strong>containment</strong>, then check <strong>clearance</strong>. The derivation has two components: a bound on model error, and propagation of that error through the controlled dynamics.</p>
-<div class="insight">
-<p>The following steps build that argument in order. Implementation choices come afterward.</p>
-</div>
+<p>A racing planner proposes a flight. Before executing it, we need to bound where the quad’s body could be at every instant, including while it passes the gate frame.</p>
+<p>The decision depends on two calculations. First bound the error in predicted acceleration. Then integrate the controlled dynamics with that error to enclose the possible flights.</p>
 </div>
 <div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of Safely racing at the limits of handling"></div>
-<div class="visual-caption">Position projection · illustrative motion, not a recorded tube</div>
+<div class="animation-scene" role="img" aria-label="Safely racing at the limits of handling"></div>
+<div class="visual-caption">Flight illustration. The blue envelope shows possible positions.</div>
 </div>
 </div>
-<aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
-</section>
-<section id="containment-goal" class="slide level2 animated-slide" data-scene="proof-tube" data-part="goal">
-<h2>The claim we need to establish</h2>
-<div class="explanation-layout">
-<div class="math-panel">
-<p><span class="math display">\mathcal R(\tau)\subseteq\mathcal T(\tau),
-\qquad 0\leq\tau\leq T.</span> <span class="math inline">\tau</span> is elapsed time from candidate activation; <span class="math inline">T</span> is its horizon. <span class="math inline">\mathcal R(\tau)</span> contains every state possible under the admissible true dynamics and the candidate’s controller.</p>
-<p>We compute an outer enclosure <span class="math inline">\mathcal T(\tau)</span>. The initial state is known exactly: <span class="math inline">\mathcal T(0)=\{x_0\}</span>.</p>
-<div class="insight">
-<p>Containment answers where the quad could be. Clearance asks whether the entire body can avoid the obstacles for all those states.</p>
-</div>
-</div>
-<div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of The claim we need to establish"></div>
-<div class="visual-caption">Position projection · illustrative motion, not a recorded tube</div>
-</div>
-</div>
-<aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
-</section>
-<section id="two-components" class="slide level2 animated-slide" data-scene="proof-map" data-part="goal">
-<h2>Two components of the containment argument</h2>
-<div class="explanation-layout">
-<div class="math-panel">
-<p><strong>1. Model error.</strong> Use observed residual errors and a justified regularity bound to bound the error at an unmeasured query—and over a whole query region.</p>
-<p><strong>2. Reachability.</strong> Propagate every allowed model error through the dynamics and feedback controller to enclose the possible states.</p>
-<div class="insight">
-<p>CROWN is inside component 2. It bounds the known neural controller on a set of states. It does not estimate the unknown physical model error.</p>
-</div>
-</div>
-<div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of Two components of the containment argument"></div>
-<div class="visual-caption">Schematic · equations and colors correspond to the text</div>
-</div>
-</div>
-<aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
 </section>
 <section id="candidate-reference" class="slide level2 animated-slide" data-scene="candidate" data-part="goal">
-<h2>The candidate whose motion we verify</h2>
+<h2>Fix the candidate before testing it</h2>
 <div class="explanation-layout">
 <div class="math-panel">
-<p><span class="math display">u_k=\pi(x_k,r_k),\qquad
-u(t)=u_k\quad(k\Delta\leq t&lt;(k+1)\Delta).</span> <span class="math inline">x_k</span> is the state at control update <span class="math inline">k</span>; <span class="math inline">r_k</span> is the stored desired-motion reference; <span class="math inline">\pi</span> is the applied neural policy. <span class="math inline">u_k</span> is held for the control period <span class="math inline">\Delta</span>.</p>
-<p>A candidate uses the planner’s racing reference before a switching index <span class="math inline">s</span> and a backup reference afterward. The backup is a conservative continuation; it must pass the same verification. Every candidate has horizon <span class="math inline">T</span>.</p>
-<div class="insight">
-<p>The reference sequence is fixed during verification and execution. The controller still reacts to the actual state at every update.</p>
-</div>
+<p>Start at the measured state <span class="math inline">x_0</span>, assumed exact. A <strong>candidate</strong> specifies a sequence of velocity references <span class="math inline">r_k</span> over a horizon <span class="math inline">T</span>. It follows the racing reference until a chosen switch, then follows the backup reference.</p>
+<p>At time <span class="math inline">k\Delta</span> the neural controller <span class="math inline">\pi</span> reads the actual state <span class="math inline">x_k</span> and applies <span class="math display">u_k=\pi(x_k,r_k).</span> It holds command <span class="math inline">u_k</span> for <span class="math inline">\Delta</span> seconds. Two flights following the same references can therefore apply different commands after their states diverge.</p>
 </div>
 <div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of The candidate whose motion we verify"></div>
-<div class="visual-caption">Position projection · illustrative motion, not a recorded tube</div>
+<div class="animation-scene" role="img" aria-label="Fix the candidate before testing it"></div>
+<div class="visual-caption">Gold follows the racing reference. Teal follows the backup.</div>
 </div>
 </div>
-<aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
+</section>
+<section id="containment-goal" class="slide level2 animated-slide" data-scene="proof-tube" data-part="goal">
+<h2>What has to hold at the gate?</h2>
+<div class="explanation-layout">
+<div class="math-panel">
+<p>At elapsed time <span class="math inline">t</span>, let <span class="math inline">\mathcal R(t)</span> be the set of states the candidate could reach from <span class="math inline">x_0</span> as the unknown dynamics vary within our assumptions. Compute a tube <span class="math inline">\mathcal T</span> satisfying <span class="math display">\mathcal R(t)\subseteq\mathcal T(t),\qquad 0\le t\le T.</span></p>
+<p>Then check that <strong>every position in the tube leaves room for the entire quad</strong>. Meeting both conditions rules out contact over this candidate’s horizon.</p>
+</div>
+<div class="visual-panel">
+<div class="animation-scene" role="img" aria-label="What has to hold at the gate?"></div>
+<div class="visual-caption">The figure shows the position coordinates of the state tube.</div>
+</div>
+</div>
+</section>
+<section id="two-components" class="slide level2 animated-slide" data-scene="proof-map" data-part="goal">
+<h2>Which calculation supplies which bound?</h2>
+<div class="explanation-layout">
+<div class="math-panel">
+<p><strong>Model error.</strong> Given flight data and a limit on how rapidly the prediction error varies, find an acceleration-error interval for every velocity the candidate might encounter.</p>
+<p><strong>Reachability.</strong> Starting from <span class="math inline">x_0</span>, integrate all accelerations allowed by those intervals. At each feedback update, use CROWN to bound the commands the neural controller could apply to the resulting states.</p>
+<p>The verifier measures clearance against the positions occupied throughout each integration interval.</p>
+</div>
+<div class="visual-panel">
+<div class="animation-scene" role="img" aria-label="Which calculation supplies which bound?"></div>
+<div class="visual-caption"></div>
+</div>
+</div>
 </section>
 <section id="three-models" class="slide level2 animated-slide" data-scene="model-equations" data-part="model">
-<h2>Base model, prediction model and true dynamics</h2>
+<h2>What acceleration did the prediction miss?</h2>
 <div class="explanation-layout">
 <div class="math-panel">
+<p>The <strong>base model</strong> <span class="math inline">f_0(x,u)</span> predicts the rate of change of state <span class="math inline">x</span> under command <span class="math inline">u</span>. Both models add a residual acceleration. Its input <span class="math inline">z=\chi(x,u)</span> is velocity in the racing experiment.</p>
 <p><span class="math display">\begin{aligned}
 \hat f(x,u)&amp;=f_0(x,u)+B_a\hat a(z),\\
-\dot x&amp;=f_0(x,u)+B_a a^\star(z),\\
-\delta(z)&amp;=a^\star(z)-\hat a(z).
-\end{aligned}</span> The <strong>prediction model</strong> <span class="math inline">\hat f</span> adds a learned residual acceleration <span class="math inline">\hat a</span> to the known <strong>base model</strong> <span class="math inline">f_0</span>. The true residual <span class="math inline">a^\star</span> is unknown; <span class="math inline">\delta</span> is their difference.</p>
-<p><span class="math inline">z=\chi(x,u)</span> collects the variables used by the residual. <span class="math inline">B_a</span> inserts its three components into the velocity-derivative equations.</p>
-<div class="insight">
-<p>We consider one fixed learned model throughout this derivation. Model error is an acceleration error, not yet a position error.</p>
-</div>
+\dot x&amp;=f_0(x,u)+B_a a^\star(z).
+\end{aligned}</span></p>
+<p><span class="math inline">\hat a</span> is the learned residual, <span class="math inline">a^\star</span> the true residual. The matrix <span class="math inline">B_a</span> adds their three components to the velocity derivatives. Subtraction gives <span class="math display">\dot x-\hat f(x,u)=B_a\underbrace{(a^\star(z)-\hat a(z))}_{\delta(z)}.</span></p>
 </div>
 <div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of Base model, prediction model and true dynamics"></div>
-<div class="visual-caption">Schematic · equations and colors correspond to the text</div>
+<div class="animation-scene" role="img" aria-label="What acceleration did the prediction miss?"></div>
+<div class="visual-caption"></div>
 </div>
 </div>
-<aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
 </section>
 <section id="observed-error" class="slide level2 animated-slide" data-scene="observed-error" data-part="model">
-<h2>What a measurement tells us</h2>
+<h2>Bound the error at a measured velocity</h2>
 <div class="explanation-layout">
 <div class="math-panel">
-<p><span class="math display">\alpha_{a\ell}
-=|\tilde a_{a\ell}-\hat a_a(z_\ell)|+\nu_{a\ell}.</span> At measured query <span class="math inline">z_\ell</span>, <span class="math inline">\tilde a_{a\ell}</span> is an observation of residual acceleration component <span class="math inline">a</span>. Its measurement error is bounded by <span class="math inline">\nu_{a\ell}</span>.</p>
-<p>The triangle inequality gives <span class="math display">|\delta_a(z_\ell)|\leq\alpha_{a\ell}.</span></p>
-<div class="insight">
-<p>This establishes an error bound at that measured query. It does not yet establish one at a different query.</p>
-</div>
+<p>Consider <strong>one acceleration component</strong>. At sample <span class="math inline">z_1</span>, the observed residual <span class="math inline">\tilde a_1</span> differs from the true residual by at most <span class="math inline">\nu_1</span>.</p>
+<p>Insert the observation into <span class="math inline">\delta=a^\star-\hat a</span> to obtain <span class="math display">\begin{aligned}
+\delta(z_1)&amp;=(a^\star(z_1)-\tilde a_1)+(\tilde a_1-\hat a(z_1)),\\
+|\delta(z_1)|&amp;\le \nu_1+|\tilde a_1-\hat a(z_1)|=: \alpha_1 .
+\end{aligned}</span></p>
+<p>At <strong>4 m/s</strong> in the example, the measured and learned residuals differ by 0.10 m/s². Measurement uncertainty adds 0.03 m/s², giving <span class="math inline">\alpha_1=0.13</span> m/s².</p>
 </div>
 <div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of What a measurement tells us"></div>
-<div class="visual-caption">Schematic · equations and colors correspond to the text</div>
+<div class="animation-scene" role="img" aria-label="Bound the error at a measured velocity"></div>
+<div class="visual-caption">Worked example with illustrative measurements. All accelerations are in m/s².</div>
 </div>
 </div>
-<aside class="notes">
-<p>Residual-bound manuscript, Assumption 2 and sample-error equation. Known sample locations are assumed; uncertain locations require an additional allowance.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
 </section>
 <section id="pointwise-bound" class="slide level2 animated-slide" data-scene="point-bound" data-part="model">
-<h2>Extending the bound to an unmeasured query</h2>
+<h2>Move from the measured velocity to a new velocity</h2>
 <div class="explanation-layout">
 <div class="math-panel">
-<p>Assume the error cannot change faster than a justified constant <span class="math inline">L_a</span> on the query domain: <span class="math display">|\delta_a(z)-\delta_a(z_\ell)|
-\leq L_a\|z-z_\ell\|.</span> Insert the error at the measured query: <span class="math display">\begin{aligned}
-|\delta_a(z)|&amp;\leq |\delta_a(z_\ell)|
-+|\delta_a(z)-\delta_a(z_\ell)|\\
-&amp;\leq\alpha_{a\ell}+L_a\|z-z_\ell\|.
+<p>We need <strong>one additional assumption</strong>. Throughout the velocity range being checked, the error obeys <span class="math display">|\delta(z)-\delta(z_1)|\le L\|z-z_1\|.</span> Here <span class="math inline">L</span> bounds how much the acceleration error changes per unit change in velocity. Adding and subtracting <span class="math inline">\delta(z_1)</span> gives <span class="math display">\begin{aligned}
+|\delta(z)|&amp;\le |\delta(z_1)|+|\delta(z)-\delta(z_1)|\\
+&amp;\le \alpha_1+L\|z-z_1\|.
 \end{aligned}</span></p>
-<div class="insight">
-<p>The bound adds the error already allowed at the observation to the largest allowed change over the query distance. The distance is in residual-input space, not necessarily physical space.</p>
-</div>
+<p>With <span class="math inline">L=0.20</span> s⁻¹, the move from 4 to 5 m/s adds 0.20 m/s² to the measured bound of 0.13 m/s².</p>
 </div>
 <div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of Extending the bound to an unmeasured query"></div>
-<div class="visual-caption">Schematic · equations and colors correspond to the text</div>
+<div class="animation-scene" role="img" aria-label="Move from the measured velocity to a new velocity"></div>
+<div class="visual-caption">Move the slider to vary the velocity at which the model is queried.</div>
 </div>
 </div>
 <aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
-</section>
-<section id="all-anchors" class="slide level2 animated-slide" data-scene="anchor-minimum" data-part="model">
-<h2>Using all available measurements</h2>
-<div class="explanation-layout">
-<div class="math-panel">
-<p><span class="math display">\epsilon_a(z)=\min_\ell
-\bigl\{\alpha_{a\ell}+L_a\|z-z_\ell\|\bigr\}.</span> Each observation provides an upper bound on the same error <span class="math inline">|\delta_a(z)|</span>. Their minimum is therefore also valid.</p>
-<p>The nearest observation need not give the smallest total: its measured error allowance may be larger.</p>
-<div class="insight">
-<p>This is an upper bound under the stated data and regularity assumptions. Ensemble spread or proximity to data alone does not establish those assumptions.</p>
-</div>
-</div>
-<div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of Using all available measurements"></div>
-<div class="visual-caption">Schematic · equations and colors correspond to the text</div>
-</div>
-</div>
-<aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
+<p>The assumption applies to every pair in the domain. If true and learned residuals have Lipschitz constants L* and Lhat, applying the triangle inequality to their increments gives L ≤ L* + Lhat as a bound on the minimum admissible Lipschitz constant. A maximum slope observed in finite data alone does not certify that bound.</p>
 <style type="text/css">
 span.MJX_Assistive_MathML {
 position:absolute!important;
@@ -1375,57 +1247,50 @@ display:block!important;
 }</style></aside>
 </section>
 <section id="regional-bound" class="slide level2 animated-slide" data-scene="regional-bound" data-part="model">
-<h2>A reachable set requires a regional error bound</h2>
+<h2>Cover every velocity in the proposed step</h2>
 <div class="explanation-layout">
 <div class="math-panel">
-<p><span class="math display">\begin{aligned}
-d_\ell(Q)&amp;=\sup_{z\in Q}\|z-z_\ell\|,\\
-\beta_a(Q)&amp;=\min_\ell\{\alpha_{a\ell}+L_a d_\ell(Q)\}.
-\end{aligned}</span> <span class="math inline">Q</span> is a region containing <strong>every residual query in the propagation trial</strong>. Replace each point distance by its largest value over <span class="math inline">Q</span>.</p>
-<p>Then <span class="math inline">|\delta_a(z)|\leq\beta_a(Q)</span> for every <span class="math inline">z\in Q</span>. A computed upper bound on <span class="math inline">d_\ell(Q)</span> is also sufficient.</p>
-<div class="insight">
-<p>The error at the predicted center is insufficient. Any enlargement of the trial must be covered by an updated or already-valid larger query region.</p>
-</div>
+<p>Suppose the quad could reach any velocity in <span class="math inline">Q=[4.75,5.25]</span> m/s. For sample <span class="math inline">z_\ell</span> use its <strong>farthest distance</strong> to that interval. <span class="math display">d_\ell(Q)=\sup_{z\in Q}\|z-z_\ell\|.</span> Every <span class="math inline">z\in Q</span> satisfies <span class="math inline">|\delta(z)|\le \alpha_\ell+Ld_\ell(Q)</span> for each sample <span class="math inline">\ell</span>. Since every sample bounds the same error, take the smallest of these bounds: <span class="math display">\beta(Q)=\min_\ell\bigl(\alpha_\ell+Ld_\ell(Q)\bigr).</span></p>
+<p>Sample 2, taken at 5.50 m/s, has a measured error allowance of 0.27 m/s². The smaller of the two regional bounds is <strong>0.38 m/s² throughout <span class="math inline">Q</span></strong>. For one velocity, set <span class="math inline">Q=\{z\}</span>.</p>
 </div>
 <div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of A reachable set requires a regional error bound"></div>
-<div class="visual-caption">Schematic · equations and colors correspond to the text</div>
+<div class="animation-scene" role="img" aria-label="Cover every velocity in the proposed step"></div>
+<div class="visual-caption">The highlighted interval spans all trial velocities. Distances are in m/s.</div>
 </div>
 </div>
-<aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
 </section>
 <section id="error-set" class="slide level2 animated-slide" data-scene="error-output" data-part="model">
-<h2>The output of the model-error calculation</h2>
+<h2>Put the error bound back into the dynamics</h2>
 <div class="explanation-layout">
 <div class="math-panel">
+<p>Apply the same calculation to each acceleration component <span class="math inline">a=1,2,3</span>. Let <span class="math inline">\beta_a(Q)</span> be its bound and collect the allowed errors in <span class="math display">\mathcal E(Q)=\prod_{a=1}^3[-\beta_a(Q),\beta_a(Q)].</span></p>
+<p>For every <span class="math inline">(x,u)</span> whose residual input lies in <span class="math inline">Q</span>, the true derivative belongs to <span class="math display">\dot x\in \{\hat f(x,u)+B_a e:e\in\mathcal E(Q)\}.</span></p>
+<p>The true residual determines one error at each input. Integrating with every error in this set covers that choice. The next step turns this acceleration uncertainty into a position interval.</p>
+</div>
+<div class="visual-panel">
+<div class="animation-scene" role="img" aria-label="Put the error bound back into the dynamics"></div>
+<div class="visual-caption"></div>
+</div>
+</div>
+</section>
+<section id="query-to-motion" class="slide level2 animated-slide" data-scene="worked-motion" data-part="reachability">
+<h2>Integrate the same bound through one flight segment</h2>
+<div class="explanation-layout">
+<div class="math-panel">
+<p>Consider one axis with <span class="math inline">p(0)=0</span> m and <span class="math inline">v(0)=5</span> m/s. For this example the predicted <strong>net acceleration is zero</strong> throughout <span class="math inline">Q</span>. Let <span class="math inline">e(t)</span> be the acceleration error. While <span class="math inline">v(t)\in Q</span>, <span class="math inline">|e(t)|\le\beta=0.38</span> m/s².</p>
 <p><span class="math display">\begin{aligned}
-\mathcal E(Q)&amp;=\prod_{a=1}^{3}[-\beta_a(Q),\beta_a(Q)],\\
-\dot x&amp;\in\hat f(x,u)\oplus B_a\mathcal E(Q).
-\end{aligned}</span> <span class="math inline">\mathcal E(Q)</span> contains every allowed residual error in that region. Adding <span class="math inline">B_a\mathcal E(Q)</span> to the predicted derivative encloses the true derivative.</p>
-<p>Allowing any error from this set at each time includes the error generated by the true, fixed residual function.</p>
-<div class="insight">
-<p>This is the input to reachability. We have bounded the dynamics error; we have not yet bounded the resulting flight.</p>
-</div>
+v(t)-5&amp;=\int_0^t e(s)\,ds, &amp;|v(t)-5|&amp;\le\beta t,\\
+p(t)-5t&amp;=\int_0^t (v(s)-5)\,ds, &amp;|p(t)-5t|&amp;\le\tfrac12\beta t^2.
+\end{aligned}</span></p>
+<p>At 0.5 s the speed is within <strong>0.19 m/s</strong> of 5 and position is within <strong>4.75 cm</strong> of 2.5 m. The velocity change stays below the 0.25 m/s required to leave <span class="math inline">Q</span>, so the bound applies for the whole segment.</p>
 </div>
 <div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of The output of the model-error calculation"></div>
-<div class="visual-caption">Schematic · equations and colors correspond to the text</div>
+<div class="animation-scene" role="img" aria-label="Integrate the same bound through one flight segment"></div>
+<div class="visual-caption">One-axis illustration. Scrub time to see both intervals grow.</div>
 </div>
 </div>
 <aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
+<p>First-exit argument. If velocity first reaches an edge of Q by time 0.5 s, the integrated bound up to that instant gives |v−5| ≤ 0.19, strictly less than the distance 0.25 to either edge. Continuity excludes that exit. The constant-acceleration prediction is local to this scalar illustration.</p>
 <style type="text/css">
 span.MJX_Assistive_MathML {
 position:absolute!important;
@@ -1438,265 +1303,80 @@ overflow: hidden!important;
 display:block!important;
 }</style></aside>
 </section>
-<section id="reachability-inputs" class="slide level2 animated-slide" data-scene="reach-map" data-part="reachability">
-<h2>How reachability uses the model-error bound</h2>
+<section id="feedback" class="slide level2 animated-slide" data-scene="worked-feedback" data-part="reachability">
+<h2>At the next update, the command also varies</h2>
 <div class="explanation-layout">
 <div class="math-panel">
-<p>The initial state, reference schedule and neural policy specify the controlled system. The model-error calculation supplies <span class="math inline">\mathcal E(Q)</span> whenever propagation queries a region <span class="math inline">Q</span>.</p>
-<p>At each control update, <strong>CROWN encloses the feedback command</strong>. Between updates, <strong>Taylor-model integration encloses continuous motion</strong>, including the residual error.</p>
-<div class="insight">
-<p>The output of one interval becomes the input of the next. Repeating this construction produces the candidate’s reachable tube.</p>
-</div>
+<p>In the example the next velocity lies in <span class="math inline">[4.81,5.19]</span> m/s. A controller aiming for 5 m/s sees a different tracking error at each end of that interval.</p>
+<p>For the quad, let <span class="math inline">X_k</span> enclose the full state when the next reference <span class="math inline">r_k</span> takes effect. The set of possible commands is <span class="math display">\{\pi(x,r_k):x\in X_k\}.</span></p>
+<p>Each command belongs to the state that produced it. CROWN gives bounds on this relationship with the weights of <span class="math inline">\pi</span> and the reference held fixed.</p>
 </div>
 <div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of How reachability uses the model-error bound"></div>
-<div class="visual-caption">Schematic · equations and colors correspond to the text</div>
+<div class="animation-scene" role="img" aria-label="At the next update, the command also varies"></div>
+<div class="visual-caption">Illustrative feedback law for one axis. The quad uses its full neural controller.</div>
 </div>
 </div>
-<aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
 </section>
-<section id="feedback" class="slide level2 animated-slide" data-scene="feedback-states" data-part="reachability">
-<h2>Possible states produce different feedback commands</h2>
+<section id="crown-relaxation" class="slide level2 animated-slide" data-scene="worked-relu" data-part="reachability">
+<h2>How CROWN bounds a neural command</h2>
 <div class="explanation-layout">
 <div class="math-panel">
-<p><span class="math display">x_k\in X_k
-\quad\Longrightarrow\quad
-u_k\in\{\pi(x,r_k):x\in X_k\}.</span> <span class="math inline">X_k</span> encloses the state at update <span class="math inline">k</span>. The reference <span class="math inline">r_k</span> is known, but the future state is uncertain, so the command is uncertain too.</p>
-<p>Evaluating <span class="math inline">\pi</span> only at the predicted state would miss commands produced by other states in <span class="math inline">X_k</span>.</p>
-<div class="insight">
-<p>CROWN bounds a known function over an input set. The network weights themselves are not uncertain in this calculation.</p>
-</div>
+<p>Consider a single ReLU <span class="math inline">g(q)=\max(0,q)</span> with input <span class="math inline">q</span> in an interval <span class="math inline">[l,h_R]</span> that crosses zero. Write <span class="math inline">m=h_R/(h_R-l)</span>. For <span class="math inline">q\in[l,h_R]</span>, <span class="math display">mq\le g(q)\le m(q-l).</span></p>
+<p>The ReLU is convex, so the upper line bounds it when it joins <span class="math inline">(l,0)</span> and <span class="math inline">(h_R,h_R)</span>. Since <span class="math inline">0&lt;m&lt;1</span>, the lower line lies below each branch. When the input interval stays on one branch, that branch gives the exact expression.</p>
+<p>CROWN substitutes these bounds backward through the network. A negative multiplier reverses the inequality, so an output upper bound uses the neuron’s lower bound for that term.</p>
 </div>
 <div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of Possible states produce different feedback commands"></div>
-<div class="visual-caption">Schematic · equations and colors correspond to the text</div>
+<div class="animation-scene" role="img" aria-label="How CROWN bounds a neural command"></div>
+<div class="visual-caption">Move through the possible neuron inputs. The shaded interval bounds its output.</div>
 </div>
 </div>
-<aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
-</section>
-<section id="taylor-model" class="slide level2 animated-slide" data-scene="tm-dependence" data-part="reachability">
-<h2>Taylor models retain shared dependence</h2>
-<div class="explanation-layout">
-<div class="math-panel">
-<p><span class="math display">Y(\xi,\theta)=P(\xi,\theta)\oplus I,
-\qquad \xi\in\Xi=[-1,1]^q.</span> <span class="math inline">\xi</span> contains normalized set parameters; <span class="math inline">\theta\in[0,h]</span> is local time in one integration interval. <span class="math inline">P</span> is a vector polynomial. The interval remainder <span class="math inline">I</span> encloses what that polynomial does not represent exactly.</p>
-<p>The same <span class="math inline">\xi</span> appears in all coordinates. This preserves dependence that independent coordinate intervals would lose.</p>
-<div class="insight">
-<p>The remainder includes propagated model error and representation error. Representation error is overapproximation by the calculation, not another physical disturbance.</p>
-</div>
-</div>
-<div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of Taylor models retain shared dependence"></div>
-<div class="visual-caption">Schematic · equations and colors correspond to the text</div>
-</div>
-</div>
-<aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
-</section>
-<section id="crown-relaxation" class="slide level2 animated-slide" data-scene="crown-relaxation" data-part="reachability">
-<h2>CROWN encloses each nonlinear network operation</h2>
-<div class="explanation-layout">
-<div class="math-panel">
-<p>For a ReLU input <span class="math inline">\upsilon\in[l_{\mathrm R},h_{\mathrm R}]</span> with <span class="math inline">l_{\mathrm R}&lt;0&lt;h_{\mathrm R}</span>, let <span class="math display">\kappa=\frac{h_{\mathrm R}}{h_{\mathrm R}-l_{\mathrm R}}.</span> One valid pair of parallel affine bounds is <span class="math display">\kappa\upsilon\;\leq\;\max(0,\upsilon)\;\leq\;\kappa\upsilon-\kappa l_{\mathrm R}.</span> The upper line connects the two endpoints; the lower line lies below both ReLU branches. If <span class="math inline">l_{\mathrm R}\geq0</span> or <span class="math inline">h_{\mathrm R}\leq0</span>, that ReLU is affine and needs no relaxation.</p>
-<div class="insight">
-<p>CROWN substitutes valid affine bounds backward through the network, accounting for coefficient signs. The result bounds the complete output as a function of its input.</p>
-</div>
-</div>
-<div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of CROWN encloses each nonlinear network operation"></div>
-<div class="visual-caption">Schematic · equations and colors correspond to the text</div>
-</div>
-</div>
-<aside class="notes">
-<p>DiffReach Sec. IV-C; its CROWN interface uses parallel relaxations. The implemented stable_relu_relaxation in _vendor/diffreach/crown_wrapper.py uses slope h/(h-l) on crossing intervals and exact active/inactive branches. The scalar upsilon denotes one neuron preactivation.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
 </section>
 <section id="neural-enclosure" class="slide level2 animated-slide" data-scene="crown-input" data-part="reachability">
-<h2>CROWN receives the whole state representation</h2>
+<h2>Keep each state paired with its command</h2>
 <div class="explanation-layout">
 <div class="math-panel">
-<p>At an update, enclose the state as <span class="math display">x=c_x+A_x\xi+e_x,\qquad e_x\in I_x.</span> <span class="math inline">c_x</span> is its center; <span class="math inline">A_x</span> maps the shared parameters; <span class="math inline">e_x</span> is the state-representation remainder. With <span class="math inline">\zeta=(\xi,e_x)</span> and <span class="math inline">Z=\Xi\times I_x</span>, define <span class="math display">G(\zeta)=\pi(c_x+A_x\xi+e_x,r_k).</span> CROWN supplies componentwise bounds on this entire map: <span class="math display">\underline A\zeta+\underline b
-\leq G(\zeta)\leq\overline A\zeta+\overline b,
-\quad\zeta\in Z.</span></p>
-<div class="insight">
-<p>Input scaling, output scaling and command limits are part of G. The reference is fixed; the state varies over its enclosure.</p>
-</div>
+<p>Write the possible states at the update as <span class="math inline">x=c_x+A_x\xi+e_x</span>. The center is <span class="math inline">c_x</span>, <span class="math inline">\xi\in[-1,1]^q</span> varies shared coordinates, and <span class="math inline">e_x\in I_x</span> covers the remaining state error.</p>
+<p>Use those same variables as input to CROWN. Set <span class="math inline">w=(\xi,e_x)</span> and let <span class="math inline">W</span> be their box of allowed values. The applied command is <span class="math display">G(w)=\pi(c_x+A_x\xi+e_x,r_k).</span> CROWN computes lower coefficients <span class="math inline">(A^-,b^-)</span> and upper coefficients <span class="math inline">(A^+,b^+)</span> so that, componentwise on <span class="math inline">W</span>, <span class="math display">A^-w+b^-\le G(w)\le A^+w+b^+.</span> The calculation includes the input scaling and physical command limits used in flight.</p>
 </div>
 <div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of CROWN receives the whole state representation"></div>
-<div class="visual-caption">Schematic · equations and colors correspond to the text</div>
+<div class="animation-scene" role="img" aria-label="Keep each state paired with its command"></div>
+<div class="visual-caption"></div>
 </div>
 </div>
-<aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
 </section>
-<section id="shared-slope" class="slide level2 animated-slide" data-scene="crown-output" data-part="reachability">
-<h2>Returning a shared affine command enclosure</h2>
+<section id="shared-slope" class="slide level2 animated-slide" data-scene="joint-state-command" data-part="reachability">
+<h2>Convert the controller bounds into a joint set</h2>
 <div class="explanation-layout">
 <div class="math-panel">
-<p>Choose <span class="math inline">A=(\underline A+\overline A)/2</span>. Bound the difference from this common slope componentwise: <span class="math display">\begin{aligned}
-d^-&amp;=\min_{\zeta\in Z}
-\{(\underline A-A)\zeta+\underline b\},\\
-d^+&amp;=\max_{\zeta\in Z}
-\{(\overline A-A)\zeta+\overline b\}.
-\end{aligned}</span> Subtracting <span class="math inline">A\zeta</span> from the CROWN inequalities gives <span class="math display">G(\zeta)\in A\zeta\oplus[d^-,d^+].</span></p>
-<div class="insight">
-<p>This conversion remains valid when the lower and upper CROWN slopes differ. Affine extrema over a box are obtained by choosing the appropriate endpoint for each coefficient.</p>
-</div>
+<p>Choose the common slope <span class="math inline">A=(A^-+A^+)/2</span>. Subtract <span class="math inline">Aw</span> from both bounds and take extrema over <span class="math inline">W</span>, component by component. <span class="math display">\begin{aligned}
+d^-&amp;=\min_W ((A^--A)w+b^-),\\
+d^+&amp;=\max_W ((A^+-A)w+b^+).
+\end{aligned}</span> Thus <span class="math inline">u_k\in Aw+[d^-,d^+]</span>. Split <span class="math inline">A=[A_\xi\;A_e]</span> and let <span class="math inline">I_u</span> enclose <span class="math inline">A_e I_x+[d^-,d^+]</span>. The pair used in propagation is <span class="math display">\begin{aligned}
+x&amp;\in c_x+A_x\xi+I_x,\\
+u_k&amp;\in A_\xi\xi+I_u,\qquad\text{with the same }\xi.
+\end{aligned}</span></p>
 </div>
 <div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of Returning a shared affine command enclosure"></div>
-<div class="visual-caption">Schematic · equations and colors correspond to the text</div>
+<div class="animation-scene" role="img" aria-label="Convert the controller bounds into a joint set"></div>
+<div class="visual-caption">Shared coordinates preserve how the applied command depends on the state.</div>
 </div>
 </div>
-<aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
-</section>
-<section id="joint-state-command" class="slide level2 animated-slide" data-scene="joint-state-command" data-part="reachability">
-<h2>The state and command share the same parameters</h2>
-<div class="explanation-layout">
-<div class="math-panel">
-<p>Partition <span class="math inline">A=[A_\xi\;A_e]</span> and set <span class="math display">I_u\supseteq A_e I_x\oplus[d^-,d^+].</span> Then the actual state-command pair is enclosed by <span class="math display">\begin{bmatrix}x\\u_k\end{bmatrix}
-\in\begin{bmatrix}c_x+A_x\xi\\A_\xi\xi\end{bmatrix}
-\oplus(I_x\times I_u),\qquad\xi\in\Xi.</span> The command’s affine part retains the same <span class="math inline">\xi</span> as the state. Remaining uncertainty is enclosed in <span class="math inline">I_u</span>.</p>
-<div class="insight">
-<p>This is the interface between CROWN and Taylor-model propagation. We carry a joint state-command enclosure into the dynamics.</p>
-</div>
-</div>
-<div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of The state and command share the same parameters"></div>
-<div class="visual-caption">Schematic · equations and colors correspond to the text</div>
-</div>
-</div>
-<aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
-</section>
-<section id="held-command" class="slide level2 animated-slide" data-scene="held-command" data-part="reachability">
-<h2>The command is held while the state evolves</h2>
-<div class="explanation-layout">
-<div class="math-panel">
-<p>Between controller updates, augment the state: <span class="math display">y=\begin{bmatrix}x\\u\end{bmatrix},</span> <span class="math display">\dot y=F(y)=
-\begin{bmatrix}f_0(x,u)+B_a a^\star(\chi(x,u))\\0\end{bmatrix}.</span> The zero input derivative represents the actual command hold. Each possible trajectory retains its own command over that interval.</p>
-<p>At the next controller update, recompute the command enclosure with CROWN. The physical state remains continuous.</p>
-<div class="insight">
-<p>This follows the sampled feedback law defined with the candidate. Continuously recomputing the command would be a different controlled system.</p>
-</div>
-</div>
-<div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of The command is held while the state evolves"></div>
-<div class="visual-caption">Schematic · equations and colors correspond to the text</div>
-</div>
-</div>
-<aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
 </section>
 <section id="trial-region" class="slide level2 animated-slide" data-scene="trial-region" data-part="reachability">
-<h2>The trial set determines which model errors are allowed</h2>
+<h2>Propose a tube over one integration step</h2>
 <div class="explanation-layout">
 <div class="math-panel">
-<p>For a proposed enclosure <span class="math inline">Y=P\oplus I</span>, construct <span class="math display">Q(Y)\supseteq\{\chi(x,u):(x,u)\in Y\}.</span> The derivative calculation encloses <span class="math display">\begin{bmatrix}\hat f(x,u)\\0\end{bmatrix}
-\oplus
-\begin{bmatrix}B_a\mathcal E(Q(Y))\\\{0\}\end{bmatrix}.</span> The same model-error rule derived earlier is now evaluated on the entire proposed state-command region.</p>
-<div class="insight">
-<p>If the trial remainder grows, its query region may grow too. Recompute the bound or use a bound already valid on that larger region.</p>
-</div>
+<p>Between feedback updates each flight holds its own command. Carry state and command together as <span class="math inline">y=(x,u)</span> with <span class="math inline">\dot u=0</span>.</p>
+<p>For a step of length <span class="math inline">h</span>, use the prediction model to propose a polynomial <span class="math inline">P(\xi,t)</span> and an interval remainder <span class="math inline">I</span>. Together they form a <strong>Taylor model</strong>. Its set at local time <span class="math inline">0\le t\le h</span> is <span class="math display">Y(\xi,t)=P(\xi,t)+I.</span></p>
+<p>Choose <span class="math inline">Q</span> to cover <strong>all</strong> residual inputs <span class="math inline">\chi(x,u)</span> in this trial over the entire step. Evaluate <span class="math inline">\mathcal E(Q)</span> there. Enlarging the trial requires covering its enlarged input region too.</p>
 </div>
 <div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of The trial set determines which model errors are allowed"></div>
-<div class="visual-caption">Schematic · equations and colors correspond to the text</div>
+<div class="animation-scene" role="img" aria-label="Propose a tube over one integration step"></div>
+<div class="visual-caption">The trial determines which acceleration-error bound the integration may use.</div>
 </div>
 </div>
 <aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
+<p>Truncated Picard iterations on the prediction model supply P. Polynomial truncation, model error and controller relaxation contribute to the required remainder. The same normalized parameters enter the state and command. If a trial leaves the domain on which the model or error bounds hold, that trial cannot establish containment.</p>
 <style type="text/css">
 span.MJX_Assistive_MathML {
 position:absolute!important;
@@ -1710,80 +1390,47 @@ display:block!important;
 }</style></aside>
 </section>
 <section id="picard" class="slide level2 animated-slide" data-scene="picard-image" data-part="reachability">
-<h2>Integrating all motion allowed inside the trial</h2>
+<h2>Integrate the dynamics over the proposed tube</h2>
 <div class="explanation-layout">
 <div class="math-panel">
-<p>For an initial augmented state <span class="math inline">y_0</span>, define the Picard map <span class="math display">(\mathscr P y)(\theta)
-=y_0+\int_0^\theta F(y(\sigma))\,d\sigma.</span> An actual solution is a fixed point: its own derivative integrates back to that same trajectory.</p>
-<p>Apply enclosing arithmetic to every represented initial value, admissible residual and path inside <span class="math inline">P\oplus I</span>. This gives an image enclosure <span class="math inline">P^+\oplus I^+</span>.</p>
-<div class="insight">
-<p>The trial is a proposed motion enclosure. Its Picard image contains the motion obtained by integrating all dynamics allowed inside that proposal.</p>
-</div>
+<p>Fix an allowed true residual and one initial pair <span class="math inline">y_0</span>. Write <span class="math inline">F(y)=(\dot x,0)</span> for its dynamics. Any physical solution obeys <span class="math display">y(t)=y_0+\int_0^t F(y(s))\,ds.</span></p>
+<p>Apply the <strong>right-hand side</strong> to every path inside the trial. Bound its derivative using <span class="math inline">\hat f+B_a\mathcal E(Q)</span> and enclose the resulting integrals by a polynomial <span class="math inline">P^+</span> plus an interval <span class="math inline">I^+</span>.</p>
+<p>This integrated set is the <strong>Picard image</strong>. Checking whether the whole image fits inside <span class="math inline">P+I</span> tests the proposed tube.</p>
 </div>
 <div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of Integrating all motion allowed inside the trial"></div>
-<div class="visual-caption">Schematic · equations and colors correspond to the text</div>
+<div class="animation-scene" role="img" aria-label="Integrate the dynamics over the proposed tube"></div>
+<div class="visual-caption"></div>
 </div>
 </div>
-<aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
 </section>
-<section id="full-inclusion" class="slide level2 animated-slide" data-scene="full-inclusion" data-part="reachability">
-<h2>The complete image must fit inside the trial</h2>
+<section id="full-inclusion" class="slide level2 animated-slide" data-scene="shift-example" data-part="reachability">
+<h2>Test the polynomial shift as well as the remainder</h2>
 <div class="explanation-layout">
 <div class="math-panel">
-<p>The image may have a different polynomial. Express both in the trial’s coordinates: <span class="math display">P^+\oplus I^+\subseteq P\oplus J,</span> <span class="math display">J=\operatorname{box}_{\Xi\times[0,h]}(P^+-P)\oplus I^+.</span> <span class="math inline">\operatorname{box}</span> encloses the range of the indicated polynomial over its full parameter-time domain. Require <span class="math display">\boxed{J\subseteq I.}</span></p>
-<div class="insight">
-<p>Checking only I⁺ inside I omits the polynomial shift. A shifted image can leave the trial even when its interval remainder is small.</p>
-</div>
+<p>An integrated value has the form <span class="math inline">P^++e^+</span> with <span class="math inline">e^+\in I^+</span>. Its displacement from the proposed polynomial <span class="math inline">P</span> is <span class="math display">(P^++e^+)-P=(P^+-P)+e^+.</span> Let <span class="math inline">J</span> enclose those displacements over every parameter and time in the step. <span class="math display">J=\operatorname{box}(P^+-P)+I^+.</span> Here <span class="math inline">\operatorname{box}</span> takes a coordinatewise range bound. If <span class="math inline">J\subseteq I</span>, every integrated value lies in <span class="math inline">P+I</span> at its corresponding parameter and time.</p>
+<p>In the example, <span class="math inline">I^+=\{0\}</span> but the polynomial itself moves outside the trial.</p>
 </div>
 <div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of The complete image must fit inside the trial"></div>
-<div class="visual-caption">Schematic · equations and colors correspond to the text</div>
+<div class="animation-scene" role="img" aria-label="Test the polynomial shift as well as the remainder"></div>
+<div class="visual-caption">A one-dimensional counterexample. Scrub the step to see where the trial fails.</div>
 </div>
 </div>
-<aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
 </section>
 <section id="one-step-proof" class="slide level2 animated-slide" data-scene="one-step-proof" data-part="reachability">
-<h2>Why a successful inclusion check establishes one step</h2>
+<h2>Why this test contains the true trajectory</h2>
 <div class="explanation-layout">
 <div class="math-panel">
-<p><strong>One-step containment.</strong> If the data bounds are valid, all arithmetic encloses its exact result, and <span class="math inline">J\subseteq I</span>, then the true motion stays in <span class="math inline">P\oplus I</span> throughout the interval.</p>
-<p>The Picard map sends every path in the trial back into the trial. On a compact trial, a continuous bounded vector field gives a compact integral map. The fixed-point theorem gives a solution inside it.</p>
-<div class="insight">
-<p>Local Lipschitz continuity gives uniqueness, identifying that solution with the true trajectory. This is a self-inclusion proof; it does not assume a numerically checked contraction constant.</p>
-</div>
+<p>Fix the initial value, residual function and shared parameter. Consider all continuous paths that stay in <span class="math inline">P+I</span>. This set of paths is nonempty, closed, bounded and convex.</p>
+<p><strong>Existence.</strong> The inclusion test maps these paths into the same set. On the compact trial region the continuous dynamics are bounded. Their integrals form a relatively compact family. Schauder’s fixed-point theorem gives a path equal to its own integral update.</p>
+<p><strong>Identification.</strong> That path solves the original dynamics from the chosen initial value. Local Lipschitz continuity gives uniqueness, so the physical trajectory is that path. The argument applies to each allowed residual and initial value.</p>
 </div>
 <div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of Why a successful inclusion check establishes one step"></div>
-<div class="visual-caption">Schematic · equations and colors correspond to the text</div>
+<div class="animation-scene" role="img" aria-label="Why this test contains the true trajectory"></div>
+<div class="visual-caption">This result assumes valid residual bounds and numerical operations that enclose the exact result.</div>
 </div>
 </div>
 <aside class="notes">
-<p>Manuscript Lemma Validated flowpipe step. The path set is nonempty, closed, bounded and convex in C([0,h]); the Picard image is relatively compact by Arzelà–Ascoli. Schauder gives a fixed point, and local Lipschitz continuity identifies the unique ODE solution. Model and query domains must contain all trial regions.</p>
+<p>For fixed ξ the trial has pointwise convex interval fibers. The integral map is continuous on this path set. Bounded derivatives give uniform boundedness and equicontinuity of its image. Arzelà–Ascoli gives relative compactness. Sound inclusion puts the image inside the path set, so Schauder applies.</p>
 <style type="text/css">
 span.MJX_Assistive_MathML {
 position:absolute!important;
@@ -1797,214 +1444,105 @@ display:block!important;
 }</style></aside>
 </section>
 <section id="swept-motion" class="slide level2 animated-slide" data-scene="swept" data-part="reachability">
-<h2>Keep the endpoint and the whole time interval</h2>
+<h2>Use the endpoint to continue and the sweep to test clearance</h2>
 <div class="explanation-layout">
 <div class="math-panel">
-<p>For the validated step <span class="math inline">P_j\oplus I_j</span>, compute <span class="math display">\begin{aligned}
-\widetilde X_{j+1}&amp;=\operatorname{box}P_j(\Xi,h)\oplus I_j,\\
-\widetilde Y_j&amp;=\operatorname{box}P_j(\Xi,[0,h])\oplus I_j.
-\end{aligned}</span> These sets include the held input. Projecting onto physical-state coordinates gives the endpoint set <span class="math inline">X_{j+1}</span> and the swept set <span class="math inline">Y_j</span>.</p>
-<div class="insight">
-<p>The endpoint initializes the next step; the swept set covers every intermediate time. Collision checks need the swept set, not only the endpoints.</p>
-</div>
+<p>For a validated step <span class="math inline">j</span>, evaluate the same polynomial two ways. Let <span class="math inline">H_x</span> select the physical state from <span class="math inline">(x,u)</span> and let <span class="math inline">\Xi=[-1,1]^q</span>.</p>
+<p><span class="math display">\begin{aligned}
+X_{j+1}&amp;=H_x\big(\operatorname{box} P_j(\Xi,h)+I_j\big),\\
+Y_j&amp;=H_x\big(\operatorname{box} P_j(\Xi,[0,h])+I_j\big).
+\end{aligned}</span></p>
+<p><span class="math inline">X_{j+1}</span> encloses the endpoint. Propagate its state and the held command together until the next feedback update, then apply CROWN again. <span class="math inline">Y_j</span> covers motion <strong>between</strong> endpoints, when a propeller could touch a gate.</p>
 </div>
 <div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of Keep the endpoint and the whole time interval"></div>
-<div class="visual-caption">Position projection · illustrative motion, not a recorded tube</div>
+<div class="animation-scene" role="img" aria-label="Use the endpoint to continue and the sweep to test clearance"></div>
+<div class="visual-caption">The highlighted segment represents motion between two consecutive endpoint checks.</div>
 </div>
 </div>
-<aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
 </section>
 <section id="reachable-tube" class="slide level2 animated-slide" data-scene="containment-chain" data-part="reachability">
-<h2>Repeating the step proves finite-horizon containment</h2>
+<h2>Extend containment to the candidate horizon</h2>
 <div class="explanation-layout">
 <div class="math-panel">
-<p>Start with <span class="math inline">X_0=\{x_0\}</span>. A sound CROWN update contains the actual command. A validated integration step contains the complete motion and its endpoint.</p>
-<p>Use that enclosed endpoint for the next step. Apply the same argument at every controller update and integration interval: <span class="math display">\mathcal R(\tau)\subseteq Y_j,
-\qquad \tau\in[jh,(j+1)h].</span></p>
-<div class="insight">
-<p>The induction requires every step to pass and execution to use the same policy, reference and timing. A later successful calculation cannot repair an earlier unproved step.</p>
-</div>
+<p><strong>Start.</strong> The measured state is exact, so <span class="math inline">X_0=\{x_0\}</span>. The initial feedback command is <span class="math inline">\pi(x_0,r_0)</span>.</p>
+<p><strong>Step.</strong> If the current set contains the actual state and held command, a validated integration step contains their motion and endpoint. At a feedback update, the neural bound includes the new command paired with that state.</p>
+<p>By induction, for each successful step starting at <span class="math inline">t_j</span>, <span class="math display">\mathcal R(t)\subseteq Y_j,\qquad t_j\le t\le t_j+h.</span> Once the steps cover <span class="math inline">[0,T]</span>, their sweeps supply the tube used for clearance.</p>
 </div>
 <div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of Repeating the step proves finite-horizon containment"></div>
-<div class="visual-caption">Schematic · equations and colors correspond to the text</div>
+<div class="animation-scene" role="img" aria-label="Extend containment to the candidate horizon"></div>
+<div class="visual-caption"></div>
 </div>
 </div>
-<aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
 </section>
 <section id="body-clearance" class="slide level2 animated-slide" data-scene="collision" data-part="decision">
-<h2>Containment becomes safety through body clearance</h2>
+<h2>Does the swept body clear every gate bar?</h2>
 <div class="explanation-layout">
 <div class="math-panel">
-<p><span class="math inline">H_p</span> selects position from the state. Let <span class="math inline">\mathbb B_{r_b}</span> contain the quad’s body in every allowed attitude, and let <span class="math inline">\mathcal O</span> be the solid obstacles.</p>
-<p>For every swept set, require <span class="math display">(H_pY_j\oplus\mathbb B_{r_b})\cap\mathcal O=\varnothing.</span> Containment places the true position in <span class="math inline">H_pY_j</span>. Adding the body envelope contains every occupied body point. Separation therefore excludes collision throughout the interval.</p>
-<div class="insight">
-<p>A failed separation check means safety was not established. It does not prove that the actual quad collides.</p>
-</div>
+<p>Let <span class="math inline">H_pY_j</span> contain all center positions during step <span class="math inline">j</span>. A ball <span class="math inline">B</span> of radius <span class="math inline">r_b</span> about the center encloses the body at every allowed orientation. The space the quad could occupy is contained in <span class="math display">H_pY_j\oplus B=\{p+b:p\in H_pY_j,\ b\in B\}.</span></p>
+<p>Let <span class="math inline">\mathcal O</span> contain the solid gate bars and other obstacles. Require <span class="math display">(H_pY_j\oplus B)\cap\mathcal O=\varnothing</span> on <strong>every</strong> step.</p>
+<p>In the one-axis example, suppose the predicted body leaves at least 5 cm to a flat obstacle face throughout the segment. A position error of at most 4.75 cm toward that face leaves at least <strong>2.5 mm of clearance</strong>.</p>
 </div>
 <div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of Containment becomes safety through body clearance"></div>
-<div class="visual-caption">Position projection · illustrative motion, not a recorded tube</div>
+<div class="animation-scene" role="img" aria-label="Does the swept body clear every gate bar?"></div>
+<div class="visual-caption">Red marks the first failed clearance check in this illustration.</div>
 </div>
 </div>
-<aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
 </section>
 <section id="construction-failure" class="slide level2 animated-slide" data-scene="failure-types" data-part="decision">
-<h2>A failed enclosure differs from a failed clearance</h2>
+<h2>Why a candidate can be rejected</h2>
 <div class="explanation-layout">
 <div class="math-panel">
-<p><strong>Enclosure failure:</strong> some step cannot establish containment. Later calculated sets have no containment claim, because their starting set is unproved.</p>
-<p><strong>Clearance failure:</strong> the tube is established, but it overlaps an obstacle after accounting for the body. Reject the candidate; continue displaying the complete valid tube and mark the first failed clearance.</p>
-<div class="insight">
-<p>Large uncertainty is an acceptable reason to reject a candidate. Correct containment takes priority over acceptance.</p>
-</div>
+<p><strong>The tube calculation fails.</strong> An integration step cannot enclose its Picard image, or its trial leaves the domain of the error bound. The containment proof ends at the preceding validated step.</p>
+<p><strong>The clearance check fails.</strong> The body envelope intersects a solid obstacle. Some of that overlap may come from overestimating the reachable set. The actual flight could still clear the gate.</p>
+<p>Either result prevents the candidate from replacing the current commitment.</p>
 </div>
 <div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of A failed enclosure differs from a failed clearance"></div>
-<div class="visual-caption">Position projection · illustrative motion, not a recorded tube</div>
+<div class="animation-scene" role="img" aria-label="Why a candidate can be rejected"></div>
+<div class="visual-caption">The faded continuation follows a step for which containment was not established.</div>
 </div>
 </div>
-<aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
 </section>
 <section id="earlier-switch" class="slide level2 animated-slide" data-scene="retry" data-part="decision">
-<h2>Try another switching time</h2>
+<h2>Verify each switching time over the full horizon</h2>
 <div class="explanation-layout">
 <div class="math-panel">
-<p><span class="math display">\begin{aligned}
-\mathcal V&amp;=\{s:\text{candidate }s\text{ passes every check}\},\\
-s^\star&amp;=\max\mathcal V\quad\text{if }\mathcal V\ne\varnothing.
-\end{aligned}</span> Every switching index defines a complete reference and a new closed-loop tube. An earlier switch gives more of the horizon to the backup reference.</p>
-<p>Among candidates that pass containment, clearance and input checks, select the longest racing segment.</p>
-<div class="insight">
-<p>The backup segment is verified too. Its name does not establish safety, and its existence does not guarantee that a candidate passes.</p>
-</div>
+<p>An earlier switch replaces more of the racing reference with the backup reference. That changes the commands the quad could apply, so each switch needs its own tube through time <span class="math inline">T</span>.</p>
+<p>Let <span class="math inline">\mathcal V</span> contain the switching indices whose candidates pass containment, clearance and command-limit checks. If any pass, select <span class="math display">s^\star=\max\mathcal V.</span></p>
+<p>This chooses the longest verified racing segment. A switch at zero follows the backup from the start.</p>
 </div>
 <div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of Try another switching time"></div>
-<div class="visual-caption">Position projection · illustrative motion, not a recorded tube</div>
+<div class="animation-scene" role="img" aria-label="Verify each switching time over the full horizon"></div>
+<div class="visual-caption">The earlier switch changes the candidate route.</div>
 </div>
 </div>
-<aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
 </section>
 <section id="commitment" class="slide level2 animated-slide" data-scene="commit" data-part="decision">
-<h2>Commit a replacement or continue the existing one</h2>
+<h2>Which reference does the quad fly?</h2>
 <div class="explanation-layout">
 <div class="math-panel">
-<p>An accepted candidate replaces the current reference and policy. If none passes, continue the existing commitment at its original elapsed time.</p>
-<p>That continuation is covered only until the original commitment expires. Rejection does not restart its clock.</p>
-<div class="insight">
-<p>Initialization must verify the zero-switch candidate or explicitly assume a safe initial commitment. Continued safety requires an unexpired verified commitment at every executed time.</p>
-</div>
+<p>When a candidate passes, store its references and activation time. At each update the controller reads the measured state and the reference for the current elapsed time.</p>
+<p>If all new candidates fail, advance along the previously accepted reference. Its original expiration time still applies.</p>
+<p>The first cycle requires a verified zero-switch candidate or an explicit assumption that the initial commitment is safe.</p>
 </div>
 <div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of Commit a replacement or continue the existing one"></div>
-<div class="visual-caption">Position projection · illustrative motion, not a recorded tube</div>
+<div class="animation-scene" role="img" aria-label="Which reference does the quad fly?"></div>
+<div class="visual-caption"></div>
 </div>
 </div>
-<aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
 </section>
 <section id="guarantee" class="slide level2 animated-slide" data-scene="coverage" data-part="decision">
-<h2>The scope of the safety statement</h2>
+<h2>When does the clearance claim hold?</h2>
 <div class="explanation-layout">
 <div class="math-panel">
-<p>The containment argument is conditional on valid model-error bounds, sound enclosing arithmetic and matching execution semantics.</p>
-<p>If a single event <span class="math inline">\mathcal G</span> ensures all error bounds used during a run, with failure-probability bound <span class="math inline">p_{\mathrm{fail}}</span> so that <span class="math inline">\Pr(\mathcal G)\geq1-p_{\mathrm{fail}}</span>, then—under the other hypotheses— <span class="math display">\Pr\{\text{safety violation during covered execution}\}
-\leq p_{\mathrm{fail}}.</span></p>
-<div class="insight">
-<p>Pointwise confidence or Monte Carlo alone does not establish this uniform event. Indefinite safety also needs a verified continuation beyond the finite horizon.</p>
-</div>
+<p>The argument covers the executed part of a verified candidate while its model-error assumptions hold, its numerical bounds enclose the exact results, and the controller follows the verified reference and timing.</p>
+<p>For a probabilistic bound, suppose one event <span class="math inline">\mathcal G</span> ensures <strong>all</strong> model-error bounds used during execution. If <span class="math inline">\Pr(\mathcal G)\ge 1-p_f</span> and the other assumptions hold, a collision during covered execution implies <span class="math inline">\mathcal G^c</span>. Hence <span class="math display">\Pr(\text{collision during covered execution})\le p_f.</span></p>
+<p>Extending coverage beyond expiration requires another valid commitment or a proved safe continuation.</p>
 </div>
 <div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of The scope of the safety statement"></div>
-<div class="visual-caption">Schematic · equations and colors correspond to the text</div>
+<div class="animation-scene" role="img" aria-label="When does the clearance claim hold?"></div>
+<div class="visual-caption"></div>
 </div>
 </div>
-<aside class="notes">
-<p>Derivation follows neural-gtk-overleaf/revisions/proposed, commit 5144a6f. The model-error inequality follows Knuth et al., Planning with Learned Dynamics, Sec. IV-A. Taylor models and the controller interface follow DiffReach, Sec. IV. Illustrations are explanatory, not measured reachable sets.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
 </section>
 <section id="architecture" class="slide level2 animated-slide" data-scene="architecture" data-part="implementation">
 <h2>The complete implemented loop</h2>
@@ -2012,7 +1550,7 @@ display:block!important;
 <div class="math-panel">
 <p><span class="math display">\hat f=f_0+B_a\hat a,\qquad
 \dot x=f_0+B_a a^\star</span></p>
-<p>The <strong>prediction model</strong> supplies MPPI rollouts, candidate construction and tube propagation. The <strong>true simulator</strong> advances the executed flight independently.</p>
+<p>The <strong>prediction model</strong> supplies MPPI rollouts, candidate construction and tube propagation. The <strong>ground-truth simulator</strong> advances the executed flight with its own residual acceleration.</p>
 <p>The error bound connects the learned residual to the unknown true residual. Verification checks the resulting tube before replacing the current commitment.</p>
 <p><span class="math display">u_k=\pi(x_k,r_k^{\mathrm{committed}})</span></p>
 <div class="insight">
@@ -2026,7 +1564,7 @@ display:block!important;
 </div>
 </section>
 <section id="implementation" class="slide level2 animated-slide" data-scene="devquad" data-part="implementation">
-<h2>Implementation: the DevQuad system</h2>
+<h2>The DevQuad state and command</h2>
 <div class="explanation-layout">
 <div class="math-panel">
 <p><span class="math display">x=(p,v,\eta,\omega)\in\mathbb R^{12},\qquad
@@ -2038,7 +1576,7 @@ u=(f_T,\tau_x,\tau_y,\tau_z)</span></p>
 </div>
 </div>
 <div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of Implementation: the DevQuad system"></div>
+<div class="animation-scene" role="img" aria-label="Animated illustration of The DevQuad state and command"></div>
 <div class="visual-caption">Illustration · not a recorded simulation</div>
 </div>
 </div>
@@ -2090,6 +1628,20 @@ overflow: hidden!important;
 display:block!important;
 }</style></aside>
 </section>
+<section id="implemented-residual" class="slide level2 animated-slide" data-scene="velocity-query" data-part="implementation">
+<h2>Where the racing experiment gets its error bounds</h2>
+<div class="explanation-layout">
+<div class="math-panel">
+<p>For component <span class="math inline">j</span>, the simulator adds acceleration <span class="math display">a_j^\star(v)=\lambda[-d_jv_j+b_j+\gamma\sin(v_j/v_0)].</span> <span class="math inline">d_j</span> sets drag, <span class="math inline">b_j</span> sets bias, <span class="math inline">\gamma</span> sets the sine amplitude, <span class="math inline">v_0=1</span> m/s and <span class="math inline">\lambda</span> scales the residual. The predictor uses a fitted piecewise-linear function of the same <span class="math inline">v_j</span>.</p>
+<p>At each sampled velocity the experiment bounds the difference using the specified simulator law. For <span class="math inline">L_j</span> it adds a bound on the true slope, <span class="math inline">\lambda(d_j+|\gamma|/v_0)</span>, to the largest absolute slope of the fitted function.</p>
+<p>These constants apply to this simulated residual family. Using flight measurements would require a measurement-error bound and a justified slope bound over the flight domain.</p>
+</div>
+<div class="visual-panel">
+<div class="animation-scene" role="img" aria-label="Where the racing experiment gets its error bounds"></div>
+<div class="visual-caption">Each acceleration component is queried over its own velocity interval.</div>
+</div>
+</div>
+</section>
 <section id="devquad-policy" class="slide level2 animated-slide" data-scene="network" data-part="implementation">
 <h2>One neural velocity controller throughout</h2>
 <div class="explanation-layout">
@@ -2098,7 +1650,7 @@ display:block!important;
 <p>A <strong>15–64–64–4 ReLU network</strong> maps these features to four outputs. Scaling, hover thrust and thrust-dependent torque limits turn them into physical commands.</p>
 <p><span class="math inline">r</span> is desired world velocity. The network uses velocity error, attitude and body rates. The zero entries remove dependence on absolute position.</p>
 <div class="insight">
-<p>MPPI rollouts, candidate propagation and execution use the same complete policy. A geometric teacher supplied training targets offline; it does not execute the flight.</p>
+<p>MPPI rollouts, candidate propagation and execution use the same complete policy. A geometric controller supplied the targets used to train the neural policy before flight.</p>
 </div>
 </div>
 <div class="visual-panel">
@@ -2132,7 +1684,7 @@ e^{\rm con}&amp;=e-t_c(\sigma)e^{\rm lag}.
 <p><span class="math inline">c(\sigma)</span> is the selected course point and <span class="math inline">t_c(\sigma)</span> its unit tangent. <span class="math inline">\sigma</span> identifies progress along the course.</p>
 <p>The planner rewards forward progress and penalizes displacement across the route, along-route mismatch, control effort and predicted constraint violations.</p>
 <div class="insight">
-<p>A larger progress reward encourages faster proposals. The independent tube check still decides which candidate can be committed.</p>
+<p>A larger progress reward encourages faster proposals. Gatekeeper then checks clearance for the resulting candidates.</p>
 </div>
 </div>
 <div class="visual-panel">
@@ -2185,20 +1737,20 @@ overflow: hidden!important;
 display:block!important;
 }</style></aside>
 </section>
-<section id="implemented-residual" class="slide level2 animated-slide" data-scene="velocity-query" data-part="implementation">
-<h2>The current residual depends on velocity</h2>
+<section id="six-switches" class="slide level2 animated-slide" data-scene="switches" data-part="implementation">
+<h2>Six switching times, six complete candidates</h2>
 <div class="explanation-layout">
 <div class="math-panel">
-<p><span class="math display">a_j^\star(v)=\lambda\!\left[-d_jv_j+b_j+\gamma\sin(v_j/v_0)\right]</span></p>
-<p><span class="math inline">j</span> selects an acceleration component. <span class="math inline">d_j</span> gives drag, <span class="math inline">b_j</span> gives bias, <span class="math inline">\gamma</span> is a nonlinear acceleration amplitude, <span class="math inline">v_0=1</span> m/s and <span class="math inline">\lambda</span> scales the residual family.</p>
-<p>The learned approximation uses ReLU functions of velocity. A regional bound covers the velocity interval reached during each propagation trial.</p>
+<p><span class="math display">T_s\in\{2,\,1.5,\,1,\,0.5,\,0.2,\,0\}\;\mathrm s</span></p>
+<p>Every candidate covers 2.5 s. Changing <span class="math inline">T_s</span> changes how much of that time follows the planner’s fast reference.</p>
+<p>Backup references use a course tangent plus a correction toward the centreline. The speed setting is 1.5 m/s in Environments 1–2 and 0.7 m/s in Environments 3–4.</p>
 <div class="insight">
-<p>Only velocity enters this residual function. Its effects still propagate through all 12 states and the feedback policy. The recorded model and policy remain fixed during each flight.</p>
+<p>A clearance failure marks the first overlap. The simulation retains the full tube when every integration step validates.</p>
 </div>
 </div>
 <div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of The current residual depends on velocity"></div>
-<div class="visual-caption">Residual-input space · each component uses its velocity coordinate</div>
+<div class="animation-scene" role="img" aria-label="Animated illustration of Six switching times, six complete candidates"></div>
+<div class="visual-caption">Illustration · not a recorded simulation</div>
 </div>
 </div>
 <aside class="notes">
@@ -2245,43 +1797,13 @@ overflow: hidden!important;
 display:block!important;
 }</style></aside>
 </section>
-<section id="six-switches" class="slide level2 animated-slide" data-scene="switches" data-part="implementation">
-<h2>Six switching times, six complete candidates</h2>
-<div class="explanation-layout">
-<div class="math-panel">
-<p><span class="math display">T_s\in\{2,\,1.5,\,1,\,0.5,\,0.2,\,0\}\;\mathrm s</span></p>
-<p>Every candidate covers 2.5 s. Changing <span class="math inline">T_s</span> changes how much of that time follows the planner’s fast reference.</p>
-<p>Backup references use a course tangent plus a correction toward the centreline. The speed setting is 1.5 m/s in Environments 1–2 and 0.7 m/s in Environments 3–4.</p>
-<div class="insight">
-<p>We check all six complete candidates. We do not shorten the propagation horizon at the first obstacle violation.</p>
-</div>
-</div>
-<div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of Six switching times, six complete candidates"></div>
-<div class="visual-caption">Illustration · not a recorded simulation</div>
-</div>
-</div>
-<aside class="notes">
-<p>The equations and implementation statements follow the reviewed manuscript in neural-gtk-overleaf, commit 5144a6f, and the simulation code at commit 1212261. Illustrative motion is not numerical evidence.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
-</section>
 <section id="gate-geometry" class="slide level2 animated-slide" data-scene="geometry" data-part="implementation">
 <h2>Solid geometry and the quad’s body</h2>
 <div class="explanation-layout">
 <div class="math-panel">
 <p><span class="math display">d_g=\left\|\max\bigl(|c_g-a_g|-\rho_g-b_g,0\bigr)\right\|-r_b</span></p>
 <p>In a gate’s coordinates, <span class="math inline">c_g\pm\rho_g</span> encloses possible positions. A solid gate bar has centre <span class="math inline">a_g</span> and half-width <span class="math inline">b_g</span>.</p>
-<p>The nonnegative coordinate gaps give box-to-bar distance. Subtract the <strong>0.19 m body radius</strong>. Every required clearance must be strictly positive.</p>
+<p>Positive coordinate gaps give the separation from the solid bar along each gate axis. Subtract the <strong>0.19 m body radius</strong>. Every required clearance must be strictly positive.</p>
 <div class="insight">
 <p>The opening is free space; its frame and supports are obstacles. Room surfaces, floor and ceiling also enter verification.</p>
 </div>
@@ -2309,11 +1831,11 @@ display:block!important;
 <h2>The three recorded comparisons</h2>
 <div class="explanation-layout">
 <div class="math-panel">
-<p><strong>Baseline 1:</strong> same neural policy and MPPI, no Gatekeeper, zero residual in both true and prediction models.</p>
-<p><strong>Baseline 2:</strong> same policy and MPPI, with residual mismatch, no Gatekeeper.</p>
-<p><strong>Method 1:</strong> the same mismatch, with candidate construction and reachable-tube verification.</p>
+<p><strong>Baseline 1</strong> runs MPPI and the neural controller directly. Both the simulator and the predictor use zero residual acceleration.</p>
+<p><strong>Baseline 2</strong> uses the same controller and planner. The simulator and predictor have different residual accelerations.</p>
+<p><strong>Method 1</strong> uses the mismatch from Baseline 2 and verifies each candidate before executing it.</p>
 <div class="insight">
-<p>All four environments have 45-second recordings of each comparison. These particular recordings contain no collision, including Baseline 2. The illustration does not invent a crash.</p>
+<p>Each of the four courses has a 45-second recording of all three cases. All twelve flights finished without a recorded collision.</p>
 </div>
 </div>
 <div class="visual-panel">
@@ -2336,33 +1858,18 @@ display:block!important;
 }</style></aside>
 </section>
 <section id="evidence" class="slide level2 animated-slide" data-scene="evidence" data-part="implementation">
-<h2>Numerical checks and the remaining assumptions</h2>
+<h2>What the containment experiments establish</h2>
 <div class="explanation-layout">
 <div class="math-panel">
-<p><strong>Containment checks:</strong> 2,700 candidates and 18,000 recorded states. Another 4,608 sampled trajectories were integrated at both 1 ms and 0.5 ms.</p>
-<p>No sample exceeded an established enclosure by the <span class="math inline">10^{-8}</span> numerical test tolerance. These checks can reveal errors; they do not prove universal containment.</p>
-<div class="insight">
-<p>The implementation still lacks an end-to-end outward-rounding certificate and an invariant terminal continuation. Simulated time pauses during planning, so the recordings do not establish real-time operation.</p>
-</div>
+<p>The trajectory checks covered <strong>2,700 candidates and 18,000 recorded states</strong>. A separate experiment integrated <strong>4,608 sampled trajectories</strong> with both 1 ms and 0.5 ms time steps. No tested state exceeded a validated enclosure by more than the <span class="math inline">10^{-8}</span> numerical tolerance.</p>
+<p>The theorem assumes that every numerical bound contains its exact result. An end-to-end proof of floating-point rounding for the implemented controller and integrator remains open.</p>
+<p>The recorded simulator pauses while planning. Continuous operation on hardware also requires verification before the active commitment expires.</p>
 </div>
 <div class="visual-panel">
-<div class="animation-scene" role="img" aria-label="Animated illustration of Numerical checks and the remaining assumptions"></div>
-<div class="visual-caption">Illustration · not a recorded simulation</div>
+<div class="animation-scene" role="img" aria-label="What the containment experiments establish"></div>
+<div class="visual-caption">Flight illustration. The reported counts come from the containment experiments.</div>
 </div>
 </div>
-<aside class="notes">
-<p>The equations and implementation statements follow the reviewed manuscript in neural-gtk-overleaf, commit 5144a6f, and the simulation code at commit 1212261. Illustrative motion is not numerical evidence.</p>
-<style type="text/css">
-span.MJX_Assistive_MathML {
-position:absolute!important;
-clip: rect(1px, 1px, 1px, 1px);
-padding: 1px 0 0 0!important;
-border: 0!important;
-height: 1px!important;
-width: 1px!important;
-overflow: hidden!important;
-display:block!important;
-}</style></aside>
 </section>
 <section id="sources" class="slide level2 animated-slide" data-scene="sources" data-part="implementation">
 <h2>Method sources and the complete replay</h2>
@@ -2376,7 +1883,7 @@ display:block!important;
 <p><a href="../simulations/safety-gatekeeper/">Open the recorded drone demo</a></p>
 </div>
 <div class="insight">
-<p>The animations illustrate the method. Their geometry and apparent tube width are explanatory drawings, not recorded reachable sets or measured performance.</p>
+<p>Use the replay to inspect the computed tubes, switching decisions and measured flight paths for each course.</p>
 </div>
 </div>
 <div class="visual-panel">
@@ -3811,9 +3318,9 @@ window.QuartoSupport = function () {
     const slides=Array.from(document.querySelectorAll('section.animated-slide'));
     if(!slides.length)return;
     try {
-      const diagrams=await import(new URL('method-diagrams.js?v=20261119-flow1',document.baseURI));
+      const diagrams=await import(new URL('method-diagrams.js?v=20261119-worked',document.baseURI));
       drawMethodDiagram=diagrams.renderMethodDiagram;
-      const module=await import(new URL('method-3d.js?v=20261119-flow1',document.baseURI));
+      const module=await import(new URL('method-3d.js?v=20261119-worked',document.baseURI));
       threeView=await module.createMethod3D();
     } catch(error) {
       console.error('Animated explanation could not initialize',error);
