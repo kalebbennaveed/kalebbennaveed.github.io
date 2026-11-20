@@ -12,6 +12,99 @@ function box(x,y,w,h,title,body,color=C.blue){return `<g class="diagram-block">`
 function title(s){return text(35,48,s,22,C.ink,'start',true);}
 function note(s,y=555){return text(400,y,s,19,C.muted,'middle');}
 function budget(x,y,width,label,color){return `<rect x="${x}" y="${y}" width="${width}" height="30" rx="4" fill="${color}" fill-opacity=".17"/>`+text(x+width/2,y+21,label,17,color,'middle',true);}
+function systemOverview(){
+  const node=(x,y,w,h,name,detail,color)=>'<g class="diagram-block">'+rect(x,y,w,h,color,.045,8)
+    +text(x+14,y+29,name,20,color,'start',true)+text(x+14,y+57,detail,16,C.ink)+'</g>';
+  let s='';
+  // A shared prediction model supplies planning, candidate construction and propagation.
+  s+=arrow(270,52,335,52,C.teal)+arrow(576,52,639,52,C.purple);
+  s+=line(455,91,455,113,C.teal)+line(144,113,684,113,C.teal);
+  for(const x of [144,455,684])s+=arrow(x,113,x,150,C.teal);
+  s+=arrow(824,91,824,150,C.purple);
+  s+=arrow(270,192,335,192,C.gold)+arrow(576,192,639,192,C.gold)+arrow(890,192,962,192,C.blue);
+  s+=arrow(1090,233,1090,308,C.teal);
+  s+=text(1104,274,'Reference',17,C.teal);
+  s+=line(1090,391,1090,442,C.ink)+line(144,442,1090,442,C.ink)+arrow(144,442,144,235,C.ink);
+  s+=text(620,473,'Measured state at the next update',19,C.ink,'middle');
+  // Only the optional ranking of already verified candidates uses this branch.
+  s+=line(760,233,760,291,C.purple,2,'6 6')+arrow(760,291,760,307,C.purple);
+  s+=line(868,348,915,348,C.purple,2,'6 6')+line(915,348,915,253,C.purple,2,'6 6')
+    +line(915,253,997,253,C.purple,2,'6 6')+arrow(997,253,997,235,C.purple);
+  s+=node(22,15,248,74,'Residual observations','Previously collected data',C.teal);
+  s+=node(335,15,241,74,'Prediction model','Base + fitted residual',C.teal);
+  s+=node(639,15,251,74,'Model-error bound','From observations and model',C.purple);
+  s+=node(22,152,248,80,'Nominal planner','Propose a fast reference',C.gold);
+  s+=node(335,152,241,80,'Candidate references','Nominal then backup',C.gold);
+  s+=node(639,152,251,80,'Gatekeeper','Enclose motion, test limits',C.blue);
+  s+=node(962,152,250,80,'Commitment','Replace or retain reference',C.teal);
+  s+=node(962,310,250,80,'Feedback and robot','Apply the tracking command',C.ink);
+  s+='<rect x="335" y="310" width="533" height="80" rx="8" fill="#fafbf9" stroke="'+C.purple+'" stroke-width="2" stroke-dasharray="6 6"/>';
+  s+=text(351,339,'Active selection of informative motions',22,C.purple,'start',true)
+     +text(351,367,'Future work • rank verified candidates by model uncertainty',17,C.ink);
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1236 496" role="img" aria-label="Method diagram with an optional future active learning branch">'+s+'</svg>';
+}
+
+function safetySets(){
+  let s=title('At one elapsed time in the proposed motion');
+  s+=rect(62,120,669,334,C.teal,.035,20)+text(90,165,'Allowed states  S(t)',25,C.teal,'start',true);
+  s+=rect(143,205,507,205,C.blue,.055,16)+text(163,244,'Computed outer bound  T(t)',23,C.blue,'start',true);
+  s+=rect(229,282,337,93,C.purple,.1,40)+text(397,337,'Reachable states  R(t)',22,C.purple,'middle',true);
+  return s+note('The inclusions must hold at every time in the horizon.',526);
+}
+
+function nominalFlow(){
+  let s=title('One prediction along the nominal reference');
+  s+=box(75,95,650,103,'Planner',['Choose a sequence of tracking targets for performance.'],C.gold);
+  s+=arrow(400,201,400,243,C.gold);
+  s+=box(75,248,650,103,'Tracking policy',['Use the predicted state and current target to compute a command.'],C.teal);
+  s+=arrow(400,354,400,398,C.teal);
+  s+=box(75,404,650,103,'Prediction model',['Hold the command for one interval and predict the next state.'],C.blue);
+  return s;
+}
+
+function candidateTimeline(phase){
+  const left=78,right=721,y=209,cut=left+.57*(right-left);
+  let s=title('Two candidates with the same duration');
+  s+=text(left,140,'Switch after following the nominal reference',22,C.ink,'start',true);
+  s+=rect(left,y,cut-left,61,C.gold,.12,4)+rect(cut,y,right-cut,61,C.teal,.12,4);
+  s+=text((left+cut)/2,y+38,'Nominal reference',22,C.gold,'middle',true)+text((right+cut)/2,y+38,'Backup reference',22,C.teal,'middle',true);
+  s+=line(cut,y-20,cut,y,C.ink)+text(cut,y-32,'Switch time sΔ',20,C.ink,'middle');
+  s+=text(left,348,'Switch immediately (s = 0)',22,C.ink,'start',true);
+  s+=rect(left,386,right-left,61,C.teal,.12,4)+text((left+right)/2,424,'Backup reference',22,C.teal,'middle',true);
+  const pos=left+phase*(right-left);
+  s+=line(pos,449,pos,465,C.ink)+dot(pos,465,4,C.ink);
+  s+=text(left,494,'0',19,C.muted)+text(right,494,'T',19,C.muted,'end');
+  return s+note('One tracking policy supplies the physical commands in both cases.');
+}
+
+function plantExample(scene){
+  if(scene==='audit-evidence'){
+    let s=title('Containment audit');
+    s+=box(72,93,654,108,'Independent state evolution',['Integrate each sampled flight with its own feedback commands.'],C.teal);
+    s+=arrow(400,206,400,246,C.teal)+box(72,251,654,108,'Enclosure comparison',['Compare all 12 coordinates with the validated swept interval.'],C.blue);
+    s+=arrow(400,364,400,402,C.blue)+box(72,407,654,106,'Integration refinement',['Repeat the sampled trajectories at half the simulation time step.'],C.purple);
+    return s;
+  }
+  const isResidual=scene==='quad-residual';
+  let s=title(isResidual?'Where residual acceleration enters the model':'Contributions to the base state derivative');
+  const rows=isResidual?[
+    ['Position derivative','Velocity','0'],['Velocity derivative','Base acceleration','a'],
+    ['Angle derivatives','Euler-angle kinematics','0'],['Body angular acceleration','Rigid-body rotation','0']
+  ]:[
+    ['Position rate','World velocity'],['Translational acceleration','Rotated thrust + gravity'],
+    ['Angle rates','Attitude kinematics'],['Angular acceleration','Torque and gyroscopic term']
+  ];
+  const columns=isResidual?[55,355,662]:[60,403];
+  const headings=isResidual?['State derivative','Base term','Residual']:['Derivative','Physical term'];
+  headings.forEach((h,i)=>{s+=text(columns[i],139,h,18,C.muted);});
+  rows.forEach((row,r)=>{
+    const y=207+r*80;
+    s+=line(53,y-40,745,y-40,C.line,1);
+    row.forEach((v,i)=>{s+=text(columns[i],y,v,20,isResidual&&r===1?C.purple:C.ink,'start',isResidual&&r===1);});
+  });
+  return s;
+}
+
 function proofMap(){
   let s=title('Inputs and outputs of the safety check');
   s+=box(70,76,660,110,'1   Residual observations → acceleration error',
@@ -214,10 +307,15 @@ function exampleFigure(scene, phase) {
 }
 
 export function renderMethodDiagram(scene,p){
+  if(scene==='system-overview')return systemOverview();
   const worked=exampleFigure(scene,p);
   if(worked!==null) return svgFigure(scene,worked);
   let s='';
-  if(scene==='proof-map'||scene==='references')s=proofMap();
+  if(scene==='safety-sets')s=safetySets();
+  else if(scene==='nominal-flow')s=nominalFlow();
+  else if(scene==='candidate-timeline')s=candidateTimeline(p);
+  else if(['quad-residual','base-terms','audit-evidence'].includes(scene))s=plantExample(scene);
+  else if(scene==='proof-map'||scene==='references')s=proofMap();
   else if(scene==='fit-slopes')s=fitSlopes(p);
   else if(scene==='simulator-slope')s=simulatorSlope();
   else if(scene==='reference-decision')s=referenceDecision();
@@ -266,10 +364,10 @@ export function renderMethodDiagram(scene,p){
   }else if(scene==='trial-region'){
     s+=title('The error bound must cover this propagation trial');
     s+=box(60,95,680,105,'Trial: Y = P + I',['Every represented state and held command is included.'],C.blue);
-    s+=arrow(230,204,230,253,C.purple)+text(248,237,'Select the velocity coordinates',18,C.muted);
-    s+=box(60,263,330,115,'Velocity region V',['Velocities represented','anywhere inside the trial'],C.purple);
+    s+=arrow(230,204,230,253,C.purple)+text(248,237,'Apply the residual feature map',18,C.muted);
+    s+=box(60,263,330,115,'Residual input region Q',['Inputs represented','anywhere inside the trial'],C.purple);
     s+=arrow(395,320,439,320,C.purple);
-    s+=box(450,263,290,115,'Acceleration error E(V)',['Data + farthest distances','over this whole region'],C.purple);
+    s+=box(450,263,290,115,'Acceleration error E(Q)',['Data + farthest distances','over this whole region'],C.purple);
     s+=line(595,383,595,450,C.gold)+line(595,450,40,450,C.gold)+line(40,450,40,148,C.gold)+arrow(40,148,58,148,C.gold);
     s+=text(340,494,'An expanded trial needs a bound covering the expansion.',20,C.gold,'middle');
     s+=note('This is the model-error component used inside reachability.');
