@@ -580,6 +580,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .reveal .opening .math-panel{max-width:1000px;padding-top:20px}
 .reveal .opening .math-panel p{font-size:29px;line-height:1.32;margin:0 0 32px}
 .reveal .opening .math-panel strong{font-size:21px;line-height:1.7;color:#345e73}
+.opening .opening-objectives{display:grid;grid-template-columns:1fr 1fr;gap:40px;border-top:1px solid #c7d4dc;padding-top:18px}
 .reveal .opening h2{font-size:46px;margin-bottom:24px}
 .no-method-webgl .animation-scene:has(svg text)::after{display:none}
 .reveal .roles-slide .explanation-layout{grid-template-columns:52% 48%}
@@ -593,6 +594,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .overview-slide .visual-panel{height:auto}
 .overview-slide .animation-scene{height:auto;aspect-ratio:1236/496}
 @media(max-width:800px) and (orientation:portrait){
+.opening .opening-objectives{grid-template-columns:1fr;gap:0}
 .reveal .opening h2{font-size:30px}
 .reveal .opening .math-panel{padding:0}
 .reveal .opening .math-panel p{font-size:20px;margin-bottom:24px}
@@ -1161,15 +1163,19 @@ margin-right: 0; }
 <div class="explanation-layout">
 <div class="math-panel">
 <p><strong>Problem</strong><br>
-The robot’s dynamics contain an unknown acceleration term. We estimate this residual from data and must account for the remaining error when planning motion.</p>
+The robot’s dynamics differ from a known base model by an unknown residual. The motions we choose determine which states and inputs we observe.</p>
 <p><strong>Limits of handling</strong><br>
-A turn or braking maneuver can demand nearly all the acceleration the robot can produce. Little control authority remains to correct a prediction error.</p>
-<p><strong>Objective</strong><br>
-Make rapid progress while keeping the robot within state and input limits despite residual model error.</p>
+Near the boundary of feasible motion, little control authority remains to correct errors in the predicted response.</p>
+<div class="opening-objectives">
+<p><strong>Objective 1 · Safety</strong><br>
+Keep the robot within state and input limits for every residual consistent with the model-error bound.</p>
+<p><strong>Objective 2 · Active uncertainty reduction</strong><br>
+Select a verified motion whose measurements are expected to tighten the residual error bound in regions needed for future plans. Active selection is future work.</p>
+</div>
 </div>
 </div>
 <aside class="notes">
-<p>A robot can know its current state exactly and still predict the wrong response to a future command. Residual dynamics represent the part of that response omitted by the base equations. At the limits of handling, even a modest mismatch matters because little acceleration remains available for correction. The present work checks whether proposed motions can be executed safely under that mismatch. The longer-term active learning objective is to choose informative motions among the safe choices.</p>
+<p>The residual is the part of the true dynamics that the base model omits. Near the robot’s physical limits, there is limited room to change the input if its response differs from the prediction. The first objective concerns the motion we execute now. We verify that the constraints hold for the entire proposed horizon under the admissible residual error. The second objective concerns what we learn for later decisions. Two motions can both pass verification yet visit regions where we have very different amounts of data. Active selection would favor a verified motion whose observations are expected to reduce uncertainty in a region relevant to subsequent plans. That selection step is future work. The current experiments verify motions using a fixed learned model.</p>
 <style type="text/css">
 span.MJX_Assistive_MathML {
 position:absolute!important;
