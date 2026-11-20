@@ -3,9 +3,10 @@ import {createDrone} from './vendor/devquad.js';
 
 // Illustrative geometry, not a simulation or a computed reachable set.
 // One WebGL context is shared by every slide. Motion depends only on the slider.
-const WORLD = new Set(['intro','start','planner','propagate','tube','swept','collision',
+const WORLD = new Set(['course','intro','start','planner','propagate','tube','swept','collision',
   'retry','commit','guarantee','clock','switches','geometry','failure-types','sources','evidence','candidate','taylor','mppi','devquad','physics','contouring','proof-tube']);
 const HEADINGS = {
+  course:'Predicted flight through the gate openings',
   'proof-tube':'Contain every admissible flight over the complete horizon',
   intro:'A reference becomes a verified commitment', start:'One exact start · several possible futures',
   planner:'Fast motion proposed by the planner', propagate:'Model error changes future motion',
@@ -170,7 +171,7 @@ export async function createMethod3D(){
     world.visible=dynamic.visible=drones.visible=true;diagram.visible=false;key.castShadow=true;
     canvas.style.pointerEvents='auto';toolbar.hidden=false;overlay.hidden=false;
     const safe=['intro','retry','commit','guarantee','clock','switches','sources','evidence','candidate','taylor'].includes(name),kind=safe?'safe':'fast';
-    const growing=['propagate','tube'].includes(name),showTube=!['start','planner','candidate','mppi','contouring'].includes(name),failed=name==='failure-types',collision=['collision','geometry'].includes(name);
+    const growing=['propagate','tube'].includes(name),showTube=!['course','start','planner','candidate','mppi','contouring'].includes(name),failed=name==='failure-types',collision=['collision','geometry'].includes(name);
     const end=failed?.55:growing?Math.max(.005,p):1;
     const tubeKey=[name,Math.round(end*1000),name==='contouring'?Math.round(p*1000):0].join(':');
     if(lastTubeKey!==tubeKey){
@@ -196,7 +197,7 @@ export async function createMethod3D(){
       lastTubeKey=tubeKey;
     }
     worldModels.forEach(m=>m.visible=false);
-    const t=p*.86,q=instance(worldModels,drones,0),d=tangent(t,kind);q.visible=true;q.scale.setScalar(1);
+    const t=name==='course'?p:p*.86,q=instance(worldModels,drones,0),d=tangent(t,kind);q.visible=true;q.scale.setScalar(1);
     q.position.copy(point(t,kind));q.rotation.set(.12*Math.sin(p*4),-.09,Math.atan2(d.y,d.x),'ZYX');styleQuad(q);rotors(q,p);
     if(name==='contouring'){
       q.position.copy(point(.4)).addScaledVector(tangent(.4),.6).addScaledVector(side(.4),.5+.45*p);
@@ -218,7 +219,7 @@ export async function createMethod3D(){
     else if(name==='candidate')label(point(.49,'safe').add(V(0,0,.35)),'Switch to backup','#007b7d');
     else if(name==='failure-types')label(point(.55).add(V(0,0,.45)),'Last established step','#306bc0');
     else if(name==='switches'){const times=[2,1.5,1,.5,.2,0],k=Math.min(5,Math.floor(p*6));label(point(times[k]/2.5,'safe').add(V(0,0,.35)),`Switch: ${times[k]} s`,'#007b7d');}
-    else if(p<.07)label(point(0).add(V(0,0,-.3)),'Exact starting state');
+    else if(name!=='course'&&p<.07)label(point(0).add(V(0,0,-.3)),'Exact starting state');
     if(showTube)label(point(.9,kind).add(V(0,0,.58)),failed?'Unproved continuation':'Position enclosure','#326bc0');
   }
   function drawVehicle(name,p){
